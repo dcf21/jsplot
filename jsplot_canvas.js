@@ -30,7 +30,7 @@ function JSPlot_canvas() {
     this.threeDimensionalBuffer = null;
 
     // Default sequence of colors to use on plots
-    this.default_colors = [
+    this.defaultColors = [
         new JSPlot_Color(0, 0, 0, 1),
         new JSPlot_Color(1, 0, 0, 1),
         new JSPlot_Color(0, 0, 1, 1),
@@ -40,7 +40,7 @@ function JSPlot_canvas() {
     ];
 
     // Functions to draw different shapes of points
-    this.point_types = {
+    this.pointTypes = {
         1: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
             self.canvas._fillStyle(color);

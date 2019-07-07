@@ -27,8 +27,8 @@ function JSPlot_Style() {
     this.color = null; // auto
     this.fillColor = new JSPlot_Color(0, 0, 0, 0); // transparent
     this.plotStyle = 'lines';
-    this.lineType = 1;
-    this.pointType = 1;
+    this.lineType = null;
+    this.pointType = null;
     this.lineWidth = 1;
     this.pointLineWidth = 1;
     this.pointSize = 1;
@@ -71,7 +71,8 @@ function JSPlot_DataSet() {
     this.data = [];
 }
 
-function JSPlot_Graph() {
+function JSPlot_Graph(page) {
+    this.page = page;
     this.aspect = 2.0 / (1.0 + Math.sqrt(5));
     this.aspectZ = 2.0 / (1.0 + Math.sqrt(5));
     this.axesColor = new JSPlot_Color(0, 0, 0, 1);
@@ -123,6 +124,29 @@ JSPlot_Graph.prototype.cleanWorkspace = function() {
     this.workspace.defaultColorCounter = 0;
     this.workspace.defaultLineTypeCounter = 0;
     this.workspace.defaultPointTypeCounter = 0;
+};
+
+JSPlot_Graph.prototype.insertDefaultStyles = function(style) {
+    if (style.color === null) {
+        style.color = this.page.defaultColors[this.workspace.defaultColorCounter];
+        this.workspace.defaultColorCounter++;
+        if (this.workspace.defaultColorCounter >= this.page.defaultColors.length-1) {
+    this.workspace.defaultColorCounter = 0;
+        }
+    }
+
+    if (style.lineType === null) {
+        style.lineType = this.workspace.defaultLineTypeCounter;
+        this.workspace.defaultLineTypeCounter++;
+    }
+
+    if (style.pointType === null) {
+        style.pointType = this.workspace.defaultPointTypeCounter;
+        this.workspace.defaultPointTypeCounter++;
+        if (this.workspace.defaultPointTypeCounter >= this.page.pointTypes.length -1) {
+            this.workspace.defaultPointTypeCounter = 0;
+        }
+    }
 };
 
 JSPlot_Axis.prototype.cleanWorkspace = function() {
