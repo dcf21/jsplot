@@ -231,11 +231,12 @@ function JSPlot_canvas() {
 }
 
 JSPlot_canvas.prototype._render = function (renderer) {
+    var self = this;
     var boundingBox = new JSPlot_BoundingBox();
 
     // Work out bounding box of all elements
     $.each(this.itemList, function(index, item) {
-        boundingBox.includeBox(item.calculateBoundingBox());
+        boundingBox.includeBox(item.calculateBoundingBox(self));
     });
 
     // Work out axis ranges of all graphs
@@ -245,6 +246,9 @@ JSPlot_canvas.prototype._render = function (renderer) {
 
     // Instantiate plotting canvas
     this.canvas = renderer(boundingBox.left-boundingBox.right, boundingBox.bottom-boundingBox.top);
+
+    // Create a 3D rendering buffer
+    this.threeDimensionalBuffer = new JSPlot_ThreeDimBuffer();
 
     // Render each item
     $.each(this.itemList, function(index, item) {
@@ -257,7 +261,6 @@ JSPlot_canvas.prototype.renderToPNG = function () {
     var renderer = function(width, height) { return new GraphicsCanvas(tmp, width, height); };
     this._render(renderer);
     return this.canvas._renderPNG("plot.png");
-
 };
 
 JSPlot_canvas.prototype.renderToSVG = function () {
