@@ -3,8 +3,6 @@
 function JSPlot_canvas() {
     var self = this;
 
-    this.renderer = GraphicsCanvas;
-    this.target = "png";
     this.itemList = {};
 
     // Rendering settings
@@ -232,21 +230,45 @@ function JSPlot_canvas() {
     }
 }
 
-JSPlot_canvas.prototype.setModePNG = function () {
-    this.renderer = GraphicsCanvas;
-    this.target = "png";
+JSPlot_canvas.prototype._render = function (renderer) {
+    var boundingBox = new JSPlot_BoundingBox();
+
+    // Work out bounding box of all elements
+    $.each(this.itemList, function(index, item) {
+        boundingBox.includeBox(item.calculateBoundingBox());
+    });
+
+    // Work out axis ranges of all graphs
+    $.each(this.itemList, function(index, item) {
+        item.calculateDataRanges();
+    });
+
+    // Instantiate plotting canvas
+    this.canvas = renderer(boundingBox.left-boundingBox.right, boundingBox.bottom-boundingBox.top);
+
+    // Render each item
+    $.each(this.itemList, function(index, item) {
+        item.render();
+    });
 };
 
-JSPlot_canvas.prototype.setModeSVG = function () {
-    this.renderer = GraphicsSVG;
-    this.target = "svg";
+JSPlot_canvas.prototype.renderToPNG = function () {
+    var tmp = document.createElement('canvas');
+    var renderer = function(width, height) { return new GraphicsCanvas(tmp, width, height); };
+    this._render(renderer);
+    return this.canvas._renderPNG("plot.png");
+
 };
 
-JSPlot_canvas.prototype.setModeCanvas = function (targetElement) {
-    this.renderer = GraphicsCanvas;
-    this.target = "canvas";
-    this.targetElement = targetElement;
+JSPlot_canvas.prototype.renderToSVG = function () {
+    var renderer = function(width, height) { return new GraphicsSVG(width, height); };
+    this._render(renderer);
+    return this.canvas._render();
+};
 
+JSPlot_canvas.prototype.renderToCanvas = function (targetElement) {
+    var renderer = function(width, height) { return new GraphicsCanvas(targetElement, width, height); };
+    this._render(renderer);
 };
 
 JSPlot_canvas.prototype.addItem = function (name, item) {
@@ -257,51 +279,24 @@ JSPlot_canvas.prototype.removeItem = function (name) {
     delete this.itemList[name];
 };
 
-// Line types
-JSPlot_canvas.prototype.setLineType = function (color, lineType, lineWidth, offset) {
-    var dash_pattern;
-
-    lineType = (lineType - 1) % 9;
-    while (lineType < 0) lineType += 9;
-
-    switch (lineType) {
-        case 0:
-            // solid
-            dash_pattern = [offset];
-            break;
-        case 1:
-            // dashed
-            dash_pattern = [2 * lineWidth, offset];
-            break;
-        case 2:
-            // dotted
-            dash_pattern = [2 * lineWidth, offset];
-            break;
-        case 3:
-            // dash-dotted
-            dash_pattern = [2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 4:
-            // long dash
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 5:
-            // long dash - dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 6:
-            // long dash - dot dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 7:
-            // long dash - dot dot dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 8:
-            // long dash - dash
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-    }
-
-    this.canvas._strokeStyle(color, lineWidth);
+JSPlot_BoundingBox = function() {
+    this.left = null;
+    this.right=null;
+    this.top = null;
+    this.bottom=null;
 };
+
+JSPlot_BoundingBox.prototype.includePoint = function(x, y) {
+    if ((this.left === null) || (this.left > x)) this.left = x;
+    if ((this.right === null) || (this.right < x)) this.right = x;
+    if ((this.top === null) || (this.top > y)) this.top = y;
+    if ((this.bottom === null) || (this.bottom < y)) this.bottom = y;
+};
+
+JSPlot_BoundingBox.prototype.includeBox = function(box) {
+    if ((this.left === null) || (this.left > box.left)) this.left = box.left;
+    if ((this.right === null) || (this.right < box.right)) this.right = box.right;
+    if ((this.top === null) || (this.top > box.top)) this.top = box.top;
+    if ((this.bottom === null) || (this.bottom < box.bottom)) this.bottom = box.bottom;
+};
+

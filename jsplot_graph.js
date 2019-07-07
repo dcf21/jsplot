@@ -126,6 +126,55 @@ JSPlot_Graph.prototype.cleanWorkspace = function() {
     this.workspace.defaultPointTypeCounter = 0;
 };
 
+// Line types
+JSPlot_Graph.prototype.setLineType = function (color, lineType, lineWidth, offset) {
+    var dash_pattern;
+
+    lineType = (lineType - 1) % 9;
+    while (lineType < 0) lineType += 9;
+
+    switch (lineType) {
+        case 0:
+            // solid
+            dash_pattern = [offset];
+            break;
+        case 1:
+            // dashed
+            dash_pattern = [2 * lineWidth, offset];
+            break;
+        case 2:
+            // dotted
+            dash_pattern = [2 * lineWidth, offset];
+            break;
+        case 3:
+            // dash-dotted
+            dash_pattern = [2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
+            break;
+        case 4:
+            // long dash
+            dash_pattern = [7 * lineWidth, 2 * lineWidth, offset];
+            break;
+        case 5:
+            // long dash - dot
+            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
+            break;
+        case 6:
+            // long dash - dot dot
+            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
+            break;
+        case 7:
+            // long dash - dot dot dot
+            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
+            break;
+        case 8:
+            // long dash - dash
+            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
+            break;
+    }
+
+    this.page.canvas._strokeStyle(color, lineWidth);
+};
+
 JSPlot_Graph.prototype.insertDefaultStyles = function(style) {
     if (style.color === null) {
         style.color = this.page.defaultColors[this.workspace.defaultColorCounter];
@@ -201,40 +250,39 @@ JSPlot_Axis.prototype.invGetPosition = function (x_in) {
 
 // Does a value fall within the span of this axis?
 JSPlot_Axis.prototype.inRange = function (x_in) {
-    var x_min_set = false, x_max_set = false;
-    var x_min = 0, x_max = 0;
+    var x_min = null, x_max = null;
 
-    if (this.hardMin !== null) {
-        x_min_set = true;
-        x_min = this.hardMin;
+    if (this.workspace.minHard !== null) {
+        x_min = this.workspace.minHard;
     }
-    if (this.hardMax !== null) {
-        x_max_set = true;
-        x_max = this.hardMax;
+    if (this.workspace.maxHard !== null) {
+        x_max = this.workspace.maxHard;
     }
+
     if (this.min === null) {
-        x_min_set = false;
+        x_min = null;
     }
     if (this.max === null) {
-        x_max_set = false;
+        x_max = null;
     }
 
     if (this.rangeReversed) {
-        var tmp = x_min_set;
-        x_min_set = x_max_set;
-        x_max_set = tmp;
-        tmp = x_min;
+        var tmp = x_min;
         x_min = x_max;
         x_max = tmp;
     }
 
-    if (x_min_set && x_max_set) return (((x_in >= x_min) && (x_in <= x_max)) || ((x_in <= x_min) && (x_in >= x_max)));
-    if (x_min_set) return (x_in > x_min);
-    if (x_max_set) return (x_in < x_max);
-    return true; // Axis range is not fixed
+    if ((x_min !== null) && (x_max !== null)) {
+        return (((x_in >= x_min) && (x_in <= x_max)) || ((x_in <= x_min) && (x_in >= x_max)));
+    }
+    if (x_min !== null) return (x_in > x_min);
+    if (x_max !== null) return (x_in < x_max);
+
+    // Axis range is not fixed
+    return true;
 };
 
-JSPlot_Graph.prototype.project_3d = function (xap, yap, zap, zdepth) {
+JSPlot_Graph.prototype.project3d = function (xap, yap, zap, zdepth) {
     var width = this.width;
     var height = this.width * this.aspect;
 
@@ -257,7 +305,7 @@ JSPlot_Graph.prototype.project_3d = function (xap, yap, zap, zdepth) {
     };
 };
 
-JSPlot_Graph.prototype.project_point = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
+JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
     var width = this.width;
     var height = this.width * this.aspect;
     var zdepth = this.width * this.aspectZ;
@@ -280,7 +328,7 @@ JSPlot_Graph.prototype.project_point = function (xin, yin, zin, axis_x, axis_y, 
 
     // 3D plots
     if (this.threeDimensional) {
-        output = this.project_3d(xap, yap, zap, zdepth);
+        output = this.project3d(xap, yap, zap, zdepth);
         var theta_x = Math.atan2(Math.cos(this.viewAngleXY * Math.PI / 180),
             -Math.sin(this.viewAngleXY * Math.PI / 180) * Math.sin(this.viewAngleYZ * Math.PI / 180));
         var theta_y = Math.atan2(Math.sin(this.viewAngleXY * Math.PI / 180),
