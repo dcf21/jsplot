@@ -9,7 +9,7 @@ function JSPlot_canvas() {
 
     // Rendering settings
     this.settings = [];
-    this.settings.EPS_DEFAULT_LINEWIDTH = 0.566929;       // 0.2mm in TeX points
+    this.settings.EPS_DEFAULT_LINEWIDTH = 0.566929;  // 0.2mm in TeX points
     this.settings.EPS_DEFAULT_PS = 3.0;
     this.settings.EPS_ARROW_ANGLE = 45.0 * Math.PI / 180;
     this.settings.EPS_ARROW_CONSTRICT = 0.2;
@@ -29,95 +29,97 @@ function JSPlot_canvas() {
     this.canvas = null;
     this.threeDimensionalBuffer = null;
 
+    // Default sequence of colors to use on plots
+    this.default_colors = [
+        new JSPlot_Color(0, 0, 0, 1),
+        new JSPlot_Color(1, 0, 0, 1),
+        new JSPlot_Color(0, 0, 1, 1),
+        new JSPlot_Color(0, 0.75, 0, 1),
+        new JSPlot_Color(1, 0, 1, 1),
+        new JSPlot_Color(0, 0.75, 0.75, 1)
+    ];
+
     // Functions to draw different shapes of points
     this.point_types = {
         1: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x - size, y - size);
             self.canvas._lineTo(x - size, y + size);
             self.canvas._lineTo(x + size, y + size);
             self.canvas._lineTo(x + size, y - size);
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         2: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._arc(x, y, size, 0, 360, 0);
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         3: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x + size, y + size);
             self.canvas._lineTo(x, y - size);
             self.canvas._lineTo(x - size, y + size);
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         4: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x, y - size);
             for (var i = 1; i < 4; i++)
                 self.canvas._lineTo(x + size * Math.sin(2 * Math.PI * i / 4), y - size * Math.cos(2 * Math.PI * i / 4));
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         5: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x, y - size);
             for (var i = 1; i < 6; i++)
                 self.canvas._lineTo(x + size * Math.sin(2 * Math.PI * i / 6), y - size * Math.cos(2 * Math.PI * i / 6));
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         6: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x, y - size);
             for (var i = 1; i < 5; i++)
                 self.canvas._lineTo(x + size * Math.sin(2 * Math.PI * i / 5), y - size * Math.cos(2 * Math.PI * i / 5));
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         7: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x + size, y - size);
             self.canvas._lineTo(x, y + size);
             self.canvas._lineTo(x - size, y - size);
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         8: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x - size, y - size);
             self.canvas._lineTo(x + size, y);
             self.canvas._lineTo(x - size, y + size);
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         9: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
-            self.canvas._strokeStyle(color, pointLineWidth);
+            self.canvas._fillStyle(color);
             self.canvas._beginPath();
             self.canvas._moveTo(x + size, y - size);
             self.canvas._lineTo(x - size, y);
             self.canvas._lineTo(x + size, y + size);
-            self.canvas._closePath();
-            self.canvas._stroke();
+            self.canvas._fill();
         },
         10: function (x, y, pointSize, pointLineWidth, color) {
             var size = size * self.settings.EPS_DEFAULT_PS * 0.75;

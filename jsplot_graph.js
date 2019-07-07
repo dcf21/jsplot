@@ -61,24 +61,7 @@ function JSPlot_Axis(enabled) {
     this.ticsM = new JSPlot_AxisTics();
     this.tics = new JSPlot_AxisTics();
 
-    // Temporary data fields which are used when rendering an axis
-    this.workspace = [];
-    this.workspace.crossedAtZero = null;
-    this.workspace.minUsed = null;
-    this.workspace.maxUsed = null;
-    this.workspace.minFinal = null;
-    this.workspace.maxFinal = null;
-    this.workspace.minHard = null;
-    this.workspace.maxHard = null;
-    this.workspace.logFinal = null;
-    this.workspace.rangeFinalised = null;
-    this.workspace.activeFinal = null;
-    this.workspace.physicalLengthMajor = null;
-    this.workspace.physicalLengthMinor = null;
-    this.workspace.axisName = null;
-    this.workspace.canvasId = null;
-    this.workspace.axisLabelFinal = null;
-    this.workspace.tickListFinal = null;
+    this.cleanWorkspace();
 }
 
 function JSPlot_DataSet() {
@@ -130,7 +113,38 @@ function JSPlot_Graph() {
     // Annotations
     this.arrows = [];
     this.labels = [];
+
+    this.cleanWorkspace();
 }
+
+JSPlot_Graph.prototype.cleanWorkspace = function() {
+    // Temporary data fields which are used when rendering a plot
+    this.workspace = [];
+    this.workspace.defaultColorCounter = 0;
+    this.workspace.defaultLineTypeCounter = 0;
+    this.workspace.defaultPointTypeCounter = 0;
+};
+
+JSPlot_Axis.prototype.cleanWorkspace = function() {
+    // Temporary data fields which are used when rendering an axis
+    this.workspace = [];
+    this.workspace.crossedAtZero = null;
+    this.workspace.minUsed = null;
+    this.workspace.maxUsed = null;
+    this.workspace.minFinal = null;
+    this.workspace.maxFinal = null;
+    this.workspace.minHard = null;
+    this.workspace.maxHard = null;
+    this.workspace.logFinal = null;
+    this.workspace.rangeFinalised = null;
+    this.workspace.activeFinal = null;
+    this.workspace.physicalLengthMajor = null;
+    this.workspace.physicalLengthMinor = null;
+    this.workspace.axisName = null;
+    this.workspace.canvasId = null;
+    this.workspace.axisLabelFinal = null;
+    this.workspace.tickListFinal = null;
+};
 
 JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
     if (!allowOffBounds) {
@@ -222,6 +236,7 @@ JSPlot_Graph.prototype.project_3d = function (xap, yap, zap, zdepth) {
 JSPlot_Graph.prototype.project_point = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
     var width = this.width;
     var height = this.width * this.aspect;
+    var zdepth = this.width * this.aspectZ;
     var output = [];
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
