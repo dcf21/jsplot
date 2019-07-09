@@ -1,81 +1,5 @@
 // jsplot_graph.js
 
-function JSPlot_Color(red, green, blue, alpha) {
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.alpha = alpha;
-}
-
-JSPlot_Color.prototype.isVisible = function () {
-    return this.alpha > 0;
-};
-
-JSPlot_Color.prototype.toHTML = function () {
-    var component = function (x) {
-        var int_val = Math.floor(255 * x);
-        if (int_val < 0) int_val = 0;
-        if (int_val > 255) int_val = 255;
-        return int_val;
-    };
-
-    return "rgba(" + component(this.red) + "," + component(this.green) + "," + component(this.blue) + "," +
-        (component(this.alpha) / 255) + ")";
-};
-
-function JSPlot_Style() {
-    this.color = null; // auto
-    this.fillColor = new JSPlot_Color(0, 0, 0, 0); // transparent
-    this.plotStyle = 'lines';
-    this.lineType = null;
-    this.pointType = null;
-    this.lineWidth = 1;
-    this.pointLineWidth = 1;
-    this.pointSize = 1;
-}
-
-JSPlot_Style.prototype.clone = function () {
-    var other = new JSPlot_Style();
-    other.color = new JSPlot_Color(this.color.red, this.color.green, this.color.blue, this.color.alpha);
-    other.fillColor = new JSPlot_Color(this.fillColor.red, this.fillColor.green, this.fillColor.blue, this.fillColor.alpha);
-    other.plotStyle = this.plotStyle;
-    other.lineType = this.lineType;
-    other.pointType = this.pointType;
-    other.lineWidth = this.lineWidth;
-    other.pointLineWidth = this.pointLineWidth;
-    other.pointSize = this.pointSize;
-};
-
-function JSPlot_AxisTics() {
-    this.logBase = null;
-    this.ticDir = null;
-    this.tickMin = null;
-    this.tickMax = null;
-    this.tickStep = null;
-    this.tickList = [];
-}
-
-function JSPlot_Axis(enabled) {
-    this.atZero = false;
-    this.enabled = enabled;
-    this.visible = true;
-    this.linkTo = null; // Set to, e.g. ['myPlot','x1']
-    this.rangeReversed = false;
-    this.arrowType = 'none';  // options are 'single', 'double', 'none'
-    this.log = false;
-    this.min = null;
-    this.max = null;
-    this.mirror = false;
-    this.tickLabelRotation = 0;
-    this.labelRotate = 0;
-    this.tickLabelRotate = 0;
-    this.label = null;
-    this.ticsM = new JSPlot_AxisTics();
-    this.tics = new JSPlot_AxisTics();
-
-    this.cleanWorkspace();
-}
-
 function JSPlot_DataSet() {
     this.title = null; // Title for this data set to put into the graph legend
     this.style = new JSPlot_Style(); // Styling for this data set
@@ -93,6 +17,7 @@ JSPlot_DataSet.prototype.cleanWorkspace = function () {
 
 function JSPlot_Graph() {
     this.page = null;
+    this.itemType = "graph";
     this.aspect = 2.0 / (1.0 + Math.sqrt(5));
     this.aspectZ = 2.0 / (1.0 + Math.sqrt(5));
     this.axesColor = new JSPlot_Color(0, 0, 0, 1);
@@ -218,91 +143,6 @@ JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     }
 };
 
-JSPlot_Axis.prototype.cleanWorkspace = function () {
-    // Temporary data fields which are used when rendering an axis
-    this.workspace = [];
-    this.workspace.crossedAtZero = null;
-    this.workspace.minUsed = null;
-    this.workspace.maxUsed = null;
-    this.workspace.minFinal = null;
-    this.workspace.maxFinal = null;
-    this.workspace.minHard = this.min;
-    this.workspace.maxHard = this.max;
-    this.workspace.logFinal = this.log;
-    this.workspace.rangeFinalised = null;
-    this.workspace.activeFinal = null;
-    this.workspace.physicalLengthMajor = null;
-    this.workspace.physicalLengthMinor = null;
-    this.workspace.axisName = null;
-    this.workspace.canvasId = null;
-    this.workspace.mode0BackPropagated = false;
-    this.workspace.axisLabelFinal = null;
-    this.workspace.tickListFinal = null;
-};
-
-JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
-    if (!allowOffBounds) {
-        if (this.workspace.maxFinal > this.workspace.minFinal) {
-            if ((x_in < this.workspace.minFinal) || (x_in > this.workspace.maxFinal)) return NaN;
-        } else {
-            if ((x_in > this.workspace.minFinal) || (x_in < this.workspace.maxFinal)) return NaN;
-        }
-    }
-    if ((this.workspace.logFinal) && (x_in <= 0)) return NaN;
-    if (this.workspace.logFinal) {
-        // Either linear...
-        return (x_in - this.workspace.minFinal) / (this.workspace.maxFinal - this.workspace.minFinal);
-    } else {
-        // ... or logarithmic
-    }
-    return (Math.log(x_in) - Math.log(this.workspace.minFinal)) / (Math.log(this.workspace.maxFinal) - Math.log(this.workspace.minFinal));
-};
-
-// What is the value of this axis at point xin, in the range 0 (left) to 1 (right)?
-JSPlot_Axis.prototype.invGetPosition = function (x_in) {
-    if (this.workspace.logFinal) {
-        // Either linear...
-        return this.workspace.minFinal + x_in * (this.workspace.maxFinal - this.workspace.minFinal);
-    } else {
-        // ... or logarithmic
-        return this.workspace.minFinal * pow(this.workspace.maxFinal / this.workspace.minFinal, x_in);
-    }
-};
-
-// Does a value fall within the span of this axis?
-JSPlot_Axis.prototype.inRange = function (x_in) {
-    var x_min = null, x_max = null;
-
-    if (this.workspace.minHard !== null) {
-        x_min = this.workspace.minHard;
-    }
-    if (this.workspace.maxHard !== null) {
-        x_max = this.workspace.maxHard;
-    }
-
-    if (this.min === null) {
-        x_min = null;
-    }
-    if (this.max === null) {
-        x_max = null;
-    }
-
-    if (this.rangeReversed) {
-        var tmp = x_min;
-        x_min = x_max;
-        x_max = tmp;
-    }
-
-    if ((x_min !== null) && (x_max !== null)) {
-        return (((x_in >= x_min) && (x_in <= x_max)) || ((x_in <= x_min) && (x_in >= x_max)));
-    }
-    if (x_min !== null) return (x_in > x_min);
-    if (x_max !== null) return (x_in < x_max);
-
-    // Axis range is not fixed
-    return true;
-};
-
 JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
     var width = this.width;
     var height = this.width * this.aspect;
@@ -413,7 +253,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     }
 
     // First clear all range information from all axes.
-    // Also, transfer range information from [Min,Max,unit] to [HardMin,HardMax,HardUnit].
+    // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
         var physicalLengthMajor = screenSize[j] / (0.015 + 0.01 * Math.abs(Math.sin(screenBearing[j])));
         var physicalLengthMinor = screenSize[j] / 0.004;
@@ -425,6 +265,9 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
             this.axes[axisName].workspace.physicalLengthMinor = physicalLengthMinor;
         }
     }
+
+    // Return bounding box
+    return boundingBox;
 };
 
 JSPlot_Graph.prototype.calculateDataRanges = function () {
@@ -434,7 +277,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
     for (j = 0; j < 3; j++) {
         for (i = 0; i < 2; i++) {
             axisName = ['x', 'y', 'z'][j] + (i + 1);
-            self.linkedAxisForwardPropagate(this.axes[axisName], 0);
+            this.axes[axisName].linkedAxisForwardPropagate(self.page, 0);
         }
     }
 
@@ -447,7 +290,8 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
         self.insertDefaultStyles(item.workspace.styleFinal);
 
         // Work out how many columns of data this data set expects
-        item.workspace.requiredColumns = JSPlot_PlotStyles_NDataColumns(self, item.workspace.styleFinal.plotStyle);
+        item.workspace.requiredColumns = JSPlot_PlotStyles_NDataColumns(self.page, self,
+            item.workspace.styleFinal.plotStyle);
 
         // Mark up the axes used by this data set as being active
         $.each(item.axes, function (index, axisName) {
@@ -455,14 +299,24 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
         });
 
         // Update axes to reflect usage
-        JSPlot_PlotStyles_UpdateUsage(self, item, item.workspace.styleFinal.plotStyle, self.axes[item.axes[1]], x, self.axes[item.axes[2]], self.axes[item.axes[3]]);
-        self.linkedAxisBackPropagate(self.axes[item.axes[1]]);
-        self.linkedAxisBackPropagate(self.axes[item.axes[2]]);
-        self.linkedAxisBackPropagate(self.axes[item.axes[3]]);
+        JSPlot_PlotStyles_UpdateUsage(self, item, item.workspace.styleFinal.plotStyle,
+            self.axes[item.axes[1]], self.axes[item.axes[2]], self.axes[item.axes[3]]);
+
+        self.axes[item.axes[1]].linkedAxisBackPropagate(self.page);
+        self.axes[item.axes[2]].linkedAxisBackPropagate(self.page);
+        self.axes[item.axes[3]].linkedAxisBackPropagate(self.page);
     });
 
-    // Return bounding box
-    return boundingBox;
+    // Decide the range of each axis in turn
+    $.each(this.axes, function (name, axis) {
+        if (!axis.workspace.rangeFinalised) {
+            axis.linkedAxisForwardPropagate(self.page, 1);
+        }
+        if (axis.workspace.tickListFinal === null) {
+            JSPlot_Ticking(axis, null);
+        }
+
+    });
 };
 
 JSPlot_Graph.prototype.render = function () {

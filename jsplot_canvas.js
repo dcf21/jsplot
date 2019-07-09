@@ -23,7 +23,9 @@ function JSPlot_canvas() {
     this.settings.EPS_GRID_MINLINEWIDTH = 0.5;
 
     // Internal state
-    this.state = [];
+    this.workspace = {};
+    this.workspace.errorLog = "";
+
     this.canvas = null;
     this.threeDimensionalBuffer = null;
 

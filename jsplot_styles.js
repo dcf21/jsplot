@@ -1,6 +1,6 @@
 // jsplot_styles.js
 
-function JSPlot_PlotStyles_NDataColumns(graph, style)
+function JSPlot_PlotStyles_NDataColumns(page, graph, style)
  {
   if      (style === "points"         ) return 2 + (graph.threeDimensional ? 1 : 0);
   else if (style === "lines"          ) return 2 + (graph.threeDimensional ? 1 : 0);
@@ -33,7 +33,7 @@ function JSPlot_PlotStyles_NDataColumns(graph, style)
   else if (style === "arrows_twohead" ) return 4 + 2*(graph.threeDimensional ? 1 : 0);
   else if (style === "surface"        ) return 3;
 
-  graph.errorLog += "Unrecognised style type passed to <JSPlot_PlotStyles_NDataColumns>";
+  page.workspace.errorLog += "Unrecognised style type passed to <JSPlot_PlotStyles_NDataColumns>\n";
   return -1;
  }
 
