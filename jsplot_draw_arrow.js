@@ -22,7 +22,7 @@ function eps_primitive_arrow(page, arrowType, x1, y1, z1, x2, y2, z2, color, lin
     }
 
     // Draw arrowhead on beginning of arrow if desired
-    if (arrowType === 'double') {
+    if ((arrowType === 'double') || (arrowType === 'back')) {
         // Pointy back of arrowhead on one side
         x3 = x1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin((direction + Math.PI) - page.settings.EPS_ARROW_ANGLE / 2);
         y3 = y1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos((direction + Math.PI) - page.settings.EPS_ARROW_ANGLE / 2);
