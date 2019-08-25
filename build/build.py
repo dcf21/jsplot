@@ -32,7 +32,7 @@ import php_preprocess
 minify = False
 
 # These subdirectories get symlinked rather than copies, because they're quite big
-symlinkDirectories = []
+symlinkDirectories = ['vendor']
 
 
 def makehtml():

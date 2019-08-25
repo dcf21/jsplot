@@ -1,0 +1,21 @@
+{
+  "name": "jsplot demos",
+  "version": "1.0.0",
+  "authors": [
+    "Dominic Ford <dcf21-git@dcford.org.uk>"
+  ],
+  "license": "MIT",
+  "homepage": "https://in-the-sky.org",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "demo/vendor"
+  ],
+  "dependencies": {
+    "bootstrap": "4.0.0-alpha.2",
+    "jquery": "~1.11.3",
+    "font-awesome": "fontawesome#^4.6.1",
+    "tether": "^1.4.1"
+  }
+}

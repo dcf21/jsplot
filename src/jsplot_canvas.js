@@ -1,6 +1,6 @@
 // jsplot_canvas.js
 
-function JSPlot_canvas() {
+function JSPlot_Canvas() {
     var self = this;
 
     this.itemList = {};
@@ -232,7 +232,7 @@ function JSPlot_canvas() {
     }
 }
 
-JSPlot_canvas.prototype._render = function (renderer) {
+JSPlot_Canvas.prototype._render = function (renderer) {
     var self = this;
     var boundingBox = new JSPlot_BoundingBox();
 
@@ -258,29 +258,29 @@ JSPlot_canvas.prototype._render = function (renderer) {
     });
 };
 
-JSPlot_canvas.prototype.renderToPNG = function () {
+JSPlot_Canvas.prototype.renderToPNG = function () {
     var tmp = document.createElement('canvas');
     var renderer = function(width, height) { return new GraphicsCanvas(tmp, width, height); };
     this._render(renderer);
     return this.canvas._renderPNG("plot.png");
 };
 
-JSPlot_canvas.prototype.renderToSVG = function () {
+JSPlot_Canvas.prototype.renderToSVG = function () {
     var renderer = function(width, height) { return new GraphicsSVG(width, height); };
     this._render(renderer);
     return this.canvas._render();
 };
 
-JSPlot_canvas.prototype.renderToCanvas = function (targetElement) {
+JSPlot_Canvas.prototype.renderToCanvas = function (targetElement) {
     var renderer = function(width, height) { return new GraphicsCanvas(targetElement, width, height); };
     this._render(renderer);
 };
 
-JSPlot_canvas.prototype.addItem = function (name, item) {
+JSPlot_Canvas.prototype.addItem = function (name, item) {
     this.itemList[name] = item;
 };
 
-JSPlot_canvas.prototype.removeItem = function (name) {
+JSPlot_Canvas.prototype.removeItem = function (name) {
     delete this.itemList[name];
 };
 

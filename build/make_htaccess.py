@@ -23,15 +23,18 @@
 import os
 
 
-def make_htaccess(dirpath):
+def make_htaccess(dirpath, force_https = False):
     out = open(os.path.join(dirpath, ".htaccess"), "w")
 
-    force_https = """
+    if force_https:
+        force_https = """
 RewriteCond %{HTTPS} !=on
 RewriteCond %{REQUEST_URI} !google97b1895dd6619486.html
 RewriteCond %{REQUEST_URI} !^/.well-known/
 RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
 """
+    else:
+        force_https = ""
 
     out.write("""\
 Options +Indexes
