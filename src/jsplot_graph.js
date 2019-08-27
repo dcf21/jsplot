@@ -71,55 +71,6 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
     this.workspace.defaultPointTypeCounter = 0;
 };
 
-// Line types
-JSPlot_Graph.prototype.setLineType = function (color, lineType, lineWidth, offset) {
-    var dash_pattern;
-
-    lineType = (lineType - 1) % 9;
-    while (lineType < 0) lineType += 9;
-
-    switch (lineType) {
-        case 0:
-            // solid
-            dash_pattern = [offset];
-            break;
-        case 1:
-            // dashed
-            dash_pattern = [2 * lineWidth, offset];
-            break;
-        case 2:
-            // dotted
-            dash_pattern = [2 * lineWidth, offset];
-            break;
-        case 3:
-            // dash-dotted
-            dash_pattern = [2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 4:
-            // long dash
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 5:
-            // long dash - dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 6:
-            // long dash - dot dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 7:
-            // long dash - dot dot dot
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-        case 8:
-            // long dash - dash
-            dash_pattern = [7 * lineWidth, 2 * lineWidth, 2 * lineWidth, 2 * lineWidth, offset];
-            break;
-    }
-
-    this.page.canvas._strokeStyle(color, lineWidth);
-};
-
 JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     if (style.color === null) {
         style.color = this.page.defaultColors[this.workspace.defaultColorCounter];

@@ -1,6 +1,11 @@
-// jsplot_style.js
+// jsplot_plot_style.js
 
-function JSPlot_Style() {
+/**
+ * JSPlot_PlotStyle - A container for holding the styling information associated with a particular data set that is
+ * to be plotted on a graph
+ * @constructor
+ */
+function JSPlot_PlotStyle() {
     this.color = null; // auto
     this.fillColor = new JSPlot_Color(0, 0, 0, 0); // transparent
     this.plotStyle = 'lines';
@@ -11,8 +16,11 @@ function JSPlot_Style() {
     this.pointSize = 1;
 }
 
-JSPlot_Style.prototype.clone = function () {
-    var other = new JSPlot_Style();
+/**
+ * Clone a JSPlot_PlotStyle container into a new container
+ */
+JSPlot_PlotStyle.prototype.clone = function () {
+    var other = new JSPlot_PlotStyle();
     other.color = new JSPlot_Color(this.color.red, this.color.green, this.color.blue, this.color.alpha);
     other.fillColor = new JSPlot_Color(this.fillColor.red, this.fillColor.green, this.fillColor.blue, this.fillColor.alpha);
     other.plotStyle = this.plotStyle;

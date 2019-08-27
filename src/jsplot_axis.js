@@ -1,5 +1,9 @@
 // jsplot_axis.js
 
+/**
+ * JSPlot_AxisTics - A class representing a scheme for placing ticks along a graph axis.
+ * @constructor
+ */
 function JSPlot_AxisTics() {
     this.logBase = null;
     this.ticDir = null;
@@ -9,6 +13,11 @@ function JSPlot_AxisTics() {
     this.tickList = [];
 }
 
+/**
+ * JSPlot_Axis - A class representing a graph axis
+ * @param enabled {boolean} - If false, then this axis is not rendered
+ * @constructor
+ */
 function JSPlot_Axis(enabled) {
     this.atZero = false;
     this.enabled = enabled;
@@ -30,7 +39,9 @@ function JSPlot_Axis(enabled) {
     this.cleanWorkspace();
 }
 
-
+/**
+ * cleanWorkspace - Prepare a clean, empty workspace for rendering this axis
+ */
 JSPlot_Axis.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering an axis
     this.workspace = [];

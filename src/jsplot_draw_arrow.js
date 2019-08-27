@@ -1,7 +1,28 @@
 // jsplot_draw_arrow.js
 
-// Primitive routine for drawing arrow
-function eps_primitive_arrow(page, arrowType, x1, y1, z1, x2, y2, z2, color, lineWidth, lineType) {
+/**
+ * JSPlot_DrawArrow - Primitive routine for drawing arrow
+ * @constructor
+ */
+function JSPlot_DrawArrow() {
+
+}
+
+/**
+ * eps_primitive_arrow - Primitive routine for drawing arrow
+ * @param page {JSPlot_Canvas} - The JSPlot_Canvas we are to draw this arrow onto
+ * @param arrowType {string} - Choice of ['single', 'double', 'back', 'none']
+ * @param x1 {number} - X coordinate for the start of the arrow
+ * @param y1 {number} - Y coordinate for the start of the arrow
+ * @param z1 {number} - Z coordinate for the start of the arrow
+ * @param x2 {number} - X coordinate for the end of the arrow
+ * @param y2 {number} - Y coordinate for the end of the arrow
+ * @param z2 {number} - Z coordinate for the end of the arrow
+ * @param color {JSPlot_Color} - The color to use to stroke the arrow
+ * @param lineWidth {number} - The line width to use when stroking the arrow
+ * @param lineType {number} - The line type to use when stroking the arrow
+ */
+JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z1, x2, y2, z2, color, lineWidth, lineType) {
     var x3, y3, x4, y4, x5, y5, xstart, ystart, xend, yend, direction;
     var threeDim = (z1 !== null) && (z2 !== null);
 
@@ -11,7 +32,7 @@ function eps_primitive_arrow(page, arrowType, x1, y1, z1, x2, y2, z2, color, lin
     // Set color of arrow
     page.canvas._strokeStyle(color.toHTML(), lineWidth);
 
-    // Set linewidth and linetype
+    // Set line width and line type
     var lw = page.settings.EPS_DEFAULT_LINEWIDTH * lineWidth;
 
     // Work out direction of arrow
@@ -103,7 +124,7 @@ function eps_primitive_arrow(page, arrowType, x1, y1, z1, x2, y2, z2, color, lin
                     page.canvas._lineTo(xstart + (xend - xstart) / step_count * (i + 1), ystart + (yend - ystart) / step_count * (i + 1));
                     page.canvas._stroke();
                 }
-            }(i));
+            }(j));
         }
     }
-}
+};

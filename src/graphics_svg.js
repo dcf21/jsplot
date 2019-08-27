@@ -1,14 +1,24 @@
 // graphics_svg.js
 
-// This class wraps functions for writing on an HTML5 canvas, providing a consistent interface for producing PNG and
-// SVG output.
-
+/**
+ * GraphicsSVG - This class wraps functions for writing on an HTML5 canvas, providing a consistent interface for
+ * producing PNG and SVG output.
+ * @param width {number} - The width of the canvas (pixels)
+ * @param height {number} - The height of the canvas (pixels)
+ * @constructor
+ */
 function GraphicsSVG(width, height) {
     this._ca = document.createElement('canvas');
     this._collision_map = new GraphicsCollisionMap();
     this._resize(width, height);
 }
 
+/**
+ * _resize - Resize the child canvas that we are writing onto
+ * @param width {number} - The width of the canvas (pixels)
+ * @param height {number} - The height of the canvas (pixels)
+ * @private
+ */
 GraphicsSVG.prototype._resize = function (width, height) {
     this._width = width;
     this._height = height;
@@ -18,6 +28,10 @@ GraphicsSVG.prototype._resize = function (width, height) {
     this._clear();
 };
 
+/**
+ * _clear - Wipe the child canvas that we are writing onto
+ * @private
+ */
 GraphicsSVG.prototype._clear = function () {
     this._textStyle("Arial,Helvetica,sans-serif", 13, "", "");
     this._strokeStyle("#000000", 1);
@@ -57,6 +71,13 @@ GraphicsSVG.prototype._clear = function () {
     this._beginPath();
 };
 
+/**
+ * _translate - Move the origin of the drawing context to the point (x,y) in the current coordinate system
+ * @param x {number} - The current X position of the new origin
+ * @param y {number} - The current Y position of the new origin
+ * @param rotation {number} - Rotate the coordinate system (radians; clockwise)
+ * @private
+ */
 GraphicsSVG.prototype._translate = function (x, y, rotation) {
     var translation = {
         "open": '<g transform="translate(' + x + ',' + y + ') rotate(' + (rotation / Math.PI * 180).toFixed(3) + ')">',
@@ -69,19 +90,42 @@ GraphicsSVG.prototype._translate = function (x, y, rotation) {
     this._contextStack.push(translation);
 };
 
+/**
+ * _unsetTranslate - Reverse the effect of the most recent call to _translate
+ * @private
+ */
 GraphicsSVG.prototype._unsetTranslate = function () {
     this._contextStack.pop();
 };
 
+/**
+ * _strokeStyle - Set the color and line width to use when stroking lines
+ * @param color {string} - HTML color string
+ * @param line_width {number} - The line width to use when stroking lines
+ * @private
+ */
 GraphicsSVG.prototype._strokeStyle = function (color, line_width) {
     this._stroke_style = color;
     this._line_width = line_width;
 };
 
+/**
+ * _fillStyle - Set the color to use when filling regions
+ * @param color {string} - HTML color string
+ * @private
+ */
 GraphicsSVG.prototype._fillStyle = function (color) {
     this._fill_style = color;
 };
 
+/**
+ * _textStyle - Set the font name, size and style to use when writing text
+ * @param family {string} - e.g. "Arial,Helvetica,sans-serif"
+ * @param size {number} - font size in pixels, e.g. 13
+ * @param weight {string} - the font weight, e.g. "bold"
+ * @param style {string} - the font style, e.g. "italic"
+ * @private
+ */
 GraphicsSVG.prototype._textStyle = function (/* string e.g. "Arial,Helvetica,sans-serif" */ family,
                                              /* int e.g. "13" */ size,
                                              /* string e.g. "bold" */ weight,
@@ -90,12 +134,22 @@ GraphicsSVG.prototype._textStyle = function (/* string e.g. "Arial,Helvetica,san
     this._co.font = style + " " + weight + " " + size + "px " + family;
 };
 
+/**
+ * _beginPath - Start a new path
+ * @private
+ */
 GraphicsSVG.prototype._beginPath = function () {
     this._path = [];
     this._path_polygon = null;
     this._path_first_point = null;
 };
 
+/**
+ * _moveTo - In the current path, move to (x,y)
+ * @param x {number} - x coordinate
+ * @param y {number} - y coordinate
+ * @private
+ */
 GraphicsSVG.prototype._moveTo = function (x, y) {
     if (this._path_polygon === null) {
         this._path_polygon = [];
@@ -108,6 +162,12 @@ GraphicsSVG.prototype._moveTo = function (x, y) {
     this._path_first_point = [x, y];
 };
 
+/**
+ * _lineTo - In the current path, connect a line to (x,y)
+ * @param x {number} - x coordinate
+ * @param y {number} - y coordinate
+ * @private
+ */
 GraphicsSVG.prototype._lineTo = function (x, y) {
     if (this._path_polygon === null) {
         this._moveTo(x, y);
@@ -116,10 +176,22 @@ GraphicsSVG.prototype._lineTo = function (x, y) {
     this._path_polygon.push(["L", x.toFixed(2), y.toFixed(2)].join(" "));
 };
 
+/**
+ * _closePath - Close the current path
+ * @private
+ */
 GraphicsSVG.prototype._closePath = function () {
     if (this._path_first_point) this._lineTo(this._path_first_point[0], this._path_first_point[1]);
-}
+};
 
+/**
+ * _rect - Create a rectangular path
+ * @param x_min {number} - x coordinate of bottom-left corner
+ * @param y_min {number} - y coordinate of bottom-left corner
+ * @param width {number} - The width of the box
+ * @param height {number} - The height of the box
+ * @private
+ */
 GraphicsSVG.prototype._rect = function (x_min, y_min, width, height) {
     this._path_polygon = null;
     this._path.push({
@@ -128,6 +200,16 @@ GraphicsSVG.prototype._rect = function (x_min, y_min, width, height) {
     });
 };
 
+/**
+ * _arc - Create a circular path, or an arc of a circle
+ * @param x {number} - x coordinate of the centre of the arc
+ * @param y {number} - y coordinate of the centre of the arc
+ * @param r {number} - The radius of the arc
+ * @param start {number} - Starting angle of the arc, radians
+ * @param end {number} - Ending angle of the arc, radians
+ * @param counterclockwise {boolean} - Flag indicating whether to trace arc counterclockwise (or clockwise)
+ * @private
+ */
 GraphicsSVG.prototype._arc = function (x, y, r, start, end, counterclockwise) {
     if ((start === 0) && (end === 2 * Math.PI)) {
         this._path_polygon = null;
@@ -160,6 +242,16 @@ GraphicsSVG.prototype._arc = function (x, y, r, start, end, counterclockwise) {
     }
 };
 
+/**
+ * _bezierCurveTo - Create a bezier curve path from the current position to (x,y)
+ * @param x1 {number} - X coordinate of first control point
+ * @param y1 {number} - Y coordinate of first control point
+ * @param x2 {number} - X coordinate of second control point
+ * @param y2 {number} - Y coordinate of second control point
+ * @param x {number} - X coordinate of end point
+ * @param y {number} - Y coordinate of end point
+ * @private
+ */
 GraphicsSVG.prototype._bezierCurveTo = function (x1, y1, x2, y2, x, y) {
     if (this._path_polygon !== null) {
         this._path_polygon.push(["C",
@@ -169,6 +261,12 @@ GraphicsSVG.prototype._bezierCurveTo = function (x1, y1, x2, y2, x, y) {
     }
 };
 
+/**
+ * __realisePath - Render the current path into an SVG string
+ * @param style {string} - The HTML styles to apply to this SVG path element
+ * @returns {string}
+ * @private
+ */
 GraphicsSVG.prototype.__realisePath = function (style) {
     var text = "";
     $.each(this._path, function (index, item) {
@@ -185,6 +283,10 @@ GraphicsSVG.prototype.__realisePath = function (style) {
     return text;
 };
 
+/**
+ * _stroke - Stroke the current path
+ * @private
+ */
 GraphicsSVG.prototype._stroke = function () {
     var style = 'fill="none" stroke="' + this._stroke_style + '" stroke-width="' + this._line_width + '"';
     var l = this._contextStack.length - 1;
@@ -195,6 +297,10 @@ GraphicsSVG.prototype._stroke = function () {
     });
 };
 
+/**
+ * _fill - Fill the region outlined by the current path
+ * @private
+ */
 GraphicsSVG.prototype._fill = function () {
     var style = 'stroke="none" fill="' + this._fill_style + '"';
     var l = this._contextStack.length - 1;
@@ -205,6 +311,10 @@ GraphicsSVG.prototype._fill = function () {
     });
 };
 
+/**
+ * _setClip - Use the current path as a clipping region
+ * @private
+ */
 GraphicsSVG.prototype._setClip = function () {
     this._defs["children"].push({
         "open": '<clipPath id="clip' + this._clip_path_counter + '">',
@@ -228,10 +338,28 @@ GraphicsSVG.prototype._setClip = function () {
     this._clip_path_counter++;
 };
 
+/**
+ * _unsetClip - Revert the most recently applied clipping region
+ * @private
+ */
 GraphicsSVG.prototype._unsetClip = function () {
     this._contextStack.pop()
 };
 
+/**
+ * _text - Write a text string onto the canvas
+ * @param x {number} - The x coordinate at which to place the text
+ * @param y {number} - The y coordinate at which to place the text
+ * @param h_align {number} - Options are -1 (left align), 0 (center), 1 (right align)
+ * @param v_align {number} - Options are -1 (top align), 0 (middle align), 1 (bottom align)
+ * @param filled {boolean} - Should text by filled or stroked in outline?
+ * @param text {string} - The text to write
+ * @param mustnt_collide {boolean} - If true, do not render this text if it overlaps with any previous text
+ * @param add_to_collision_map {boolean} - If true, add this text item to the collision map used when rendering
+ * future text
+ * @returns {number} - Zero on success; One if collision
+ * @private
+ */
 GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mustnt_collide, add_to_collision_map) {
 
     if (mustnt_collide || add_to_collision_map) {
@@ -314,15 +442,38 @@ GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mu
     return 0; // successfully rendered
 };
 
+/**
+ * _textWidth - Measure the width of a text string in the current typeface
+ * @param text {string} - The text string to measure
+ * @returns {number} - The width of the string (pixels)
+ * @private
+ */
 GraphicsSVG.prototype._textWidth = function (text) {
     return this._co.measureText(text).width;
 };
 
+/**
+ * _queueText - Place a text item into a queue of labels, which are subsequently rendered in order of decreasing
+ * priority. This mechanism is used to make sure that higher-priority labels take precedence over lower-priority
+ * labels when they collide, regardless of the ordering of the calls to _queueText.
+ * @param x {number} - The x coordinate at which to place the text
+ * @param y {number} - The y coordinate at which to place the text
+ * @param h_align {number} - Options are -1 (left align), 0 (center), 1 (right align)
+ * @param v_align {number} - Options are -1 (top align), 0 (middle align), 1 (bottom align)
+ * @param filled {boolean} - Should text by filled or stroked in outline?
+ * @param text {string} - The text to write
+ * @param priority {number} - The priority of this text label
+ * @private
+ */
 GraphicsSVG.prototype._queueText = function (x, y, h_align, v_align, filled, text, priority) {
     this._text_queue.push([priority, x, y, h_align, v_align, filled, text,
         this._text_style, this._stroke_style, this._line_width, this._fill_style]);
 };
 
+/**
+ * _unqueueText - Render all of the queued text labels, in descending order of priority.
+ * @private
+ */
 GraphicsSVG.prototype._unqueueText = function () {
     var self = this;
 
@@ -343,10 +494,28 @@ GraphicsSVG.prototype._unqueueText = function () {
     this._text_queue = [];
 };
 
+/**
+ * _drawImage - Draw an image onto the canvas. Note that this is not implemented for SVG output/
+ * @param img {Image} - The image to draw
+ * @param sx {number} - The x pixel position of the bottom-left corner of the clipping region in the image to draw
+ * @param sy {number} - The x pixel position of the bottom-left corner of the clipping region in the image to draw
+ * @param swidth {number} - The width of the clipping region in the image to draw
+ * @param sheight {number} - The height of the clipping region in the image to draw
+ * @param x {number} - The x pixel position on the output canvas at which to place the bottom-left corner of the image
+ * @param y {number} - The y pixel position on the output canvas at which to place the bottom-left corner of the image
+ * @param width {number} - The width of the output image on the output canvas
+ * @param height {number} - The height of the output image on the output canvas
+ * @private
+ */
 GraphicsSVG.prototype._drawImage = function (img, sx, sy, swidth, sheight, x, y, width, height) {
     // This operation is not supported for SVG images!!
 };
 
+/**
+ * _render - Render the output SVG file. Return a string containing an SVG document.
+ * @returns {string}
+ * @private
+ */
 GraphicsSVG.prototype._render = function () {
     var text = "";
 
@@ -362,6 +531,11 @@ GraphicsSVG.prototype._render = function () {
     return text;
 };
 
+/**
+ * _composite - Composite the contents of another GraphicsSVG canvas onto this one.
+ * @param other {GraphicsSVG} - The other GraphicsSVG canvas
+ * @private
+ */
 GraphicsSVG.prototype._composite = function (other) {
     var defs_this = this._document["children"][0];
     var body_this = this._document["children"][1];
