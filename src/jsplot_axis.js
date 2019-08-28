@@ -64,6 +64,13 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.tickListFinal = null;
 };
 
+/**
+ * getPosition - Get the position of a particular number along this axis. Return the fractional length along the axis,
+ * in the range 0 to 1.
+ * @param x_in {number} - The value we are seeking the position of
+ * @param allowOffBounds {boolean} - Flag indicating whether to seek positions which lie off the ends of the axis
+ * @returns {number}
+ */
 JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
     if (!allowOffBounds) {
         if (this.workspace.maxFinal > this.workspace.minFinal) {
@@ -83,17 +90,26 @@ JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
 };
 
 // What is the value of this axis at point xin, in the range 0 (left) to 1 (right)?
+/**
+ * invGetPosition - Return the value of this axis at point <xin>, in the range 0 (left) to 1 (right)
+ * @param x_in {number} - The fractional position along the axis, in the range 0 to 1
+ * @returns {number}
+ */
 JSPlot_Axis.prototype.invGetPosition = function (x_in) {
     if (this.workspace.logFinal) {
         // Either linear...
         return this.workspace.minFinal + x_in * (this.workspace.maxFinal - this.workspace.minFinal);
     } else {
         // ... or logarithmic
-        return this.workspace.minFinal * pow(this.workspace.maxFinal / this.workspace.minFinal, x_in);
+        return this.workspace.minFinal * Math.pow(this.workspace.maxFinal / this.workspace.minFinal, x_in);
     }
 };
 
-// Does a value fall within the span of this axis?
+/**
+ * inRange - Test whether a particular value lies within the range of this axis
+ * @param x_in {number} - The value we are seeking along the axis
+ * @returns {boolean}
+ */
 JSPlot_Axis.prototype.inRange = function (x_in) {
     var x_min = null, x_max = null;
 
@@ -127,15 +143,15 @@ JSPlot_Axis.prototype.inRange = function (x_in) {
     return true;
 };
 
-// Whenever we update the usage variables MinUsed and MaxUsed for an axis, this
-// procedure is called. It checks whether the axis is linked, and if so,
-// updates the usage variables for the axis which it is linked to. This process
-// may then iteration down a hierarchy of linked axes. As a rule, it is the
-// axis at the bottom of the linkage hierarchy (i.e. at the end of the linked
-// list) that has the canonical usage variables. Axes further up may not have
-// complete information about the usage of the set of linked axes, since usage
-// does not propagate UP the hierarchy.
-
+/**
+ * linkedAxisBackPropagate - Whenever we update the usage variables MinUsed and MaxUsed for an axis, this procedure is
+ * called. It checks whether the axis is linked, and if so, updates the usage variables for the axis which it is
+ * linked to. This process may then iteration down a hierarchy of linked axes. As a rule, it is the axis at the bottom
+ * of the linkage hierarchy (i.e. at the end of the linked list) that has the canonical usage variables. Axes further
+ * up may not have complete information about the usage of the set of linked axes, since usage does not propagate UP
+ * the hierarchy.
+ * @param page {JSPlot_Canvas} - The canvas we are plotting this axis on to
+ */
 JSPlot_Axis.prototype.linkedAxisBackPropagate = function (page) {
     // Propagate minUsed and maxUsed variables along links between axes
     var iterDepth;
@@ -179,12 +195,13 @@ JSPlot_Axis.prototype.linkedAxisBackPropagate = function (page) {
     }
 };
 
-// As part of the process of determining the range of axis xyz[axis_n], check
-// whether the axis is linking, and if so fetch usage information from the
-// bottom of the linkage hierarchy. Propagate this information up through all
-// intermediate levels of the hierarchy before calling
-// eps_plot_DecideAxisRange().
-
+/**
+ * linkedAxisForwardPropagate - As part of the process of determining the range of axis xyz[axis_n], check whether
+ * the axis is linking, and if so fetch usage information from the bottom of the linkage hierarchy. Propagate this
+ * information up through all intermediate levels of the hierarchy before calling eps_plot_DecideAxisRange().
+ * @param page {JSPlot_Canvas} - The canvas we are plotting this axis on to
+ * @param mode
+ */
 JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
     var originalMode = mode;
 

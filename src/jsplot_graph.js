@@ -1,21 +1,33 @@
 // jsplot_graph.js
 
-function JSPlot_DataSet() {
-    this.title = null; // Title for this data set to put into the graph legend
+/**
+ * JSPlot_DataSet - A class representing a single data set to be plotted on a graph.
+ * @param data {Array<Array<number>>} The data to be plotted, as a list of rows, each represented as a list of columns
+ * @constructor
+ */
+function JSPlot_DataSet(title, data) {
+    this.title = title; // Title for this data set to put into the graph legend
     this.style = new JSPlot_Style(); // Styling for this data set
     this.axes = {1: 'x1', 2: 'y1', 3: 'z1'}; // Which axes do we plot this data set against?
-    this.data = [];
+    this.data = data;
     this.cleanWorkspace();
 }
 
+/**
+ * cleanWorkspace - Create a clean workspace to be used for plotting this data set
+ */
 JSPlot_DataSet.prototype.cleanWorkspace = function () {
     this.workspace = [];
     this.workspace.styleFinal = null;
     this.workspace.requiredColumns = null;
 };
 
-
-function JSPlot_Graph() {
+/**
+ * JSPlot_Graph - A class representing a graph, to be rendered onto a <JSPlot_Canvas>
+ * @param dataSets - A list of <JSPlot_DataSet> objects to plot on this graph
+ * @constructor
+ */
+function JSPlot_Graph(dataSets) {
     this.page = null;
     this.itemType = "graph";
     this.aspect = 2.0 / (1.0 + Math.sqrt(5));
@@ -54,7 +66,7 @@ function JSPlot_Graph() {
     };
 
     // Data sets
-    this.dataSets = [];  // This should be a list of JSPlot_DataSet instances
+    this.dataSets = dataSets;  // This should be a list of JSPlot_DataSet instances
 
     // Annotations
     this.arrows = [];
@@ -63,6 +75,9 @@ function JSPlot_Graph() {
     this.cleanWorkspace();
 }
 
+/**
+ * cleanWorkspace - Create a clean workspace to be used for plotting this graph
+ */
 JSPlot_Graph.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering a plot
     this.workspace = [];
@@ -71,6 +86,12 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
     this.workspace.defaultPointTypeCounter = 0;
 };
 
+/**
+ * insertDefaultStyles - Take the styling associated with a particular data set, and where parameters are unset,
+ * replace them with defaults. For example, set lines to have incremental line styles, colored items to have incremental
+ * colors, points to have incremental point styles.
+ * @param style - The styling associated with the data set we are operating on
+ */
 JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     if (style.color === null) {
         style.color = this.page.defaultColors[this.workspace.defaultColorCounter];
@@ -94,6 +115,14 @@ JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     }
 };
 
+/**
+ * project3d - Take a point that is a certain fraction of the way along the x, y, and z axes, and convert it into
+ * canvas coordinates, together with a depth into the page.
+ * @param xap {number} - The fraction of the way along the x axis (in range 0 to 1)
+ * @param yap {number} - The fraction of the way along the y axis (in range 0 to 1)
+ * @param zap {number} - The fraction of the way along the z axis (in range 0 to 1)
+ * @returns {{ypos: number, xpos: number, depth: number}}
+ */
 JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
     var width = this.width;
     var height = this.width * this.aspect;
@@ -118,10 +147,22 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
     };
 };
 
+/**
+ * projectPoint - Take a point defined by three numbers along the length of three axes, and turn this into canvas
+ * coordinates. We also return the angle that each of the three axes make to the vertical.
+ * @param xin {number} - The value where the point lies along the x axis
+ * @param yin {number} - The value where the point lies along the y axis
+ * @param zin {number} - The value where the point lies along the z axis
+ * @param axis_x {JSPlot_Axis} - The x axis to reference against
+ * @param axis_y {JSPlot_Axis} - The y axis to reference against
+ * @param axis_z {JSPlot_Axis} - The z axis to reference against
+ * @param allowOffBounds {boolean} - Flag indicating whether points outside the point area should be calculated
+ * @returns {Object}
+ */
 JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
     var width = this.width;
     var height = this.width * this.aspect;
-    var output = [];
+    var output = {};
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
     var xap = axis_x.getPosition(xin, 1);
@@ -168,6 +209,11 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, a
     return output;
 };
 
+/**
+ * calculateBoundingBox - Step 1 of rendering process: return the bounding box of this graph
+ * @param page {JSPlot_Canvas} - The canvas that this graph will be rendered onto
+ * @returns {JSPlot_BoundingBox}
+ */
 JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     var i, j, axisName;
 
@@ -221,6 +267,10 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     return boundingBox;
 };
 
+/**
+ * calculateDataRanges - Step 2 of the rendering process: calculate the range of the data plotted against each axis.
+ * Then finalise the ranges of all the axes and decide on their ticking schemes.
+ */
 JSPlot_Graph.prototype.calculateDataRanges = function () {
     var i, j, axisName;
 
@@ -270,6 +320,9 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
     });
 };
 
+/**
+ * render - Step 3 of the plotting process: render the graph
+ */
 JSPlot_Graph.prototype.render = function () {
     var self = this;
     var i;
