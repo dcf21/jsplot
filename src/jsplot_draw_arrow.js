@@ -9,7 +9,7 @@ function JSPlot_DrawArrow() {
 }
 
 /**
- * eps_primitive_arrow - Primitive routine for drawing arrow
+ * primitive_arrow - Primitive routine for drawing arrow
  * @param page {JSPlot_Canvas} - The JSPlot_Canvas we are to draw this arrow onto
  * @param arrowType {string} - Choice of ['single', 'double', 'back', 'none']
  * @param x1 {number} - X coordinate for the start of the arrow

@@ -2,14 +2,15 @@
 
 /**
  * JSPlot_Canvas - a page onto which we can draw graphs, represented by JSPlot_Graph objects.
+ * @param initialItemList {Object.<string, JSPlot_Graph>}
  * @constructor
  */
 
-function JSPlot_Canvas() {
-    this.itemList = {};
+function JSPlot_Canvas(initialItemList) {
+    this.itemList = initialItemList;
 
-    // Rendering settings
-    this.settings = [];
+    // Default rendering settings
+    this.settings = {};
     this.settings.EPS_DEFAULT_LINEWIDTH = 0.566929;  // 0.2mm in TeX points
     this.settings.EPS_DEFAULT_PS = 3.0;
     this.settings.EPS_ARROW_ANGLE = 45.0 * Math.PI / 180;

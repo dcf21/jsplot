@@ -15,19 +15,17 @@
     <script type="text/javascript">
         $(function () {
             // Create canvas to put graph onto
-            var canvas = new JSPlot_Canvas();
-
-            // Add graph
-            var plot = new JSPlot_Graph([
-                new JSPlot_FunctionEvaluator(
-                    "sin(x)",
-                    [
-                        function (x) {
-                            return Math.sin(x)
-                        }
-                    ]).evaluate_linear_raster(-10, 10)
-            ]);
-            canvas.addItem("graph_1", plot);
+            var canvas = new JSPlot_Canvas({
+                "graph_1": new JSPlot_Graph([
+                    new JSPlot_FunctionEvaluator(
+                        "sin(x)", {},
+                        [
+                            function (x) {
+                                return Math.sin(x)
+                            }
+                        ]).evaluate_linear_raster(-10, 10)
+                ], {})
+            });
 
             // Render plot
             canvas.renderToCanvas(

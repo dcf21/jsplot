@@ -5,7 +5,7 @@
  * to be plotted on a graph
  * @constructor
  */
-function JSPlot_PlotStyle() {
+function JSPlot_PlotStyle(settings) {
     this.color = null; // auto
     this.fillColor = new JSPlot_Color(0, 0, 0, 0); // transparent
     this.plotStyle = 'lines';
@@ -14,7 +14,29 @@ function JSPlot_PlotStyle() {
     this.lineWidth = 1;
     this.pointLineWidth = 1;
     this.pointSize = 1;
+
+    this.configure(settings);
 }
+
+/**
+ * configure - Configure settings for plotting a data set
+ * @param settings {Object} - An object containing settings
+ */
+JSPlot_PlotStyle.prototype.configure = function(settings) {
+    $.each(settings, function (key, value) {
+        switch (key) {
+            case "color": this. color = value; break;
+            case "fillColor": this. fillColor = value; break;
+            case "plotStyle": this. plotStyle = value; break;
+            case "lineType": this. lineType = value; break;
+            case "pointType": this. pointType = value; break;
+            case "lineWidth": this. lineWidth = value; break;
+            case "pointLineWidth": this. pointLineWidth = value; break;
+            case "pointSize": this. pointSize = value; break;
+            default: throw "Unrecognised plot style setting " + key;
+        }
+    });
+};
 
 /**
  * Clone a JSPlot_PlotStyle container into a new container

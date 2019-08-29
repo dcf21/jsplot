@@ -2,23 +2,44 @@
 
 /**
  * JSPlot_AxisTics - A class representing a scheme for placing ticks along a graph axis.
+ * @param settings {Object} - An object containing settings
  * @constructor
  */
-function JSPlot_AxisTics() {
+function JSPlot_AxisTics(settings) {
     this.logBase = null;
     this.ticDir = null;
     this.tickMin = null;
     this.tickMax = null;
     this.tickStep = null;
     this.tickList = [];
+    this.configure(settings);
 }
+
+/**
+ * configure - Configure settings for a set of axis ticks
+ * @param settings {Object} - An object containing settings
+ */
+JSPlot_AxisTics.prototype.configure = function(settings) {
+    $.each(settings, function (key, value) {
+        switch (key) {
+            case "logBase": this.logBase = value; break;
+            case "ticDir": this. ticDir = value; break;
+            case "tickMin": this. tickMin = value; break;
+            case "tickMax": this. tickMax = value; break;
+            case "tickStep": this. tickStep = value; break;
+            case "tickList": this. tickList = value; break;
+            default: throw "Unrecognised axis tick setting " + key;
+        }
+    });
+};
 
 /**
  * JSPlot_Axis - A class representing a graph axis
  * @param enabled {boolean} - If false, then this axis is not rendered
+ * @param settings {Object} - Settings for this axis
  * @constructor
  */
-function JSPlot_Axis(enabled) {
+function JSPlot_Axis(enabled, settings) {
     this.atZero = false;
     this.enabled = enabled;
     this.visible = true;
@@ -33,11 +54,40 @@ function JSPlot_Axis(enabled) {
     this.labelRotate = 0;
     this.tickLabelRotate = 0;
     this.label = null;
-    this.ticsM = new JSPlot_AxisTics();
-    this.tics = new JSPlot_AxisTics();
+    this.ticsM = new JSPlot_AxisTics({});
+    this.tics = new JSPlot_AxisTics({});
+    this.configure(settings);
 
     this.cleanWorkspace();
 }
+
+/**
+ * configure - Configure settings for a graph axis
+ * @param settings {Object} - An object containing settings
+ */
+JSPlot_Axis.prototype.configure = function(settings) {
+    $.each(settings, function (key, value) {
+        switch (key) {
+            case "atZero": this.atZero = value; break;
+            case "enabled": this. enabled = value; break;
+            case "visible": this. visible = value; break;
+            case "linkTo": this. linkTo = value; break;
+            case "rangeReversed": this. rangeReversed = value; break;
+            case "arrowType": this. arrowType = value; break;
+            case "log": this. log = value; break;
+            case "min": this. min = value; break;
+            case "max": this. max = value; break;
+            case "mirror": this. mirror = value; break;
+            case "tickLabelRotation": this. tickLabelRotation = value; break;
+            case "labelRotate": this. labelRotate = value; break;
+            case "tickLabelRotate": this. tickLabelRotate = value; break;
+            case "label": this. label = value; break;
+            case "ticsM": this. ticsM.configure(value); break;
+            case "tics": this. tics.configure(value); break;
+            default: throw "Unrecognised axis setting " + key;
+        }
+    });
+};
 
 /**
  * cleanWorkspace - Prepare a clean, empty workspace for rendering this axis

@@ -2,12 +2,14 @@
 
 /**
  * JSPlot_DataSet - A class representing a single data set to be plotted on a graph.
+ * @param title {string} - The text to display in the graph's legend next to this data set
+ * @param styling {Object} - Settings to associate with the JSPlot_PlotStyle to associate with this data set
  * @param data {Array<Array<number>>} The data to be plotted, as a list of rows, each represented as a list of columns
  * @constructor
  */
-function JSPlot_DataSet(title, data) {
+function JSPlot_DataSet(title, styling, data) {
     this.title = title; // Title for this data set to put into the graph legend
-    this.style = new JSPlot_Style(); // Styling for this data set
+    this.style = new JSPlot_Style(styling); // Styling for this data set
     this.axes = {1: 'x1', 2: 'y1', 3: 'z1'}; // Which axes do we plot this data set against?
     this.data = data;
     this.cleanWorkspace();
@@ -17,17 +19,18 @@ function JSPlot_DataSet(title, data) {
  * cleanWorkspace - Create a clean workspace to be used for plotting this data set
  */
 JSPlot_DataSet.prototype.cleanWorkspace = function () {
-    this.workspace = [];
+    this.workspace = {};
     this.workspace.styleFinal = null;
     this.workspace.requiredColumns = null;
 };
 
 /**
  * JSPlot_Graph - A class representing a graph, to be rendered onto a <JSPlot_Canvas>
- * @param dataSets - A list of <JSPlot_DataSet> objects to plot on this graph
+ * @param dataSets {Array<JSPlot_DataSet>} - A list of <JSPlot_DataSet> objects to plot on this graph
+ * @param settings {Object} - An object containing settings
  * @constructor
  */
-function JSPlot_Graph(dataSets) {
+function JSPlot_Graph(dataSets, settings) {
     this.page = null;
     this.itemType = "graph";
     this.aspect = 2.0 / (1.0 + Math.sqrt(5));
@@ -59,10 +62,10 @@ function JSPlot_Graph(dataSets) {
 
     // Axes
     this.axes = {
-        'x1': new JSPlot_Axis(true),
-        'x2': new JSPlot_Axis(false),
-        'y1': new JSPlot_Axis(true),
-        'y2': new JSPlot_Axis(false)
+        'x1': new JSPlot_Axis(true, {}),
+        'x2': new JSPlot_Axis(false, {}),
+        'y1': new JSPlot_Axis(true, {}),
+        'y2': new JSPlot_Axis(false, {})
     };
 
     // Data sets
@@ -72,8 +75,42 @@ function JSPlot_Graph(dataSets) {
     this.arrows = [];
     this.labels = [];
 
+    this.configure(settings);
     this.cleanWorkspace();
 }
+
+/**
+ * configure - Configure settings for a graph
+ * @param settings {Object} - An object containing settings
+ */
+JSPlot_Graph.prototype.configure = function(settings) {
+    $.each(settings, function (key, value) {
+       switch (key) {
+           case "aspect": this.aspect = value; break;
+           case "aspectZ": this.aspectZ = value; break;
+           case "axesColor": this.axesColor = value; break;
+           case "clip": this.clip = value; break;
+           case "gridMajorColor": this.gridMajorColor = value; break;
+           case "gridMinorColor": this.gridMinorColor = value; break;
+           case "key": this.key = value; break;
+           case "keyColumns": this.keyColumns = value; break;
+           case "keyPosition": this.keyPosition = value; break;
+           case "textColor": this.textColor = value; break;
+           case "bar": this.bar = value; break;
+           case "fontSize": this.fontSize = value; break;
+           case "gridAxes": this.gridAxes = value; break;
+           case "keyOffset": this.keyOffset = value; break;
+           case "origin": this.origin = value; break;
+           case "titleOffset": this.titleOffset = value; break;
+           case "width": this.width = value; break;
+           case "viewAngleXY": this.viewAngleXY = value; break;
+           case "viewAngleYZ": this.viewAngleYZ = value; break;
+           case "title": this.title = value; break;
+           case "threeDimensional": this.threeDimensional = value; break;
+           default: throw "Unrecognised graph setting " + key;
+       }
+    });
+};
 
 /**
  * cleanWorkspace - Create a clean workspace to be used for plotting this graph
