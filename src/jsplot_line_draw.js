@@ -8,19 +8,23 @@
  * @param axis_y {JSPlot_Axis} - The y axis that each point on this line is referenced against
  * @param axis_z {JSPlot_Axis} - The z axis that each point on this line is referenced against
  * @param color {JSPlot_Color} - The color to use when stroking this line
- * @param lineWidth {number} - The width of line to draw
+ * @param line_type {number} - The line type to use to stroke this line
+ * @param line_width {number} - The width of line to draw
  * @constructor
  */
-function JSPlot_LineDraw(page, graph, axis_x, axis_y, axis_z, color, lineWidth) {
+function JSPlot_LineDraw(page, graph, axis_x, axis_y, axis_z, color, line_type, line_width) {
     this.page = page;
     this.graph = graph;
     this.color = color;
-    this.lineWidth = lineWidth;
+    this.line_type = line_type;
+    this.line_width = line_width;
     this.axis_x = axis_x;
     this.axis_y = axis_y;
     this.axis_z = axis_z;
 
-    this.pt1 = null;
+    this.pt_old = null;
+    this.line_list = [];
+    this.point_list_in_progress = [];
 }
 
 /**
@@ -37,8 +41,8 @@ function JSPlot_LineDraw(page, graph, axis_x, axis_y, axis_z, color, lineWidth) 
  * @param xap2 {number} - The fractional position along the x axis of the end point (in range 0 to 1)
  * @param yap2 {number} - The fractional position along the y axis of the end point (in range 0 to 1)
  * @param zap2 {number} - The fractional position along the z axis of the end point (in range 0 to 1)
- * @returns {{Inside1: boolean, NCrossings: number, Inside2: boolean,
- *            cy1: number, cz2: number, cz1: number, cx2: number, cx1: number, cy2: number}}
+ * @returns {{inside1_final: boolean, inside1_initial: boolean, inside2_initial: boolean,
+ *            cy1: number, cz2: number, cz1: number, cx2: number, cx1: number, cy2: number, inside2_final: boolean}}
  */
 JSPlot_LineDraw.prototype.findCrossingPoints = function (x1, y1, z1, xap1, yap1, zap1, x2, y2, z2, xap2, yap2, zap2) {
 
@@ -128,66 +132,125 @@ JSPlot_LineDraw.prototype.findCrossingPoints = function (x1, y1, z1, xap1, yap1,
     return output;
 };
 
-JSPlot_LineDraw.prototype.point = function (x, y, z, x_offset, y_offset, z_offset, x_perpoffset, y_perpoffset, z_perpoffset, linetype, linewidth) {
+/**
+ * point - Add a point to this line
+ * @param x {number} - The position of the point along the x axis
+ * @param y {number} - The position of the point along the y axis
+ * @param z {number} - The position of the point along the z axis
+ * @param x_offset {number} - Offset the point by a certain amount, measured in canvas coordinates, parallel to x axis
+ * @param y_offset {number} - Offset the point by a certain amount, measured in canvas coordinates, parallel to y axis
+ * @param z_offset {number} - Offset the point by a certain amount, measured in canvas coordinates, parallel to z axis
+ * @param x_perp_offset {number} - Offset the point by a certain amount perpendicular to x axis
+ * @param y_perp_offset {number} - Offset the point by a certain amount perpendicular to x axis
+ * @param z_perp_offset {number} - Offset the point by a certain amount perpendicular to x axis
+ */
+JSPlot_LineDraw.prototype.point = function (x, y, z,
+                                            x_offset, y_offset, z_offset,
+                                            x_perp_offset, y_perp_offset, z_perp_offset) {
     var self = this;
-    var width = this.graph.width;
-    var height = this.graph.width * this.graph.aspect;
-    var zdepth = this.graph.width * this.graph.aspectZ;
 
-    var position = this.graph.getPosition(x, y, z, this.axis_x, this.axis_y, this.axis_z, 1);
+    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, 1);
 
     if ((!isFinite(position['xpos'])) || (!isFinite(position['ypos'])) || (!isFinite(position['depth']))) {
         this.penUp();
         return;
     }
 
-    var xpos = position['xpos'] + x_offset * this.page.settings.M_TO_PS;
-    var ypos = position['ypos'] + y_offset * this.page.settings.M_TO_PS;
-    var depth = position['depth'] + z_offset * this.page.settings.M_TO_PS;
+    let pt_this = {
+        'position':position,
+        'x_offset':x_offset, 'y_offset':y_offset, 'z_offset':z_offset,
+        'x_perp_offset':x_perp_offset, 'y_perp_offset':y_perp_offset, 'z_perp_offset':z_perp_offset
+    };
 
-    var xap = position['xap'] + x_offset / width;
-    var yap = position['yap'] + y_offset / height;
-    var zap = position['zap'] + z_offset / zdepth;
-
-    if (this.pt1 == null) {
-        this.pt1 = [xpos, ypos, depth];
-        this.xap1 = xap;
-        this.yap1 = yap;
-        this.zap1 = zap;
-        this.xpo1 = x_perpoffset;
-        this.ypo1 = y_perpoffset;
-        this.zpo1 = z_perpoffset;
+    if (this.pt_old === null) {
+        this.pt_old = pt_this;
         return;
     }
 
-    var crossings = this.findCrossingPoints(this.pt1[0], this.pt1[1], this.pt1[2], this.xap1, this.yap1, this.zap1, xpos, ypos, depth, xap, yap, zap);
+    var clipped_line_segment = this.findCrossingPoints(
+        this.pt_old.position.xpos, this.pt_old.position.ypos, this.pt_old.position.depth,
+        this.pt_old.position.xap, this.pt_old.position.yap, this.pt_old.position.zap,
+        position.xpos, position.ypos, position.depth,
+        position.xap, position.yap, position.zap);
 
-    // Add in perpendicular offsets
-    var cx1 = crossings['cx1'] + (this.xpo1 * Math.cos(position['theta_x']) + this.ypo1 * Math.cos(position['theta_y']) + this.zpo1 * Math.cos(position['theta_z'])) * this.page.settings.M_TO_PS;
-    var cy1 = crossings['cy1'] + (this.xpo1 * Math.sin(position['theta_x']) + this.ypo1 * Math.sin(position['theta_y']) + this.zpo1 * Math.sin(position['theta_z'])) * this.page.settings.M_TO_PS;
-    var cx2 = crossings['cx2'] + (x_perpoffset * Math.cos(position['theta_x']) + y_perpoffset * Math.cos(position['theta_y']) + z_perpoffset * Math.cos(position['theta_z'])) * this.page.settings.M_TO_PS;
-    var cy2 = crossings['cy2'] + (x_perpoffset * Math.sin(position['theta_x']) + y_perpoffset * Math.sin(position['theta_y']) + z_perpoffset * Math.sin(position['theta_z'])) * this.page.settings.M_TO_PS;
+    // Add point to list of points along line
+    var add_point = function(pt, cx_clipped, cy_clipped, cz_clipped) {
+        var cx = cx_clipped +
+            (pt.x_offset * Math.cos(position['theta_x']) +
+                pt.y_offset * Math.cos(position['theta_y']) +
+                pt.z_offset * Math.cos(position['theta_z']) +
+            pt.x_perp_offset * Math.cos(position['theta_x'] + Math.PI/2) +
+                pt.y_perp_offset * Math.cos(position['theta_y'] + Math.PI/2) +
+                pt.z_perp_offset * Math.cos(position['theta_z'] + Math.PI/2)
+            ) * this.page.settings.M_TO_PS;
+        var cy = cy_clipped +
+            (pt.x_offset * Math.sin(position['theta_x']) +
+                pt.y_offset * Math.sin(position['theta_y']) +
+                pt.z_offset * Math.sin(position['theta_z']) +
+                pt.x_perp_offset * Math.sin(position['theta_x'] + Math.PI/2) +
+                pt.y_perp_offset * Math.sin(position['theta_y'] + Math.PI/2) +
+                pt.z_perp_offset * Math.sin(position['theta_z'] + Math.PI/2)
+            ) * this.page.settings.M_TO_PS;
 
-    if (crossings['Inside1'] || crossings['Inside2'] || (crossings['NCrossings'] >= 2)) {
-        // Check that we haven't crossed clip region during the course of line segment
-        this.page.threeDimensionalBuffer.addItem(depth, function () {
-            self.page.canvas._strokeStyle(this.color, this.lineWidth);
-            self.page.canvas._moveTo(cx1, cy1);
-            self.page.canvas._lineTo(cx2, cy2);
-            self.page.canvas._stroke();
+        self.point_list_in_progress.push([cx,cy,cz_clipped])
+    };
 
-        });
+    if (this.point_list_in_progress.length === 0) {
+        add_point(this.pt_old, clipped_line_segment.cx1, clipped_line_segment.cy2, clipped_line_segment.cz1);
     }
 
-    this.pt1 = [xpos, ypos, depth];
-    this.xap1 = xap;
-    this.yap1 = yap;
-    this.zap1 = zap;
-    this.xpo1 = x_perpoffset;
-    this.ypo1 = y_perpoffset;
-    this.zpo1 = z_perpoffset;
+    add_point(pt_this, clipped_line_segment.cx2, clipped_line_segment.cy2, clipped_line_segment.cz2);
+
+    this.pt_old = pt_this;
 };
 
+/**
+ * penUp - Break the current line and start a new line.
+ */
 JSPlot_LineDraw.prototype.penUp = function () {
-    this.pt1 = null;
+    this.pt_old = null;
+    
+    if (this.point_list_in_progress.length > 1) {
+        this.line_list.push(this.point_list_in_progress);
+    }
+    
+    this.point_list_in_progress = [];
+};
+
+/**
+ * renderLine - Having collected a list of points to join with a line, now render that line.
+ */
+JSPlot_LineDraw.prototype.renderLine = function() {
+    var self = this;
+    var i,j;
+
+    if (!this.page.threeDimensionalBuffer.active) {
+        self.page.canvas._strokeStyle(this.color, this.lineWidth);
+
+        for (i = 0; i < this.line_list.length; i++) {
+            self.page.canvas._moveTo(this.line_list[i][0][0], this.line_list[i][0][1]);
+            for (j = 1; j < this.line_list[i].length; j++) {
+                self.page.canvas._lineTo(this.line_list[i][j][0], this.line_list[i][j][1]);
+            }
+        }
+    } else {
+        for (i = 0; i < this.line_list.length; i++) {
+            for (j = 1; j < this.line_list[i].length; j++) {
+                var depth = self.line_list[i][j][2];
+
+                var renderer = function(i, j) {
+                    return function () {
+                        self.page.canvas._strokeStyle(self.color, self.lineWidth);
+                        self.page.canvas._moveTo(self.line_list[i][j-1][0], self.line_list[i][j-1][1]);
+                        self.page.canvas._lineTo(self.line_list[i][j][0], self.line_list[i][j][1]);
+                        self.page.canvas._stroke();
+
+                    }
+                }(i,j);
+
+                this.page.threeDimensionalBuffer.addItem(depth, renderer);
+
+            }
+        }
+    }
 };

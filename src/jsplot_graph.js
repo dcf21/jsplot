@@ -199,31 +199,40 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
 JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
     var width = this.width;
     var height = this.width * this.aspect;
-    var output = {};
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
     var xap = axis_x.getPosition(xin, 1);
     var yap = axis_y.getPosition(yin, 1);
     var zap = 0.5;
+    var output = {'xap':xap, 'yap':yap, 'zap':zap};
 
     if (this.threeDimensional) zap = axis_z.getPosition(zin, 1);
 
     if ((!isFinite(xap)) || (!isFinite(yap)) || (!isFinite(zap))) {
-        return {'xpos': NaN, 'ypos': NaN};
+        return {'xpos': NaN, 'ypos': NaN, 'xap': NaN, 'yap': NaN, 'zap': NaN};
     }
     // Crop axis positions to range 0-1
     if ((!allowOffBounds) && ((xap < 0) || (xap > 1) || (yap < 0) || (yap > 1) || (zap < 0) || (zap > 1))) {
-        return {'xpos': NaN, 'ypos': NaN};
+        return {'xpos': NaN, 'ypos': NaN, 'xap': NaN, 'yap': NaN, 'zap': NaN};
     }
 
     // 3D plots
     if (this.threeDimensional) {
-        output = this.project3d(xap, yap, zap);
-        var theta_x = Math.atan2(Math.cos(this.viewAngleXY * Math.PI / 180),
+        var position = this.project3d(xap, yap, zap);
+
+        output['xpos'] = position.xpos;
+        output['ypos'] = position.ypos;
+        output['depth'] = position.depth;
+
+        var theta_x = Math.atan2(
+            Math.cos(this.viewAngleXY * Math.PI / 180),
             -Math.sin(this.viewAngleXY * Math.PI / 180) * Math.sin(this.viewAngleYZ * Math.PI / 180));
-        var theta_y = Math.atan2(Math.sin(this.viewAngleXY * Math.PI / 180),
+        var theta_y = Math.atan2(
+            Math.sin(this.viewAngleXY * Math.PI / 180),
             Math.cos(this.viewAngleXY * Math.PI / 180) * Math.sin(this.viewAngleYZ * Math.PI / 180));
-        var theta_z = Math.atan2(0, Math.cos(this.viewAngleYZ * Math.PI / 180));
+        var theta_z = Math.atan2(
+            0,
+            Math.cos(this.viewAngleYZ * Math.PI / 180));
 
         if (!isFinite(theta_x)) theta_x = 0.0;
         if (!isFinite(theta_y)) theta_y = 0.0;
