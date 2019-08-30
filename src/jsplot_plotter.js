@@ -1,6 +1,11 @@
-// jsplot_styles.js
+// jsplot_plotter.js
 
-function JSPlot_PlotStyles_NDataColumns(page, graph, style)
+function JSPlot_Plotter(page, graph) {
+    this.page = page;
+    this.graph = graph;
+}
+
+JSPlot_Plotter.prototype.data_columns_required = function(style)
  {
   if      (style === "points"         ) return 2 + (graph.threeDimensional ? 1 : 0);
   else if (style === "lines"          ) return 2 + (graph.threeDimensional ? 1 : 0);
@@ -33,11 +38,11 @@ function JSPlot_PlotStyles_NDataColumns(page, graph, style)
   else if (style === "arrows_twohead" ) return 4 + 2*(graph.threeDimensional ? 1 : 0);
   else if (style === "surface"        ) return 3;
 
-  page.workspace.errorLog += "Unrecognised style type passed to <JSPlot_PlotStyles_NDataColumns>\n";
+  page.workspace.errorLog += "Unrecognised style type passed to <data_columns_required>\n";
   return -1;
- }
+ };
 
-function JSPlot_PlotStyles_UpdateUsage(graph, data, style, a1, a2, a3)
+JSPlot_Plotter.prototype.update_axis_usage = function(data, style, a1, a2, a3)
  {
   var z;
   var ptAx, ptBx=0, ptCx=0, lasty=0;
@@ -47,43 +52,11 @@ function JSPlot_PlotStyles_UpdateUsage(graph, data, style, a1, a2, a3)
   $.each(data, function(index, dataPoint) 
    {
 
-  var InRange, PartiallyInRange, InRangeMemory;
-
-// UpdateUsage... get content of row X from data table
-var UUR = function(X) { return dataPoint[X]; };
-
-// UpdateUsage... check whether position is within range of axis
-var UUC = function(X,Y)
-{
- if (InRange && (!eps_plot_axis_InRange(X,Y))) InRange=0;
-};
-
-// Memory recall on within-range flag, adding previous flag to ORed list of points to be checked
-var UUD = function(X,Y)
-{
- PartiallyInRange = PartiallyInRange || InRange;
- InRange = InRangeMemory;
- UUC(X,Y);
-};
-
-// Store current within-range flag to memory
-var UUE = function(X,Y)
-{
- InRangeMemory = InRange;
- UUC(X,Y);
-};
-
 // Simultaneously update usage with UUU and check whether position is within range
 var UUF = function(X,Y)
 {
  UUC(X,logaxis?exp(Y):(Y));
  UUU(X,logaxis?exp(Y):(Y));
-};
-
-// Reset flags used to test whether a datapoint is within range before using it to update ranges of other axes
-var UUC_RESET = function()
-{
- InRange=1; PartiallyInRange=0; InRangeMemory=1;
 };
 
 // UpdateUsage... update axis X with ordinate value Y
@@ -103,100 +76,164 @@ var UUUBF = function(X)
  UUU(X,graph.boxFrom);
 };
 
-
-      UUC_RESET();
-      if      (style === "points"         ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "lines"          ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "linespoints"    ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "xerrorbars"     ) { UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a1, UUR(0)-UUR(2+graph.threeDimensional));
-                                                                                                    UUD(a1, UUR(0)                );
-                                                                                                    UUD(a1, UUR(0)+UUR(2+graph.threeDimensional));
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(2+graph.threeDimensional)); UUU(a1, UUR(0)+UUR(2+graph.threeDimensional)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "yerrorbars"     ) { UUC(a1, UUR(0)); if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a2, UUR(1)-UUR(2+graph.threeDimensional));
-                                                                                                    UUD(a2, UUR(1)                );
-                                                                                                    UUD(a2, UUR(1)+UUR(2+graph.threeDimensional));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a2, UUR(1)-UUR(2+graph.threeDimensional)); UUU(a2, UUR(1)+UUR(2+graph.threeDimensional)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "zerrorbars"     ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); UUE(a3, UUR(2)); UUD(a3, UUR(2)-UUR(3)); UUD(a3, UUR(2)+UUR(3));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a3, UUR(2)); UUU(a3, UUR(2)-UUR(3)); UUU(a3, UUR(2)+UUR(3)); }
-      else if (style === "xyerrorbars"    ) { if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a1, UUR(0)                ); UUC(a2, UUR(1)-UUR(3+graph.threeDimensional));
-                                                                                   UUD(a1, UUR(0)                ); UUC(a2, UUR(1)                );
-                                                                                   UUD(a1, UUR(0)                ); UUC(a2, UUR(1)+UUR(3+graph.threeDimensional));
-                                                                                   UUD(a1, UUR(0)-UUR(2+graph.threeDimensional)); UUC(a2, UUR(1)                );
-                                                                                   UUD(a1, UUR(0)+UUR(2+graph.threeDimensional)); UUC(a2, UUR(1)                );
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(2+graph.threeDimensional)); UUU(a1, UUR(0)+UUR(2+graph.threeDimensional)); UUU(a2, UUR(1)); UUU(a2, UUR(1)-UUR(3+graph.threeDimensional)); UUU(a2, UUR(1)+UUR(3+graph.threeDimensional)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "xzerrorbars"    ) { UUC(a2, UUR(1)); UUE(a1, UUR(0)       ); UUC(a3, UUR(2)-UUR(4));
-                                                                     UUD(a1, UUR(0)       ); UUC(a3, UUR(2)       );
-                                                                     UUD(a1, UUR(0)       ); UUC(a3, UUR(2)+UUR(4));
-                                                                     UUD(a1, UUR(0)-UUR(3)); UUC(a3, UUR(2)       );
-                                                                     UUD(a1, UUR(0)+UUR(3)); UUC(a3, UUR(2)       );
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(3)); UUU(a1, UUR(0)+UUR(3)); UUU(a2, UUR(1)); UUU(a3, UUR(2)); UUU(a3, UUR(2)-UUR(4)); UUU(a3, UUR(2)+UUR(4)); }
-      else if (style === "yzerrorbars"    ) { UUC(a1, UUR(0)); UUE(a2, UUR(1)       ); UUC(a3, UUR(2)-UUR(4));
-                                                                     UUD(a2, UUR(1)       ); UUC(a3, UUR(2)       );
-                                                                     UUD(a2, UUR(1)       ); UUC(a3, UUR(2)+UUR(4));
-                                                                     UUD(a2, UUR(1)-UUR(3)); UUC(a3, UUR(2)       );
-                                                                     UUD(a2, UUR(1)+UUR(3)); UUC(a3, UUR(2)       );
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a2, UUR(1)-UUR(3)); UUU(a2, UUR(1)+UUR(3)); UUU(a3, UUR(2)); UUU(a3, UUR(2)-UUR(4)); UUU(a3, UUR(2)+UUR(4)); }
-      else if (style === "xyzerrorbars"   ) { UUC(a1, UUR(0)       ); UUC(a2, UUR(1)       ); UUC(a3, UUR(2)-UUR(5));
-                                                    UUD(a1, UUR(0)       ); UUC(a2, UUR(1)       ); UUC(a3, UUR(2)       );
-                                                    UUD(a1, UUR(0)       ); UUC(a2, UUR(1)       ); UUC(a3, UUR(2)+UUR(5));
-                                                    UUD(a1, UUR(0)       ); UUC(a2, UUR(1)-UUR(4)); UUC(a3, UUR(2)       );
-                                                    UUD(a1, UUR(0)       ); UUC(a2, UUR(1)+UUR(4)); UUC(a3, UUR(2)       );
-                                                    UUD(a1, UUR(0)-UUR(3)); UUC(a2, UUR(1)       ); UUC(a3, UUR(2)       );
-                                                    UUD(a1, UUR(0)+UUR(3)); UUC(a2, UUR(1)       ); UUC(a3, UUR(2)       );
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(3)); UUU(a1, UUR(0)+UUR(3)); UUU(a2, UUR(1)); UUU(a2, UUR(1)-UUR(4)); UUU(a2, UUR(1)+UUR(4)); UUU(a3, UUR(2)); UUU(a3, UUR(2)-UUR(5)); UUU(a3, UUR(2)+UUR(5)); }
-      else if (style === "xerrorrange"    ) { UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a1, UUR(2+graph.threeDimensional));
-                                                                                                    UUD(a1, UUR(0)         );
-                                                                                                    UUD(a1, UUR(3+graph.threeDimensional));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a1, UUR(2+graph.threeDimensional)); UUU(a1, UUR(3+graph.threeDimensional)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "yerrorrange"    ) { UUC(a1, UUR(0)); if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a2, UUR(2+graph.threeDimensional));
-                                                                                                    UUD(a2, UUR(1)         );
-                                                                                                    UUD(a2, UUR(3+graph.threeDimensional));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a2, UUR(2+graph.threeDimensional)); UUU(a2, UUR(3+graph.threeDimensional)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "zerrorrange"    ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); UUE(a3, UUR(2)); UUD(a3, UUR(3)); UUD(a3, UUR(4));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a3, UUR(2)); UUU(a3, UUR(3)); UUU(a3, UUR(4)); }
-      else if (style === "xyerrorrange"   ) { if (graph.threeDimensional) UUC(a3, UUR(2)); UUE(a1, UUR(0)         ); UUC(a2, UUR(4+graph.threeDimensional));
-                                                                                   UUD(a1, UUR(0)         ); UUC(a2, UUR(1)         );
-                                                                                   UUD(a1, UUR(0)         ); UUC(a2, UUR(5+graph.threeDimensional));
-                                                                                   UUD(a1, UUR(2+graph.threeDimensional)); UUC(a2, UUR(1)         );
-                                                                                   UUD(a1, UUR(3+graph.threeDimensional)); UUC(a2, UUR(1)         );
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a1, UUR(2+graph.threeDimensional)); UUU(a1, UUR(3+graph.threeDimensional)); UUU(a2, UUR(4+graph.threeDimensional)); UUU(a2, UUR(5+graph.threeDimensional)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "xzerrorrange"   ) { UUC(a2, UUR(1)); UUE(a1, UUR(0)); UUC(a3, UUR(5));
-                                                                     UUD(a1, UUR(0)); UUC(a3, UUR(2));
-                                                                     UUD(a1, UUR(0)); UUC(a3, UUR(6));
-                                                                     UUD(a1, UUR(3)); UUC(a3, UUR(2));
-                                                                     UUD(a1, UUR(4)); UUC(a3, UUR(2));
-                                                    UUU(a2, UUR(1)); UUU(a1, UUR(0)); UUU(a1, UUR(3)); UUU(a1, UUR(4)); UUU(a3, UUR(2)); UUU(a3, UUR(5)); UUU(a3, UUR(6)); }
-      else if (style === "yzerrorrange"   ) { UUC(a1, UUR(0)); UUE(a2, UUR(1)); UUC(a3, UUR(5));
-                                                                     UUD(a2, UUR(1)); UUC(a3, UUR(2));
-                                                                     UUD(a2, UUR(1)); UUC(a3, UUR(6));
-                                                                     UUD(a2, UUR(3)); UUC(a3, UUR(2));
-                                                                     UUD(a2, UUR(4)); UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(3)); UUU(a1, UUR(4)); UUU(a2, UUR(1)); UUU(a2, UUR(5)); UUU(a2, UUR(6)); UUU(a3, UUR(2)); UUU(a3, UUR(7)); UUU(a3, UUR(8)); }
-      else if (style === "xyzerrorrange"  ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); UUC(a3, UUR(7));
-                                                    UUD(a1, UUR(0)); UUC(a2, UUR(1)); UUC(a3, UUR(2));
-                                                    UUD(a1, UUR(0)); UUC(a2, UUR(1)); UUC(a3, UUR(8));
-                                                    UUD(a1, UUR(0)); UUC(a2, UUR(5)); UUC(a3, UUR(2));
-                                                    UUD(a1, UUR(0)); UUC(a2, UUR(6)); UUC(a3, UUR(2));
-                                                    UUD(a1, UUR(3)); UUC(a2, UUR(1)); UUC(a3, UUR(2));
-                                                    UUD(a1, UUR(4)); UUC(a2, UUR(1)); UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(3)); UUU(a1, UUR(0)+UUR(3)); UUU(a2, UUR(1)); UUU(a2, UUR(1)-UUR(4)); UUU(a2, UUR(1)+UUR(4)); UUU(a3, UUR(2)); UUU(a3, UUR(2)-UUR(5)); UUU(a3, UUR(2)+UUR(5)); }
-      else if (style === "lowerlimits"    ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "upperlimits"    ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "dots"           ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); }
-      else if (style === "impulses"       ) { UUC(a1, UUR(0)); UUC(a2, UUR(1)); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); if (graph.threeDimensional) UUU(a3, UUR(2)); UUUBF(a2); }
-      else if (style === "wboxes"         ) { UUC(a2, UUR(1)); UUE(a1, UUR(0)); UUD(a1, UUR(0)-UUR(2)); UUD(a1, UUR(0)+UUR(2));
-                                                    UUU(a2, UUR(1)); UUU(a1, UUR(0)); UUU(a1, UUR(0)-UUR(2)); UUU(a1, UUR(0)+UUR(2)); UUUBF(a2); }
+      if      (style === "points"         ) {
+          if (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) && ((!graph.threeDimensional) || a3.in_range(dataPoint[2]))) {
+              UUU(a1, dataPoint[0]);
+              UUU(a2, dataPoint[1]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "lines"          ) {
+          if (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) && ((!graph.threeDimensional) || a3.in_range(dataPoint[2]))) {
+              UUU(a1, dataPoint[0]);
+              UUU(a2, dataPoint[1]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "linespoints"    ) {
+          if (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) && ((!graph.threeDimensional) || a3.in_range(dataPoint[2]))) {
+              UUU(a1, dataPoint[0]);
+              UUU(a2, dataPoint[1]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "xerrorbars"     ) {
+          if (a2.in_range(dataPoint[1]) && ((!graph.threeDimensional) && a3.in_range(dataPoint[2])) &&
+              (a1.in_range(dataPoint[0] - dataPoint[2 + graph.threeDimensional])
+               || a1.in_range(dataPoint[0])
+               || a1.in_range(dataPoint[0] + dataPoint[2 + graph.threeDimensional])
+              )) {
+              UUU(a1, dataPoint[0]);
+              UUU(a1, dataPoint[0] - dataPoint[2 + graph.threeDimensional]);
+              UUU(a1, dataPoint[0] + dataPoint[2 + graph.threeDimensional]);
+              UUU(a2, dataPoint[1]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "yerrorbars"     ) {
+          if (a1.in_range(dataPoint[0]) && ((!graph.threeDimensional) && a3.in_range(dataPoint[2])) &&
+              (a2.in_range(dataPoint[1] - dataPoint[2 + graph.threeDimensional])
+                  || a2.in_range(dataPoint[1])
+                  || a2.in_range(dataPoint[1] + dataPoint[2 + graph.threeDimensional])
+              )) {
+              UUU(a1, dataPoint[0]);
+              UUU(a2, dataPoint[1]);
+              UUU(a2, dataPoint[1] - dataPoint[2 + graph.threeDimensional]);
+              UUU(a2, dataPoint[1] + dataPoint[2 + graph.threeDimensional]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "zerrorbars"     ) {
+          if (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) &&
+              (a3.in_range(dataPoint[2])
+                  || a3.in_range(dataPoint[2] - dataPoint[3])
+                  || a3.in_range(dataPoint[2] + dataPoint[3])
+              )) {
+              UUU(a1, dataPoint[0]);
+              UUU(a2, dataPoint[1]);
+              UUU(a3, dataPoint[2]);
+              UUU(a3, dataPoint[2] - dataPoint[3]);
+              UUU(a3, dataPoint[2] + dataPoint[3]);
+          }
+      }
+      else if (style === "xyerrorbars"    ) {
+          if (((!graph.threeDimensional) || a3.in_range(dataPoint[2])) &&
+              ((a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1] - dataPoint[3 + graph.threeDimensional]))
+               || (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]))
+               || (a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1] + dataPoint[3 + graph.threeDimensional]))
+               || (a1.in_range(dataPoint[0] - dataPoint[2 + graph.threeDimensional]) && a2.in_range(dataPoint[1]))
+               || (a1.in_range(dataPoint[0] + dataPoint[2 + graph.threeDimensional]) && a2.in_range(dataPoint[1]))
+              )) {
+              UUU(a1, dataPoint[0]);
+              UUU(a1, dataPoint[0] - dataPoint[2 + graph.threeDimensional]);
+              UUU(a1, dataPoint[0] + dataPoint[2 + graph.threeDimensional]);
+              UUU(a2, dataPoint[1]);
+              UUU(a2, dataPoint[1] - dataPoint[3 + graph.threeDimensional]);
+              UUU(a2, dataPoint[1] + dataPoint[3 + graph.threeDimensional]);
+              if (graph.threeDimensional) UUU(a3, dataPoint[2]);
+          }
+      }
+      else if (style === "xzerrorbars"    ) {
+          if (a2.in_range(dataPoint[1]) &&
+              ((a1.in_range(dataPoint[0]) && a3.in_range(dataPoint[2] - dataPoint[4]))
+                  || (a1.in_range(dataPoint[0]) && a3.in_range(dataPoint[2]))
+                  || (a1.in_range(dataPoint[0]) && a3.in_range(dataPoint[2] + dataPoint[4]))
+                  || (a1.in_range(dataPoint[0] - dataPoint[3]) && a3.in_range(dataPoint[2]))
+                  || (a1.in_range(dataPoint[0] + dataPoint[3]) && a3.in_range(dataPoint[2]))
+              )) {
+              UUU(a1, dataPoint[0]);
+              UUU(a1, dataPoint[0] - dataPoint[3]);
+              UUU(a1, dataPoint[0] + dataPoint[3]);
+              UUU(a2, dataPoint[1]);
+              UUU(a3, dataPoint[2]);
+              UUU(a3, dataPoint[2] - dataPoint[4]);
+              UUU(a3, dataPoint[2] + dataPoint[4]);
+          }
+      }
+      else if (style === "yzerrorbars"    ) { if ( a1.in_range(dataPoint[0]) && (a2.in_range( dataPoint[1]       ) && a3.in_range(dataPoint[2]-dataPoint[4])
+                                                                     ) || (a2.in_range( dataPoint[1]       ) && a3.in_range(dataPoint[2]       )
+                                                                     ) || (a2.in_range( dataPoint[1]       ) && a3.in_range(dataPoint[2]+dataPoint[4])
+                                                                     ) || (a2.in_range( dataPoint[1]-dataPoint[3]) && a3.in_range(dataPoint[2]       )
+                                                                     ) || (a2.in_range( dataPoint[1]+dataPoint[3]) && a3.in_range(dataPoint[2]       )
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a2, dataPoint[1]-dataPoint[3]); UUU(a2, dataPoint[1]+dataPoint[3]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[2]-dataPoint[4]); UUU(a3, dataPoint[2]+dataPoint[4]); }
+      else if (style === "xyzerrorbars"   ) { if ( a1.in_range(dataPoint[0]       ) && a2.in_range(dataPoint[1]       ) && a3.in_range(dataPoint[2]-dataPoint[5])
+                                                    ) || (a1.in_range( dataPoint[0]       ) && a2.in_range(dataPoint[1]       ) && a3.in_range(dataPoint[2]       )
+                                                    ) || (a1.in_range( dataPoint[0]       ) && a2.in_range(dataPoint[1]       ) && a3.in_range(dataPoint[2]+dataPoint[5])
+                                                    ) || (a1.in_range( dataPoint[0]       ) && a2.in_range(dataPoint[1]-dataPoint[4]) && a3.in_range(dataPoint[2]       )
+                                                    ) || (a1.in_range( dataPoint[0]       ) && a2.in_range(dataPoint[1]+dataPoint[4]) && a3.in_range(dataPoint[2]       )
+                                                    ) || (a1.in_range( dataPoint[0]-dataPoint[3]) && a2.in_range(dataPoint[1]       ) && a3.in_range(dataPoint[2]       )
+                                                    ) || (a1.in_range( dataPoint[0]+dataPoint[3]) && a2.in_range(dataPoint[1]       ) && a3.in_range(dataPoint[2]       )
+                                                    UUU(a1, dataPoint[0]); UUU(a1, dataPoint[0]-dataPoint[3]); UUU(a1, dataPoint[0]+dataPoint[3]); UUU(a2, dataPoint[1]); UUU(a2, dataPoint[1]-dataPoint[4]); UUU(a2, dataPoint[1]+dataPoint[4]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[2]-dataPoint[5]); UUU(a3, dataPoint[2]+dataPoint[5]); }
+      else if (style === "xerrorrange"    ) { if ( a2.in_range(dataPoint[1]) if (graph.threeDimensional) && a3.in_range(dataPoint[2]) && (a1.in_range( dataPoint[2+graph.threeDimensional])
+                                                                                                    ) || (a1.in_range( dataPoint[0]         )
+                                                                                                    ) || (a1.in_range( dataPoint[3+graph.threeDimensional])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a1, dataPoint[2+graph.threeDimensional]); UUU(a1, dataPoint[3+graph.threeDimensional]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "yerrorrange"    ) { if ( a1.in_range(dataPoint[0]) if (graph.threeDimensional) && a3.in_range(dataPoint[2]) && (a2.in_range( dataPoint[2+graph.threeDimensional])
+                                                                                                    ) || (a2.in_range( dataPoint[1]         )
+                                                                                                    ) || (a2.in_range( dataPoint[3+graph.threeDimensional])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a2, dataPoint[2+graph.threeDimensional]); UUU(a2, dataPoint[3+graph.threeDimensional]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "zerrorrange"    ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) && (a3.in_range( dataPoint[2]) ) || (a3.in_range( dataPoint[3]) ) || (a3.in_range( dataPoint[4])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[3]); UUU(a3, dataPoint[4]); }
+      else if (style === "xyerrorrange"   ) { if (graph.threeDimensional) && a3.in_range(dataPoint[2]) && (a1.in_range( dataPoint[0]         ) && a2.in_range(dataPoint[4+graph.threeDimensional])
+                                                                                   ) || (a1.in_range( dataPoint[0]         ) && a2.in_range(dataPoint[1]         )
+                                                                                   ) || (a1.in_range( dataPoint[0]         ) && a2.in_range(dataPoint[5+graph.threeDimensional])
+                                                                                   ) || (a1.in_range( dataPoint[2+graph.threeDimensional]) && a2.in_range(dataPoint[1]         )
+                                                                                   ) || (a1.in_range( dataPoint[3+graph.threeDimensional]) && a2.in_range(dataPoint[1]         )
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a1, dataPoint[2+graph.threeDimensional]); UUU(a1, dataPoint[3+graph.threeDimensional]); UUU(a2, dataPoint[4+graph.threeDimensional]); UUU(a2, dataPoint[5+graph.threeDimensional]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "xzerrorrange"   ) { if ( a2.in_range(dataPoint[1]) && (a1.in_range( dataPoint[0]) && a3.in_range(dataPoint[5])
+                                                                     ) || (a1.in_range( dataPoint[0]) && a3.in_range(dataPoint[2])
+                                                                     ) || (a1.in_range( dataPoint[0]) && a3.in_range(dataPoint[6])
+                                                                     ) || (a1.in_range( dataPoint[3]) && a3.in_range(dataPoint[2])
+                                                                     ) || (a1.in_range( dataPoint[4]) && a3.in_range(dataPoint[2])
+                                                    UUU(a2, dataPoint[1]); UUU(a1, dataPoint[0]); UUU(a1, dataPoint[3]); UUU(a1, dataPoint[4]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[5]); UUU(a3, dataPoint[6]); }
+      else if (style === "yzerrorrange"   ) { if ( a1.in_range(dataPoint[0]) && (a2.in_range( dataPoint[1]) && a3.in_range(dataPoint[5])
+                                                                     ) || (a2.in_range( dataPoint[1]) && a3.in_range(dataPoint[2])
+                                                                     ) || (a2.in_range( dataPoint[1]) && a3.in_range(dataPoint[6])
+                                                                     ) || (a2.in_range( dataPoint[3]) && a3.in_range(dataPoint[2])
+                                                                     ) || (a2.in_range( dataPoint[4]) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a1, dataPoint[3]); UUU(a1, dataPoint[4]); UUU(a2, dataPoint[1]); UUU(a2, dataPoint[5]); UUU(a2, dataPoint[6]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[7]); UUU(a3, dataPoint[8]); }
+      else if (style === "xyzerrorrange"  ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) && a3.in_range(dataPoint[7])
+                                                    ) || (a1.in_range( dataPoint[0]) && a2.in_range(dataPoint[1]) && a3.in_range(dataPoint[2])
+                                                    ) || (a1.in_range( dataPoint[0]) && a2.in_range(dataPoint[1]) && a3.in_range(dataPoint[8])
+                                                    ) || (a1.in_range( dataPoint[0]) && a2.in_range(dataPoint[5]) && a3.in_range(dataPoint[2])
+                                                    ) || (a1.in_range( dataPoint[0]) && a2.in_range(dataPoint[6]) && a3.in_range(dataPoint[2])
+                                                    ) || (a1.in_range( dataPoint[3]) && a2.in_range(dataPoint[1]) && a3.in_range(dataPoint[2])
+                                                    ) || (a1.in_range( dataPoint[4]) && a2.in_range(dataPoint[1]) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a1, dataPoint[0]-dataPoint[3]); UUU(a1, dataPoint[0]+dataPoint[3]); UUU(a2, dataPoint[1]); UUU(a2, dataPoint[1]-dataPoint[4]); UUU(a2, dataPoint[1]+dataPoint[4]); UUU(a3, dataPoint[2]); UUU(a3, dataPoint[2]-dataPoint[5]); UUU(a3, dataPoint[2]+dataPoint[5]); }
+      else if (style === "lowerlimits"    ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) if (graph.threeDimensional) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "upperlimits"    ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) if (graph.threeDimensional) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "dots"           ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) if (graph.threeDimensional) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); }
+      else if (style === "impulses"       ) { if ( a1.in_range(dataPoint[0]) && a2.in_range(dataPoint[1]) if (graph.threeDimensional) && a3.in_range(dataPoint[2])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); if (graph.threeDimensional) UUU(a3, dataPoint[2]); UUUBF(a2); }
+      else if (style === "wboxes"         ) { if ( a2.in_range(dataPoint[1]) && (a1.in_range( dataPoint[0]) ) || (a1.in_range( dataPoint[0]-dataPoint[2]) ) || (a1.in_range( dataPoint[0]+dataPoint[2])
+                                                    UUU(a2, dataPoint[1]); UUU(a1, dataPoint[0]); UUU(a1, dataPoint[0]-dataPoint[2]); UUU(a1, dataPoint[0]+dataPoint[2]); UUUBF(a2); }
       else if ((style === "arrows_head") || (style === "arrows_nohead") || (style === "arrows_twohead"))
-                                                  { UUC(a1, UUR(0         )); UUC(a2, UUR(1         )); if (graph.threeDimensional) UUC(a3, UUR(2));
-                                                    UUD(a1, UUR(2+graph.threeDimensional)); UUC(a2, UUR(3+graph.threeDimensional)); if (graph.threeDimensional) UUC(a3, UUR(5));
-                                                    UUU(a1, UUR(0)); UUU(a2, UUR(1)); UUU(a1, UUR(2+graph.threeDimensional)); UUU(a2, UUR(3+graph.threeDimensional)); if (graph.threeDimensional) { UUU(a3, UUR(2)); UUU(a3, UUR(5)); } }
+                                                  { && a1.in_range(dataPoint[0         ]) && a2.in_range(dataPoint[1         ]) if (graph.threeDimensional) && a3.in_range(dataPoint[2])
+                                                    ) || (a1.in_range( dataPoint[2+graph.threeDimensional]) && a2.in_range(dataPoint[3+graph.threeDimensional]) if (graph.threeDimensional) && a3.in_range(dataPoint[5])
+                                                    UUU(a1, dataPoint[0]); UUU(a2, dataPoint[1]); UUU(a1, dataPoint[2+graph.threeDimensional]); UUU(a2, dataPoint[3+graph.threeDimensional]); if (graph.threeDimensional) { UUU(a3, dataPoint[2]); UUU(a3, dataPoint[5]); } }
 };
 
   return 0;
