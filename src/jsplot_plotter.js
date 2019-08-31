@@ -62,211 +62,282 @@ JSPlot_Plotter.prototype.data_columns_required = function (style) {
  * @param a2 {JSPlot_Axis} - The axis we are going to use as an y axis
  * @param a3 {JSPlot_Axis} - The axis we are going to use as an z axis
  */
-JSPlot_Plotter.prototype.update_axis_usage = function(data, style, a1, a2, a3)
- {
-  var ptAx, ptBx=0, ptCx=0, lasty=0;
-  var ptAset=0, ptBset=0, ptCset=0;
-  
-  var is_3d = this.graph.threeDimensional;
+JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) {
+    var is_3d = this.graph.threeDimensional;
 
-  // Cycle through data table, ensuring that axis ranges are sufficient to include all data
-  $.each(data.data, function(index, dataPoint) 
-   {
+    // Cycle through data table, ensuring that axis ranges are sufficient to include all data
+    $.each(data.data, function (index, dataPoint) {
 
-      if (style === "points") {
-          if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!this.is_3d) || a3.inRange(dataPoint[2]))) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              if (this.is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "lines") {
-          if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "linespoints") {
-          if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "xerrorbars") {
-          if (a2.inRange(dataPoint[1]) && ((!is_3d) && a3.inRange(dataPoint[2])) &&
-              (a1.inRange(dataPoint[0] - dataPoint[2 + is_3d])
-                  || a1.inRange(dataPoint[0])
-                  || a1.inRange(dataPoint[0] + dataPoint[2 + is_3d])
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a1.includePoint( dataPoint[0] - dataPoint[2 + is_3d]);
-              a1.includePoint( dataPoint[0] + dataPoint[2 + is_3d]);
-              a2.includePoint( dataPoint[1]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "yerrorbars") {
-          if (a1.inRange(dataPoint[0]) && ((!is_3d) && a3.inRange(dataPoint[2])) &&
-              (a2.inRange(dataPoint[1] - dataPoint[2 + is_3d])
-                  || a2.inRange(dataPoint[1])
-                  || a2.inRange(dataPoint[1] + dataPoint[2 + is_3d])
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a2.includePoint( dataPoint[1] - dataPoint[2 + is_3d]);
-              a2.includePoint( dataPoint[1] + dataPoint[2 + is_3d]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "zerrorbars") {
-          if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) &&
-              (a3.inRange(dataPoint[2])
-                  || a3.inRange(dataPoint[2] - dataPoint[3])
-                  || a3.inRange(dataPoint[2] + dataPoint[3])
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a3.includePoint( dataPoint[2]);
-              a3.includePoint( dataPoint[2] - dataPoint[3]);
-              a3.includePoint( dataPoint[2] + dataPoint[3]);
-          }
-      } else if (style === "xyerrorbars") {
-          if (((!is_3d) || a3.inRange(dataPoint[2])) &&
-              ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] - dataPoint[3 + is_3d]))
-                  || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]))
-                  || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] + dataPoint[3 + is_3d]))
-                  || (a1.inRange(dataPoint[0] - dataPoint[2 + is_3d]) && a2.inRange(dataPoint[1]))
-                  || (a1.inRange(dataPoint[0] + dataPoint[2 + is_3d]) && a2.inRange(dataPoint[1]))
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a1.includePoint( dataPoint[0] - dataPoint[2 + is_3d]);
-              a1.includePoint( dataPoint[0] + dataPoint[2 + is_3d]);
-              a2.includePoint( dataPoint[1]);
-              a2.includePoint( dataPoint[1] - dataPoint[3 + is_3d]);
-              a2.includePoint( dataPoint[1] + dataPoint[3 + is_3d]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "xzerrorbars") {
-          if (a2.inRange(dataPoint[1]) &&
-              ((a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2] - dataPoint[4]))
-                  || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2]))
-                  || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2] + dataPoint[4]))
-                  || (a1.inRange(dataPoint[0] - dataPoint[3]) && a3.inRange(dataPoint[2]))
-                  || (a1.inRange(dataPoint[0] + dataPoint[3]) && a3.inRange(dataPoint[2]))
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a1.includePoint( dataPoint[0] - dataPoint[3]);
-              a1.includePoint( dataPoint[0] + dataPoint[3]);
-              a2.includePoint( dataPoint[1]);
-              a3.includePoint( dataPoint[2]);
-              a3.includePoint( dataPoint[2] - dataPoint[4]);
-              a3.includePoint( dataPoint[2] + dataPoint[4]);
-          }
-      } else if (style === "yzerrorbars") {
-          if (a1.inRange(dataPoint[0]) &&
-              ((a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] - dataPoint[4]))
-                  || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
-                  || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] + dataPoint[4]))
-                  || (a2.inRange(dataPoint[1] - dataPoint[3]) && a3.inRange(dataPoint[2]))
-                  || (a2.inRange(dataPoint[1] + dataPoint[3]) && a3.inRange(dataPoint[2]))
-              )) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a2.includePoint( dataPoint[1] - dataPoint[3]);
-              a2.includePoint( dataPoint[1] + dataPoint[3]);
-              a3.includePoint( dataPoint[2]);
-              a3.includePoint( dataPoint[2] - dataPoint[4]);
-              a3.includePoint( dataPoint[2] + dataPoint[4]);
-          }
-      } else if (style === "xyzerrorbars") {
-          if ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] - dataPoint[5]))
-              || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
-              || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] + dataPoint[5]))
-              || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] - dataPoint[4]) && a3.inRange(dataPoint[2]))
-              || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] + dataPoint[4]) && a3.inRange(dataPoint[2]))
-              || (a1.inRange(dataPoint[0] - dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
-              || (a1.inRange(dataPoint[0] + dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
-          ) {
-              a1.includePoint( dataPoint[0]);
-              a1.includePoint( dataPoint[0] - dataPoint[3]);
-              a1.includePoint( dataPoint[0] + dataPoint[3]);
-              a2.includePoint( dataPoint[1]);
-              a2.includePoint( dataPoint[1] - dataPoint[4]);
-              a2.includePoint( dataPoint[1] + dataPoint[4]);
-              a3.includePoint( dataPoint[2]);
-              a3.includePoint( dataPoint[2] - dataPoint[5]);
-              a3.includePoint( dataPoint[2] + dataPoint[5]);
-          }
-      } else if (style === "xerrorrange") {
-          if (a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2])) &&
-              (a1.inRange(dataPoint[2 + is_3d]) || a1.inRange(dataPoint[0]) || a1.inRange(dataPoint[3 + is_3d]))
-          ) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a1.includePoint( dataPoint[2 + is_3d]);
-              a1.includePoint( dataPoint[3 + is_3d]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "yerrorrange") {
-          if (a1.inRange(dataPoint[0]) && ((!is_3d) || a3.inRange(dataPoint[2])) &&
-              (a2.inRange(dataPoint[2 + is_3d]) || a2.inRange(dataPoint[1]) || a2.inRange(dataPoint[3 + is_3d]))
-          ) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a2.includePoint( dataPoint[2 + is_3d]);
-              a2.includePoint( dataPoint[3 + is_3d]);
-              if (is_3d) a3.includePoint( dataPoint[2]);
-          }
-      } else if (style === "zerrorrange") {
-          if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) &&
-              (a3.inRange(dataPoint[2]) || a3.inRange(dataPoint[3]) || a3.inRange(dataPoint[4]))
-          ) {
-              a1.includePoint( dataPoint[0]);
-              a2.includePoint( dataPoint[1]);
-              a3.includePoint( dataPoint[2]);
-              a3.includePoint( dataPoint[3]);
-              a3.includePoint( dataPoint[4]);
-          }
-      }
-      else if (style === "xyerrorrange"   ) { if (is_3d) && a3.inRange(dataPoint[2]) && (a1.inRange( dataPoint[0]         ) && a2.inRange(dataPoint[4+is_3d])
-                                                                                   ) || (a1.inRange( dataPoint[0]         ) && a2.inRange(dataPoint[1]         )
-                                                                                   ) || (a1.inRange( dataPoint[0]         ) && a2.inRange(dataPoint[5+is_3d])
-                                                                                   ) || (a1.inRange( dataPoint[2+is_3d]) && a2.inRange(dataPoint[1]         )
-                                                                                   ) || (a1.inRange( dataPoint[3+is_3d]) && a2.inRange(dataPoint[1]         )
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); a1.includePoint( dataPoint[2+is_3d]); a1.includePoint( dataPoint[3+is_3d]); a2.includePoint( dataPoint[4+is_3d]); a2.includePoint( dataPoint[5+is_3d]); if (is_3d) a3.includePoint( dataPoint[2]); }
-      else if (style === "xzerrorrange"   ) { if ( a2.inRange(dataPoint[1]) && (a1.inRange( dataPoint[0]) && a3.inRange(dataPoint[5])
-                                                                     ) || (a1.inRange( dataPoint[0]) && a3.inRange(dataPoint[2])
-                                                                     ) || (a1.inRange( dataPoint[0]) && a3.inRange(dataPoint[6])
-                                                                     ) || (a1.inRange( dataPoint[3]) && a3.inRange(dataPoint[2])
-                                                                     ) || (a1.inRange( dataPoint[4]) && a3.inRange(dataPoint[2])
-                                                    a2.includePoint( dataPoint[1]); a1.includePoint( dataPoint[0]); a1.includePoint( dataPoint[3]); a1.includePoint( dataPoint[4]); a3.includePoint( dataPoint[2]); a3.includePoint( dataPoint[5]); a3.includePoint( dataPoint[6]); }
-      else if (style === "yzerrorrange"   ) { if ( a1.inRange(dataPoint[0]) && (a2.inRange( dataPoint[1]) && a3.inRange(dataPoint[5])
-                                                                     ) || (a2.inRange( dataPoint[1]) && a3.inRange(dataPoint[2])
-                                                                     ) || (a2.inRange( dataPoint[1]) && a3.inRange(dataPoint[6])
-                                                                     ) || (a2.inRange( dataPoint[3]) && a3.inRange(dataPoint[2])
-                                                                     ) || (a2.inRange( dataPoint[4]) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a1.includePoint( dataPoint[3]); a1.includePoint( dataPoint[4]); a2.includePoint( dataPoint[1]); a2.includePoint( dataPoint[5]); a2.includePoint( dataPoint[6]); a3.includePoint( dataPoint[2]); a3.includePoint( dataPoint[7]); a3.includePoint( dataPoint[8]); }
-      else if (style === "xyzerrorrange"  ) { if ( a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[7])
-                                                    ) || (a1.inRange( dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2])
-                                                    ) || (a1.inRange( dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[8])
-                                                    ) || (a1.inRange( dataPoint[0]) && a2.inRange(dataPoint[5]) && a3.inRange(dataPoint[2])
-                                                    ) || (a1.inRange( dataPoint[0]) && a2.inRange(dataPoint[6]) && a3.inRange(dataPoint[2])
-                                                    ) || (a1.inRange( dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2])
-                                                    ) || (a1.inRange( dataPoint[4]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a1.includePoint( dataPoint[0]-dataPoint[3]); a1.includePoint( dataPoint[0]+dataPoint[3]); a2.includePoint( dataPoint[1]); a2.includePoint( dataPoint[1]-dataPoint[4]); a2.includePoint( dataPoint[1]+dataPoint[4]); a3.includePoint( dataPoint[2]); a3.includePoint( dataPoint[2]-dataPoint[5]); a3.includePoint( dataPoint[2]+dataPoint[5]); }
-      else if (style === "lowerlimits"    ) { if ( a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) if (is_3d) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); if (is_3d) a3.includePoint( dataPoint[2]); }
-      else if (style === "upperlimits"    ) { if ( a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) if (is_3d) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); if (is_3d) a3.includePoint( dataPoint[2]); }
-      else if (style === "dots"           ) { if ( a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) if (is_3d) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); if (is_3d) a3.includePoint( dataPoint[2]); }
-      else if (style === "impulses"       ) { if ( a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) if (is_3d) && a3.inRange(dataPoint[2])
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); if (is_3d) a3.includePoint( dataPoint[2]); UUUBF(a2); }
-      else if (style === "wboxes"         ) { if ( a2.inRange(dataPoint[1]) && (a1.inRange( dataPoint[0]) ) || (a1.inRange( dataPoint[0]-dataPoint[2]) ) || (a1.inRange( dataPoint[0]+dataPoint[2])
-                                                    a2.includePoint( dataPoint[1]); a1.includePoint( dataPoint[0]); a1.includePoint( dataPoint[0]-dataPoint[2]); a1.includePoint( dataPoint[0]+dataPoint[2]); UUUBF(a2); }
-      else if ((style === "arrows_head") || (style === "arrows_nohead") || (style === "arrows_twohead"))
-                                                  { && a1.inRange(dataPoint[0         ]) && a2.inRange(dataPoint[1         ]) if (is_3d) && a3.inRange(dataPoint[2])
-                                                    ) || (a1.inRange( dataPoint[2+is_3d]) && a2.inRange(dataPoint[3+is_3d]) if (is_3d) && a3.inRange(dataPoint[5])
-                                                    a1.includePoint( dataPoint[0]); a2.includePoint( dataPoint[1]); a1.includePoint( dataPoint[2+is_3d]); a2.includePoint( dataPoint[3+is_3d]); if (is_3d) { a3.includePoint( dataPoint[2]); a3.includePoint( dataPoint[5]); } }
+        if (style === "points") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!this.is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (this.is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "lines") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "linespoints") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "xerrorbars") {
+            if (a2.inRange(dataPoint[1]) && ((!is_3d) && a3.inRange(dataPoint[2])) &&
+                (a1.inRange(dataPoint[0] - dataPoint[2 + is_3d])
+                    || a1.inRange(dataPoint[0])
+                    || a1.inRange(dataPoint[0] + dataPoint[2 + is_3d])
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[2 + is_3d]);
+                a1.includePoint(dataPoint[0] + dataPoint[2 + is_3d]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "yerrorbars") {
+            if (a1.inRange(dataPoint[0]) && ((!is_3d) && a3.inRange(dataPoint[2])) &&
+                (a2.inRange(dataPoint[1] - dataPoint[2 + is_3d])
+                    || a2.inRange(dataPoint[1])
+                    || a2.inRange(dataPoint[1] + dataPoint[2 + is_3d])
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[1] - dataPoint[2 + is_3d]);
+                a2.includePoint(dataPoint[1] + dataPoint[2 + is_3d]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "zerrorbars") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) &&
+                (a3.inRange(dataPoint[2])
+                    || a3.inRange(dataPoint[2] - dataPoint[3])
+                    || a3.inRange(dataPoint[2] + dataPoint[3])
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[2] - dataPoint[3]);
+                a3.includePoint(dataPoint[2] + dataPoint[3]);
+            }
+        } else if (style === "xyerrorbars") {
+            if (((!is_3d) || a3.inRange(dataPoint[2])) &&
+                ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] - dataPoint[3 + is_3d]))
+                    || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]))
+                    || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] + dataPoint[3 + is_3d]))
+                    || (a1.inRange(dataPoint[0] - dataPoint[2 + is_3d]) && a2.inRange(dataPoint[1]))
+                    || (a1.inRange(dataPoint[0] + dataPoint[2 + is_3d]) && a2.inRange(dataPoint[1]))
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[2 + is_3d]);
+                a1.includePoint(dataPoint[0] + dataPoint[2 + is_3d]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[1] - dataPoint[3 + is_3d]);
+                a2.includePoint(dataPoint[1] + dataPoint[3 + is_3d]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "xzerrorbars") {
+            if (a2.inRange(dataPoint[1]) &&
+                ((a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2] - dataPoint[4]))
+                    || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2]))
+                    || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2] + dataPoint[4]))
+                    || (a1.inRange(dataPoint[0] - dataPoint[3]) && a3.inRange(dataPoint[2]))
+                    || (a1.inRange(dataPoint[0] + dataPoint[3]) && a3.inRange(dataPoint[2]))
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[3]);
+                a1.includePoint(dataPoint[0] + dataPoint[3]);
+                a2.includePoint(dataPoint[1]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[2] - dataPoint[4]);
+                a3.includePoint(dataPoint[2] + dataPoint[4]);
+            }
+        } else if (style === "yzerrorbars") {
+            if (a1.inRange(dataPoint[0]) &&
+                ((a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] - dataPoint[4]))
+                    || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                    || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] + dataPoint[4]))
+                    || (a2.inRange(dataPoint[1] - dataPoint[3]) && a3.inRange(dataPoint[2]))
+                    || (a2.inRange(dataPoint[1] + dataPoint[3]) && a3.inRange(dataPoint[2]))
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[1] - dataPoint[3]);
+                a2.includePoint(dataPoint[1] + dataPoint[3]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[2] - dataPoint[4]);
+                a3.includePoint(dataPoint[2] + dataPoint[4]);
+            }
+        } else if (style === "xyzerrorbars") {
+            if ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] - dataPoint[5]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2] + dataPoint[5]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] - dataPoint[4]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1] + dataPoint[4]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0] - dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0] + dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[3]);
+                a1.includePoint(dataPoint[0] + dataPoint[3]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[1] - dataPoint[4]);
+                a2.includePoint(dataPoint[1] + dataPoint[4]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[2] - dataPoint[5]);
+                a3.includePoint(dataPoint[2] + dataPoint[5]);
+            }
+        } else if (style === "xerrorrange") {
+            if (a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2])) &&
+                (a1.inRange(dataPoint[2 + is_3d]) || a1.inRange(dataPoint[0]) || a1.inRange(dataPoint[3 + is_3d]))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a1.includePoint(dataPoint[2 + is_3d]);
+                a1.includePoint(dataPoint[3 + is_3d]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "yerrorrange") {
+            if (a1.inRange(dataPoint[0]) && ((!is_3d) || a3.inRange(dataPoint[2])) &&
+                (a2.inRange(dataPoint[2 + is_3d]) || a2.inRange(dataPoint[1]) || a2.inRange(dataPoint[3 + is_3d]))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[2 + is_3d]);
+                a2.includePoint(dataPoint[3 + is_3d]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "zerrorrange") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) &&
+                (a3.inRange(dataPoint[2]) || a3.inRange(dataPoint[3]) || a3.inRange(dataPoint[4]))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[3]);
+                a3.includePoint(dataPoint[4]);
+            }
+        } else if (style === "xyerrorrange") {
+            if (((!is_3d) || a3.inRange(dataPoint[2])) &&
+                ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[4 + is_3d]))
+                    || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]))
+                    || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[5 + is_3d]))
+                    || (a1.inRange(dataPoint[2 + is_3d]) && a2.inRange(dataPoint[1]))
+                    || (a1.inRange(dataPoint[3 + is_3d]) && a2.inRange(dataPoint[1]))
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a1.includePoint(dataPoint[2 + is_3d]);
+                a1.includePoint(dataPoint[3 + is_3d]);
+                a2.includePoint(dataPoint[4 + is_3d]);
+                a2.includePoint(dataPoint[5 + is_3d]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "xzerrorrange") {
+            if (a2.inRange(dataPoint[1]) &&
+                ((a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[5]))
+                    || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[2]))
+                    || (a1.inRange(dataPoint[0]) && a3.inRange(dataPoint[6]))
+                    || (a1.inRange(dataPoint[3]) && a3.inRange(dataPoint[2]))
+                    || (a1.inRange(dataPoint[4]) && a3.inRange(dataPoint[2]))
+                )) {
+                a2.includePoint(dataPoint[1]);
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[3]);
+                a1.includePoint(dataPoint[4]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[5]);
+                a3.includePoint(dataPoint[6]);
+            }
+        } else if (style === "yzerrorrange") {
+            if (a1.inRange(dataPoint[0]) &&
+                ((a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[5]))
+                    || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                    || (a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[6]))
+                    || (a2.inRange(dataPoint[3]) && a3.inRange(dataPoint[2]))
+                    || (a2.inRange(dataPoint[4]) && a3.inRange(dataPoint[2]))
+                )) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[3]);
+                a1.includePoint(dataPoint[4]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[5]);
+                a2.includePoint(dataPoint[6]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[7]);
+                a3.includePoint(dataPoint[8]);
+            }
+        } else if (style === "xyzerrorrange") {
+            if ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[7]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[8]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[5]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[6]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[3]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+                || (a1.inRange(dataPoint[4]) && a2.inRange(dataPoint[1]) && a3.inRange(dataPoint[2]))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[3]);
+                a1.includePoint(dataPoint[0] + dataPoint[3]);
+                a2.includePoint(dataPoint[1]);
+                a2.includePoint(dataPoint[1] - dataPoint[4]);
+                a2.includePoint(dataPoint[1] + dataPoint[4]);
+                a3.includePoint(dataPoint[2]);
+                a3.includePoint(dataPoint[2] - dataPoint[5]);
+                a3.includePoint(dataPoint[2] + dataPoint[5]);
+            }
+        } else if (style === "lowerlimits") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "upperlimits") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "dots") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) && a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+            }
+        } else if (style === "impulses") {
+            if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                if (is_3d) a3.includePoint(dataPoint[2]);
+                a2.includePoint(self.graph.boxFrom);
+            }
+        } else if (style === "wboxes") {
+            if (a2.inRange(dataPoint[1]) &&
+                (a1.inRange(dataPoint[0]) || a1.inRange(dataPoint[0] - dataPoint[2]) || a1.inRange(dataPoint[0] + dataPoint[2]))) {
+                a2.includePoint(dataPoint[1]);
+                a1.includePoint(dataPoint[0]);
+                a1.includePoint(dataPoint[0] - dataPoint[2]);
+                a1.includePoint(dataPoint[0] + dataPoint[2]);
+                a2.includePoint(self.graph.boxFrom);
+            }
+        } else if ((style === "arrows_head") || (style === "arrows_nohead") || (style === "arrows_twohead")) {
+            if ((a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2])))
+                || (a1.inRange(dataPoint[2 + is_3d]) && a2.inRange(dataPoint[3 + is_3d]) && ((!is_3d) || a3.inRange(dataPoint[5])))
+            ) {
+                a1.includePoint(dataPoint[0]);
+                a2.includePoint(dataPoint[1]);
+                a1.includePoint(dataPoint[2 + is_3d]);
+                a2.includePoint(dataPoint[3 + is_3d]);
+                if (is_3d) {
+                    a3.includePoint(dataPoint[2]);
+                    a3.includePoint(dataPoint[5]);
+                }
+            }
+        }
+    });
+
+    return 0;
 };
-
-  return 0;
- }
 
