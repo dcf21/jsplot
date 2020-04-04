@@ -265,6 +265,8 @@ JSPlot_Axis.prototype.inRange = function (x_in) {
  * @param page {JSPlot_Canvas} - The canvas we are plotting this axis on to
  */
 JSPlot_Axis.prototype.linkedAxisBackPropagate = function (page) {
+    var self = this;
+
     // Propagate minUsed and maxUsed variables along links between axes
     var iterDepth;
 
@@ -315,6 +317,7 @@ JSPlot_Axis.prototype.linkedAxisBackPropagate = function (page) {
  * @param mode
  */
 JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
+    var self = this;
     var originalMode = mode;
 
     // Propagate minUsed and maxUsed variables along links between axes

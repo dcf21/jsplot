@@ -25,14 +25,14 @@ function JSPlot_PlotStyle(settings) {
 JSPlot_PlotStyle.prototype.configure = function(settings) {
     $.each(settings, function (key, value) {
         switch (key) {
-            case "color": this. color = value; break;
-            case "fillColor": this. fillColor = value; break;
-            case "plotStyle": this. plotStyle = value; break;
-            case "lineType": this. lineType = value; break;
-            case "pointType": this. pointType = value; break;
-            case "lineWidth": this. lineWidth = value; break;
-            case "pointLineWidth": this. pointLineWidth = value; break;
-            case "pointSize": this. pointSize = value; break;
+            case "color": this.color = value; break;
+            case "fillColor": this.fillColor = value; break;
+            case "plotStyle": this.plotStyle = value; break;
+            case "lineType": this.lineType = value; break;
+            case "pointType": this.pointType = value; break;
+            case "lineWidth": this.lineWidth = value; break;
+            case "pointLineWidth": this.pointLineWidth = value; break;
+            case "pointSize": this.pointSize = value; break;
             default: throw "Unrecognised plot style setting " + key;
         }
     });
@@ -42,13 +42,26 @@ JSPlot_PlotStyle.prototype.configure = function(settings) {
  * Clone a JSPlot_PlotStyle container into a new container
  */
 JSPlot_PlotStyle.prototype.clone = function () {
-    var other = new JSPlot_PlotStyle();
-    other.color = new JSPlot_Color(this.color.red, this.color.green, this.color.blue, this.color.alpha);
-    other.fillColor = new JSPlot_Color(this.fillColor.red, this.fillColor.green, this.fillColor.blue, this.fillColor.alpha);
+    var other = new JSPlot_PlotStyle({});
+
+    if (this.color === null) {
+        other.color = this.color;
+    } else {
+        other.color = new JSPlot_Color(this.color.red, this.color.green, this.color.blue, this.color.alpha);
+    }
+
+    if (this.fillColor === null) {
+        other.fillColor = this.fillColor;
+    } else {
+        other.fillColor = new JSPlot_Color(this.fillColor.red, this.fillColor.green, this.fillColor.blue, this.fillColor.alpha);
+    }
+
     other.plotStyle = this.plotStyle;
     other.lineType = this.lineType;
     other.pointType = this.pointType;
     other.lineWidth = this.lineWidth;
     other.pointLineWidth = this.pointLineWidth;
     other.pointSize = this.pointSize;
+
+    return other;
 };

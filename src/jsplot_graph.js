@@ -9,7 +9,7 @@
  */
 function JSPlot_DataSet(title, styling, data) {
     this.title = title; // Title for this data set to put into the graph legend
-    this.style = new JSPlot_Style(styling); // Styling for this data set
+    this.style = new JSPlot_PlotStyle(styling); // Styling for this data set
     this.axes = {1: 'x1', 2: 'y1', 3: 'z1'}; // Which axes do we plot this data set against?
     this.data = data;
     this.cleanWorkspace();
@@ -65,7 +65,9 @@ function JSPlot_Graph(dataSets, settings) {
         'x1': new JSPlot_Axis(true, {}),
         'x2': new JSPlot_Axis(false, {}),
         'y1': new JSPlot_Axis(true, {}),
-        'y2': new JSPlot_Axis(false, {})
+        'y2': new JSPlot_Axis(false, {}),
+        'z1': new JSPlot_Axis(true, {}),
+        'z2': new JSPlot_Axis(false, {}),
     };
 
     // Data sets
@@ -131,9 +133,9 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
  */
 JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     if (style.color === null) {
-        style.color = this.page.defaultColors[this.workspace.defaultColorCounter];
+        style.color = this.page.styling.defaultColors[this.workspace.defaultColorCounter];
         this.workspace.defaultColorCounter++;
-        if (this.workspace.defaultColorCounter >= this.page.defaultColors.length - 1) {
+        if (this.workspace.defaultColorCounter >= this.page.styling.defaultColors.length - 1) {
             this.workspace.defaultColorCounter = 0;
         }
     }
@@ -146,7 +148,7 @@ JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
     if (style.pointType === null) {
         style.pointType = this.workspace.defaultPointTypeCounter;
         this.workspace.defaultPointTypeCounter++;
-        if (this.workspace.defaultPointTypeCounter >= this.page.pointTypes.length - 1) {
+        if (this.workspace.defaultPointTypeCounter >= this.page.styling.pointTypes.length - 1) {
             this.workspace.defaultPointTypeCounter = 0;
         }
     }
@@ -265,6 +267,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
 
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
+    this.workspace.plotter = new JSPlot_Plotter(page, this);
 
     // Start constructing a bounding box
     var boundingBox = new JSPlot_BoundingBox();
@@ -318,6 +321,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
  * Then finalise the ranges of all the axes and decide on their ticking schemes.
  */
 JSPlot_Graph.prototype.calculateDataRanges = function () {
+    var self = this;
     var i, j, axisName;
 
     // Propagate range information to linked axes
@@ -337,8 +341,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
         self.insertDefaultStyles(item.workspace.styleFinal);
 
         // Work out how many columns of data this data set expects
-        item.workspace.requiredColumns = JSPlot_PlotStyles_NDataColumns(self.page, self,
-            item.workspace.styleFinal.plotStyle);
+        item.workspace.requiredColumns = self.workspace.plotter.data_columns_required(item.workspace.styleFinal.plotStyle);
 
         // Mark up the axes used by this data set as being active
         $.each(item.axes, function (index, axisName) {
@@ -346,7 +349,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
         });
 
         // Update axes to reflect usage
-        JSPlot_PlotStyles_UpdateUsage(self, item, item.workspace.styleFinal.plotStyle,
+        self.workspace.plotter.update_axis_usage(item, item.workspace.styleFinal.plotStyle,
             self.axes[item.axes[1]], self.axes[item.axes[2]], self.axes[item.axes[3]]);
 
         self.axes[item.axes[1]].linkedAxisBackPropagate(self.page);
@@ -360,7 +363,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
             axis.linkedAxisForwardPropagate(self.page, 1);
         }
         if (axis.workspace.tickListFinal === null) {
-            JSPlot_Ticking(axis, null);
+            // TODO !!! JSPlot_Ticking(axis, null);
         }
 
     });
@@ -389,7 +392,7 @@ JSPlot_Graph.prototype.render = function () {
                 var xap = ((i & 1) !== 0);
                 var yap = ((i & 2) !== 0);
                 var zap = ((i & 4) !== 0);
-                vertices.append(this.project3d(xap, yap, zap));
+                vertices.push(this.project3d(xap, yap, zap));
             }
 
             // Sort vertices into order of distance from centre of the canvas
@@ -430,16 +433,16 @@ JSPlot_Graph.prototype.render = function () {
     if (self.threeDimensional) self.page.threeDimensionalBuffer.activate();
 
     // Render axes (back)
-    JSPlot_AxesPaint(self, 0);
+    // !!! TODO JSPlot_AxesPaint(self, 0);
 
     // Render each dataset in turn
     $.each(this.dataSets, function (index, item) {
 
-        JSPlot_PlotDataSet(self, item);
+        // !!! TODO JSPlot_PlotDataSet(self, item);
     });
 
     // Render text labels and arrows
-    JSPlot_LabelsArrows(self);
+    // !!! TODO JSPlot_LabelsArrows(self);
 
     // Deactivate three-dimensional buffer
     self.page.threeDimensionalBuffer.deactivate();
@@ -451,10 +454,10 @@ JSPlot_Graph.prototype.render = function () {
     }
 
     // Render axes (front)
-    JSPlot_AxesPaint(self, 1);
+    // !!! TODO JSPlot_AxesPaint(self, 1);
 
     // Render legend
-    JSPlot_GraphLegendRender(self);
+    // !!! TODO JSPlot_GraphLegendRender(self);
 
     // Put the title on the top of the graph
     if ((self.title !== null) && (self.title !== "") && self.textColor.isVisible()) {

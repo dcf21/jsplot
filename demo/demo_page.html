@@ -23,13 +23,13 @@
                             function (x) {
                                 return Math.sin(x)
                             }
-                        ]).evaluate_linear_raster(-10, 10)
+                        ]).evaluate_linear_raster(-10, 10, 100)
                 ], {})
             });
 
             // Render plot
             canvas.renderToCanvas(
-                $("#demo_graph")
+                $("#demo_graph")[0]
             );
         });
     </script>

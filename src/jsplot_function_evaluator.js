@@ -3,11 +3,13 @@
 /**
  * JSPlot_FunctionEvaluator - Evaluate a list of functions to create columns of data in a <JSPlot_DataSet>.
  * @param title {string} - Text to display next to this item in the graph legend
+ * @param styling {Object} - Settings to associate with the JSPlot_PlotStyle to associate with this data set
  * @param functions {Array<function>} - The list of functions to be evaluated in each column of the <JSPlot_DataSet>
  * @constructor
  */
-function JSPlot_FunctionEvaluator(title, functions) {
+function JSPlot_FunctionEvaluator(title, styling, functions) {
     this.title = title;
+    this.styling = styling;
     this.functions = functions;
 }
 
@@ -27,7 +29,7 @@ JSPlot_FunctionEvaluator.prototype.evaluate_linear_raster = function(x_min, x_ma
         }
         data.push(point);
     }
-    return new JSPlot_DataSet(this.title, data);
+    return new JSPlot_DataSet(this.title, this.styling, data);
 };
 
 /**
@@ -46,5 +48,5 @@ JSPlot_FunctionEvaluator.prototype.evaluate_log_raster = function(x_min, x_max, 
         }
         data.push(point);
     }
-    return new JSPlot_DataSet(this.title, data);
+    return new JSPlot_DataSet(this.title, this.styling, data);
 };

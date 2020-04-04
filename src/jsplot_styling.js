@@ -83,7 +83,7 @@ JSPlot_Styling.prototype.defaultColors = [
  */
 JSPlot_Styling.prototype.pointTypes = {
     1: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x - size, y - size);
@@ -93,14 +93,14 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     2: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._arc(x, y, size, 0, 360, 0);
         this.page.canvas._fill();
     },
     3: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y + size);
@@ -109,7 +109,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     4: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -119,7 +119,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     5: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -129,7 +129,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     6: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -139,7 +139,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     7: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y - size);
@@ -148,7 +148,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     8: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x - size, y - size);
@@ -157,7 +157,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     9: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._fillStyle(color);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y - size);
@@ -166,7 +166,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._fill();
     },
     10: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x - size, y - size);
@@ -176,7 +176,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     11: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x - size, y - size);
@@ -187,14 +187,14 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     12: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._arc(x, y, size, 0, 360, 0);
         this.page.canvas._stroke();
     },
     13: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y + size);
@@ -204,7 +204,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     14: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -215,7 +215,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     15: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -226,7 +226,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     16: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -237,7 +237,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     17: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y - size);
@@ -247,7 +247,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     18: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x - size, y - size);
@@ -257,7 +257,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     19: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x + size, y - size);
@@ -267,7 +267,7 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._stroke();
     },
     20: function (x, y, pointSize, pointLineWidth, color) {
-        var size = size * self.settings.EPS_DEFAULT_PS * 0.75;
+        var size = pointSize * self.settings.EPS_DEFAULT_PS * 0.75;
         this.page.canvas._strokeStyle(color, pointLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._moveTo(x, y - size);
@@ -277,4 +277,4 @@ JSPlot_Styling.prototype.pointTypes = {
         this.page.canvas._closePath();
         this.page.canvas._stroke();
     }
-}
+};

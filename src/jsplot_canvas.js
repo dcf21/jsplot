@@ -26,6 +26,9 @@ function JSPlot_Canvas(initialItemList) {
     this.settings.EPS_GRID_MAJLINEWIDTH = 1.0;
     this.settings.EPS_GRID_MINLINEWIDTH = 0.5;
 
+    // Styling of items to appear on this page
+    this.styling = new JSPlot_Styling(this);
+
     // Internal state
     this.workspace = {};
     this.workspace.errorLog = "";
