@@ -1,0 +1,9 @@
+version: '3'
+services:
+  js_plot_demo:
+    build: .
+    image: jsplot/demo:v1
+    ports:
+    - "127.0.0.1:8080:80"
+    expose:
+    - "80"
