@@ -14,17 +14,19 @@ function JSPlot_DrawArrow() {
  * @param arrowType {string} - Choice of ['single', 'double', 'back', 'none']
  * @param x1 {number} - X coordinate for the start of the arrow
  * @param y1 {number} - Y coordinate for the start of the arrow
- * @param z1 {number} - Z coordinate for the start of the arrow
+ * @param z1 {?number} - Z coordinate for the start of the arrow
  * @param x2 {number} - X coordinate for the end of the arrow
  * @param y2 {number} - Y coordinate for the end of the arrow
- * @param z2 {number} - Z coordinate for the end of the arrow
+ * @param z2 {?number} - Z coordinate for the end of the arrow
  * @param color {JSPlot_Color} - The color to use to stroke the arrow
  * @param lineWidth {number} - The line width to use when stroking the arrow
  * @param lineType {number} - The line type to use when stroking the arrow
  */
 JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z1, x2, y2, z2, color, lineWidth, lineType) {
+    /** @type {number} */
     var x3, y3, x4, y4, x5, y5, xstart, ystart, xend, yend, direction;
-    var threeDim = (z1 !== null) && (z2 !== null);
+    /** @type {boolean} */
+    var threeDim = page.threeDimensionalBuffer.active && (z1 !== null) && (z2 !== null);
 
     // Don't draw arrow if it is invisible
     if (!color.isVisible()) return;
@@ -33,6 +35,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
     page.canvas._strokeStyle(color.toHTML(), lineWidth);
 
     // Set line width and line type
+    /** @type {number} */
     var lw = page.settings.EPS_DEFAULT_LINEWIDTH * lineWidth;
 
     // Work out direction of arrow
@@ -56,7 +59,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
         x4 = x1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction + Math.PI) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
         y4 = y1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction + Math.PI) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
 
-        this.threeDimensionalBuffer.addItem(z1, function () {
+        page.threeDimensionalBuffer.addItem(z1, function () {
             page.canvas._fillStyle(color.toHTML());
             page.canvas._beginPath();
             page.canvas._moveTo(x4, y4);
@@ -74,7 +77,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
     }
 
     // Draw arrowhead on end of arrow if desired
-    if ((ArrowType === 'single') || (ArrowType === 'double')) {
+    if ((arrowType === 'single') || (arrowType === 'double')) {
         // Pointy back of arrowhead on one side
         x3 = x2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction - page.settings.EPS_ARROW_ANGLE / 2);
         y3 = y2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction - page.settings.EPS_ARROW_ANGLE / 2);
@@ -87,7 +90,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
         x4 = x2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
         y4 = y2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
 
-        this.threeDimensionalBuffer.addItem(z1, function () {
+        page.threeDimensionalBuffer.addItem(z1, function () {
             page.canvas._fillStyle(color.toHTML());
             page.canvas._beginPath();
             page.canvas._moveTo(x4, y4);
@@ -106,7 +109,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
 
     // Draw stalk of arrow
     if (!threeDim) {
-        this.threeDimensionalBuffer.addItem(z1, function () {
+        page.threeDimensionalBuffer.addItem(z1, function () {
             page.canvas._strokeStyle(color.toHTML(), lw);
             page.canvas._beginPath();
             page.canvas._moveTo(xstart, ystart);
@@ -114,9 +117,10 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
             page.canvas._stroke();
         });
     } else {
+        /** @type {number} */
         var j, step_count = 100;
         for (j = 0; j < step_count; j++) {
-            this.threeDimensionalBuffer.addItem(z1 + (z2 - z1) / step_count * i, function (i) {
+            page.threeDimensionalBuffer.addItem(z1 + (z2 - z1) / step_count * j, function (i) {
                 return function () {
                     page.canvas._strokeStyle(color.toHTML(), lw);
                     page.canvas._beginPath();

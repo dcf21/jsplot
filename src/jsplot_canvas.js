@@ -30,11 +30,14 @@ function JSPlot_Canvas(initialItemList) {
     this.styling = new JSPlot_Styling(this);
 
     // Internal state
+    this.page_width = 1024;
     this.workspace = {};
     this.workspace.errorLog = "";
 
     this.canvas = null;
+    /** @type {?JSPlot_ThreeDimBuffer} */
     this.threeDimensionalBuffer = null;
+    this.canvas = null;
 }
 
 /**
@@ -43,58 +46,96 @@ function JSPlot_Canvas(initialItemList) {
  * @private
  */
 JSPlot_Canvas.prototype._render = function (renderer) {
+    /** @type {JSPlot_Canvas} */
     var self = this;
+    /** @type {JSPlot_BoundingBox} */
     var boundingBox = new JSPlot_BoundingBox();
 
     // Work out bounding box of all elements
-    $.each(this.itemList, function(index, item) {
+    $.each(this.itemList, function (index, item) {
         boundingBox.includeBox(item.calculateBoundingBox(self));
     });
 
     // Work out axis ranges of all graphs
-    $.each(this.itemList, function(index, item) {
+    $.each(this.itemList, function (index, item) {
         item.calculateDataRanges();
     });
 
     // Instantiate plotting canvas
-    this.canvas = renderer(boundingBox.left-boundingBox.right, boundingBox.bottom-boundingBox.top);
+    /** @type GraphicsCanvas */
+    this.canvas = renderer(boundingBox.right - boundingBox.left, boundingBox.bottom - boundingBox.top);
+    this.canvas._translate(-boundingBox.left, -boundingBox.top, 0);
 
     // Create a 3D rendering buffer
     this.threeDimensionalBuffer = new JSPlot_ThreeDimBuffer();
 
     // Render each item
-    $.each(this.itemList, function(index, item) {
+    $.each(this.itemList, function (index, item) {
         item.render();
     });
+
+    // Undo translation
+    this.canvas._unsetTranslate();
 };
 
 /**
  * renderToPNG - Render this page to a PNG file
+ * @param page_width - The width of the canvas we should render onto (used for scaling elements with sizes as %)
+ * @returns {void|string}
  */
-JSPlot_Canvas.prototype.renderToPNG = function () {
+JSPlot_Canvas.prototype.renderToPNG = function (page_width) {
+    if (page_width !== undefined) this.page_width = page_width;
     var tmp = document.createElement('canvas');
-    var renderer = function(width, height) { return new GraphicsCanvas(tmp, width, height); };
+    var renderer = function (width, height) {
+        return new GraphicsCanvas(tmp, width, height);
+    };
     this._render(renderer);
     return this.canvas._renderPNG("plot.png");
 };
 
 /**
  * renderToSVG - Render this page to SVG, which is returned as a string
+ * @param page_width - The width of the canvas we should render onto (used for scaling elements with sizes as %)
  * @returns {void|string}
  */
-JSPlot_Canvas.prototype.renderToSVG = function () {
-    var renderer = function(width, height) { return new GraphicsSVG(width, height); };
+JSPlot_Canvas.prototype.renderToSVG = function (page_width) {
+    if (page_width !== undefined) this.page_width = page_width;
+    var renderer = function (width, height) {
+        return new GraphicsSVG(width, height);
+    };
     this._render(renderer);
     return this.canvas._render();
 };
 
 /**
  * renderToCanvas - Render this page onto an HTML5 canvas element
- * @param targetElement - The HTML5 canvas element to draw onto
+ * @param target_element - The HTML5 canvas element to draw onto
  */
-JSPlot_Canvas.prototype.renderToCanvas = function (targetElement) {
-    var renderer = function(width, height) { return new GraphicsCanvas(targetElement, width, height); };
-    this._render(renderer);
+JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
+    /** @type {JSPlot_Canvas} */
+    var self = this;
+
+    var render_canvas = function () {
+        target_element = $(target_element);
+        this.page_width = target_element.width();
+
+        // Create target element, and ensure that if the canvas over-fills the target, it doesn't break page
+        target_element.css('overflow', 'hidden');
+        target_element.html("<canvas width='1' height='1'></canvas>");
+
+        var target_canvas = $("canvas", target_element)[0];
+
+        var renderer = function (width, height) {
+            return new GraphicsCanvas(target_canvas, width, height);
+        };
+        self._render(renderer);
+    }
+
+    // Render now
+    render_canvas();
+
+    // Re-render is the page changes size
+    $(window).resize(render_canvas);
 };
 
 /**

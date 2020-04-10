@@ -1,52 +1,6 @@
 // jsplot_axis.js
 
 /**
- * JSPlot_AxisTics - A class representing a scheme for placing ticks along a graph axis.
- * @param settings {Object} - An object containing settings
- * @constructor
- */
-function JSPlot_AxisTics(settings) {
-    this.logBase = null;
-    this.ticDir = null;
-    this.tickMin = null;
-    this.tickMax = null;
-    this.tickStep = null;
-    this.tickList = [];
-    this.configure(settings);
-}
-
-/**
- * configure - Configure settings for a set of axis ticks
- * @param settings {Object} - An object containing settings
- */
-JSPlot_AxisTics.prototype.configure = function (settings) {
-    $.each(settings, function (key, value) {
-        switch (key) {
-            case "logBase":
-                this.logBase = value;
-                break;
-            case "ticDir":
-                this.ticDir = value;
-                break;
-            case "tickMin":
-                this.tickMin = value;
-                break;
-            case "tickMax":
-                this.tickMax = value;
-                break;
-            case "tickStep":
-                this.tickStep = value;
-                break;
-            case "tickList":
-                this.tickList = value;
-                break;
-            default:
-                throw "Unrecognised axis tick setting " + key;
-        }
-    });
-};
-
-/**
  * JSPlot_Axis - A class representing a graph axis
  * @param enabled {boolean} - If false, then this axis is not rendered
  * @param settings {Object} - Settings for this axis
@@ -151,8 +105,8 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.logFinal = this.log;
     this.workspace.rangeFinalised = null;
     this.workspace.activeFinal = null;
-    this.workspace.physicalLengthMajor = null;
-    this.workspace.physicalLengthMinor = null;
+    this.workspace.pixel_len_major_ticks = null;
+    this.workspace.pixel_len_minor_ticks = null;
     this.workspace.axisName = null;
     this.workspace.canvasId = null;
     this.workspace.mode0BackPropagated = false;
@@ -378,4 +332,27 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
             JSPlot_Ticking(axis, null);
         }
     }
+};
+
+/**
+ * render - Draw an axis onto the canvas
+ * @param page {JSPlot_Canvas} - The canvas page we are drawing this graph onto
+ * @param graph {JSPlot_Graph} - The graph this axis belongs to
+ * @param axis_name {string} - The name of this axis, e.g. 'x1'
+ * @param right_side {boolean} - Should this axis be labelled on left side or right side
+ * @param x0 {number} - The coordinates of the start point of the axis, in canvas pixels.
+ * @param y0 {number} - The coordinates of the start point of the axis, in canvas pixels.
+ * @param z0 {number} - The coordinates of the start point of the axis, in canvas pixels.
+ * @param x1 {number} - The coordinates of the end point of the axis, in canvas pixels.
+ * @param y1 {number} - The coordinates of the end point of the axis, in canvas pixels.
+ * @param z1 {number} - The coordinates of the end point of the axis, in canvas pixels.
+ * @param tick_thetas {Array<number>} - The list of angles to the vertical at which we draw tick marks
+ * @param label {boolean} - Should we label this axis?
+ */
+JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0, y0, z0, x1, y1, z1, tick_thetas, label) {
+    // Stroke line of axis
+    var arrow_renderer = new JSPlot_DrawArrow();
+    arrow_renderer.primitive_arrow(page, this.arrowType,
+        x0, y0, z0, x1, y1, z1,
+        graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0)
 };

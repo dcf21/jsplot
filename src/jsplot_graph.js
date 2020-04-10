@@ -1,66 +1,66 @@
 // jsplot_graph.js
 
 /**
- * JSPlot_DataSet - A class representing a single data set to be plotted on a graph.
- * @param title {string} - The text to display in the graph's legend next to this data set
- * @param styling {Object} - Settings to associate with the JSPlot_PlotStyle to associate with this data set
- * @param data {Array<Array<number>>} The data to be plotted, as a list of rows, each represented as a list of columns
- * @constructor
- */
-function JSPlot_DataSet(title, styling, data) {
-    this.title = title; // Title for this data set to put into the graph legend
-    this.style = new JSPlot_PlotStyle(styling); // Styling for this data set
-    this.axes = {1: 'x1', 2: 'y1', 3: 'z1'}; // Which axes do we plot this data set against?
-    this.data = data;
-    this.cleanWorkspace();
-}
-
-/**
- * cleanWorkspace - Create a clean workspace to be used for plotting this data set
- */
-JSPlot_DataSet.prototype.cleanWorkspace = function () {
-    this.workspace = {};
-    this.workspace.styleFinal = null;
-    this.workspace.requiredColumns = null;
-};
-
-/**
  * JSPlot_Graph - A class representing a graph, to be rendered onto a <JSPlot_Canvas>
  * @param dataSets {Array<JSPlot_DataSet>} - A list of <JSPlot_DataSet> objects to plot on this graph
  * @param settings {Object} - An object containing settings
  * @constructor
  */
 function JSPlot_Graph(dataSets, settings) {
+    /** @type {?JSPlot_Canvas} */
     this.page = null;
+    /** @type {string} */
     this.itemType = "graph";
+    /** @type {number} */
     this.aspect = 2.0 / (1.0 + Math.sqrt(5));
     this.aspectZ = 2.0 / (1.0 + Math.sqrt(5));
+    /** @type {JSPlot_Color} */
     this.axesColor = new JSPlot_Color(0, 0, 0, 1);
-    this.clip = true;
+    /** @type {JSPlot_Color} */
     this.gridMajorColor = new JSPlot_Color(0.6, 0.6, 0.6, 1);
+    /** @type {JSPlot_Color} */
     this.gridMinorColor = new JSPlot_Color(0.85, 0.85, 0.85, 1);
-    this.key = true;
-    this.keyColumns = null;
-    this.keyPosition = "tr";
+    /** @type {JSPlot_Color} */
     this.textColor = new JSPlot_Color(0, 0, 0, 1);
+    /** @type {boolean} */
+    this.clip = true;
+    /** @type {boolean} */
+    this.key = true;
+    /** @type {?number} */
+    this.keyColumns = null;
+    /** @type {string} */
+    this.keyPosition = "tr";
 
+    /** @type {number} */
     this.bar = 1;
+    /** @type {number} */
     this.fontSize = 1;
+    /** @type {Array<string>} */
     this.gridAxes = ['x1', 'y1', 'z1']; // which axes should produce grid lines?
 
+    /** @type {number} */
     this.boxFrom = null; // auto
+    /** @type {number} */
     this.boxWidth = null; // auto
 
+    /** @type {Array<number>} */
     this.keyOffset = [0, 0];
+    /** @type {Array<number>} */
     this.origin = [0, 0];
+    /** @type {Array<number>} */
     this.titleOffset = [0, 0];
-    this.width = 400;
+    this.width = '90%';
+    /** @type {?number} */
     this.viewAngleXY = 60;
+    /** @type {?number} */
     this.viewAngleYZ = 30;
+    /** @type {?string} */
     this.title = null;
+    /** @type {boolean} */
     this.threeDimensional = false;
 
     // Axes
+    /** @type {Object.<string, JSPlot_Axis>} */
     this.axes = {
         'x1': new JSPlot_Axis(true, {}),
         'x2': new JSPlot_Axis(false, {}),
@@ -71,6 +71,7 @@ function JSPlot_Graph(dataSets, settings) {
     };
 
     // Data sets
+    /** @type {Array<JSPlot_DataSet>} */
     this.dataSets = dataSets;  // This should be a list of JSPlot_DataSet instances
 
     // Annotations
@@ -85,32 +86,75 @@ function JSPlot_Graph(dataSets, settings) {
  * configure - Configure settings for a graph
  * @param settings {Object} - An object containing settings
  */
-JSPlot_Graph.prototype.configure = function(settings) {
+JSPlot_Graph.prototype.configure = function (settings) {
     $.each(settings, function (key, value) {
-       switch (key) {
-           case "aspect": this.aspect = value; break;
-           case "aspectZ": this.aspectZ = value; break;
-           case "axesColor": this.axesColor = value; break;
-           case "clip": this.clip = value; break;
-           case "gridMajorColor": this.gridMajorColor = value; break;
-           case "gridMinorColor": this.gridMinorColor = value; break;
-           case "key": this.key = value; break;
-           case "keyColumns": this.keyColumns = value; break;
-           case "keyPosition": this.keyPosition = value; break;
-           case "textColor": this.textColor = value; break;
-           case "bar": this.bar = value; break;
-           case "fontSize": this.fontSize = value; break;
-           case "gridAxes": this.gridAxes = value; break;
-           case "keyOffset": this.keyOffset = value; break;
-           case "origin": this.origin = value; break;
-           case "titleOffset": this.titleOffset = value; break;
-           case "width": this.width = value; break;
-           case "viewAngleXY": this.viewAngleXY = value; break;
-           case "viewAngleYZ": this.viewAngleYZ = value; break;
-           case "title": this.title = value; break;
-           case "threeDimensional": this.threeDimensional = value; break;
-           default: throw "Unrecognised graph setting " + key;
-       }
+        switch (key) {
+            case "aspect":
+                this.aspect = value;
+                break;
+            case "aspectZ":
+                this.aspectZ = value;
+                break;
+            case "axesColor":
+                this.axesColor = value;
+                break;
+            case "clip":
+                this.clip = value;
+                break;
+            case "gridMajorColor":
+                this.gridMajorColor = value;
+                break;
+            case "gridMinorColor":
+                this.gridMinorColor = value;
+                break;
+            case "key":
+                this.key = value;
+                break;
+            case "keyColumns":
+                this.keyColumns = value;
+                break;
+            case "keyPosition":
+                this.keyPosition = value;
+                break;
+            case "textColor":
+                this.textColor = value;
+                break;
+            case "bar":
+                this.bar = value;
+                break;
+            case "fontSize":
+                this.fontSize = value;
+                break;
+            case "gridAxes":
+                this.gridAxes = value;
+                break;
+            case "keyOffset":
+                this.keyOffset = value;
+                break;
+            case "origin":
+                this.origin = value;
+                break;
+            case "titleOffset":
+                this.titleOffset = value;
+                break;
+            case "width":
+                this.width = value;
+                break;
+            case "viewAngleXY":
+                this.viewAngleXY = value;
+                break;
+            case "viewAngleYZ":
+                this.viewAngleYZ = value;
+                break;
+            case "title":
+                this.title = value;
+                break;
+            case "threeDimensional":
+                this.threeDimensional = value;
+                break;
+            default:
+                throw "Unrecognised graph setting " + key;
+        }
     });
 };
 
@@ -120,9 +164,29 @@ JSPlot_Graph.prototype.configure = function(settings) {
 JSPlot_Graph.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering a plot
     this.workspace = [];
+    /** @type {number} */
     this.workspace.defaultColorCounter = 0;
+    /** @type {number} */
     this.workspace.defaultLineTypeCounter = 0;
+    /** @type {number} */
     this.workspace.defaultPointTypeCounter = 0;
+    /** @type {?JSPlot_Plotter} */
+    this.workspace.plotter = null;
+    /** @type {?Array<number>} */
+    this.workspace.screen_size = null; // pixel lengths of (x, y, z) axes
+    /** @type {?Array<number>} */
+    this.workspace.screen_bearing = null; // directions of (x, y, z) axes
+
+    if (!isNaN(this.width)) {
+        /** @type {number} */
+        this.workspace.width_pixels = parseFloat(this.width);
+    } else if ((this.width.charAt(this.width.length - 1) === '%') &&
+        (this.page !== null) &&
+        !isNaN(this.width.substring(0, this.width.length - 1))) {
+        this.workspace.width_pixels = parseFloat(this.width.substring(0, this.width.length - 1)) * 0.01 * this.page.page_width;
+    } else {
+        this.workspace.width_pixels = 1024;
+    }
 };
 
 /**
@@ -163,9 +227,9 @@ JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
  * @returns {{ypos: number, xpos: number, depth: number}}
  */
 JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
-    var width = this.width;
-    var height = this.width * this.aspect;
-    var zdepth = this.width * this.aspectZ;
+    var width = this.workspace.width_pixels;
+    var height = this.workspace.width_pixels * this.aspect;
+    var zdepth = this.workspace.width_pixels * this.aspectZ;
 
     var x = width * (xap - 0.5);
     var y = height * (yap - 0.5);
@@ -199,14 +263,14 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
  * @returns {Object}
  */
 JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
-    var width = this.width;
-    var height = this.width * this.aspect;
+    var width = this.workspace.width_pixels;
+    var height = this.workspace.width_pixels * this.aspect;
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
     var xap = axis_x.getPosition(xin, 1);
     var yap = axis_y.getPosition(yin, 1);
     var zap = 0.5;
-    var output = {'xap':xap, 'yap':yap, 'zap':zap};
+    var output = {'xap': xap, 'yap': yap, 'zap': zap};
 
     if (this.threeDimensional) zap = axis_z.getPosition(zin, 1);
 
@@ -263,57 +327,71 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, a
  * @returns {JSPlot_BoundingBox}
  */
 JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
-    var i, j, axisName;
+    var i, j, axis_name;
 
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
+    this.cleanWorkspace();
     this.workspace.plotter = new JSPlot_Plotter(page, this);
 
     // Start constructing a bounding box
-    var boundingBox = new JSPlot_BoundingBox();
+    var bounding_box = new JSPlot_BoundingBox();
 
-    // Work out lengths of x-, y- and z-axes
-    var size = [
-        this.width,
-        this.width * this.aspect,
-        this.width * this.aspectZ
+    // Work out projected lengths and directions of (x,y,z) axes on screen
+    this.workspace.screen_size = [
+        this.workspace.width_pixels,
+        this.workspace.width_pixels * this.aspect,
+        this.workspace.width_pixels * this.aspectZ
     ];
+    this.workspace.screen_bearing = [Math.PI / 2, 0, 0];
 
-    // Work out projected lengths of these axes on screen
-    var screenSize, screenBearing;
-    if (!this.threeDimensional) {
-        screenSize = size;
-        screenBearing = [Math.PI / 2, 0, 0];
-    } else {
+    if (this.threeDimensional) {
         for (j = 0; j < 3; j++) {
             var ptA = this.project3d((j === 0) ? 0 : 0.5, (j === 1) ? 0 : 0.5, (j === 2) ? 0 : 0.5);
             var ptB = this.project3d((j === 0) ? 1 : 0.5, (j === 1) ? 1 : 0.5, (j === 2) ? 1 : 0.5);
-            screenSize   [j] = Math.hypot(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
-            screenBearing[j] = Math.atan2(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
-            if (!isFinite(screenSize   [j])) screenSize   [j] = 0.0;
-            if (!isFinite(screenBearing[j])) screenBearing[j] = 0.0;
-
-            boundingBox.includePoint(ptA['xpos'] + this.origin[0], ptA['ypos'] + this.origin[1]);
-            boundingBox.includePoint(ptB['xpos'] + this.origin[0], ptB['ypos'] + this.origin[1]);
+            this.workspace.screen_size   [j] = Math.hypot(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
+            this.workspace.screen_bearing[j] = Math.atan2(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
+            if (!isFinite(this.workspace.screen_size   [j])) this.workspace.screen_size   [j] = 0.0;
+            if (!isFinite(this.workspace.screen_bearing[j])) this.workspace.screen_bearing[j] = 0.0;
         }
     }
 
-    // First clear all range information from all axes.
+    // Populate the bounding box of the plot
+    var margin = 40;
+    if (!this.threeDimensional) {
+        bounding_box.includePoint(this.origin[0] - margin, this.origin[1] - margin);
+        bounding_box.includePoint(this.origin[0] + this.workspace.width_pixels + margin,
+            this.origin[1] + this.workspace.width_pixels * this.aspect + margin);
+    } else {
+        for (var xap = 0; xap <= 1; xap += 1)
+            for (var yap = 0; yap <= 1; yap += 1)
+                for (var zap = 0; zap <= 1; zap += 1) {
+                    var pt = this.project3d(xap, yap, zap);
+                    bounding_box.includePoint(
+                        pt['xpos'] + this.origin[0] - margin,
+                        pt['ypos'] + this.origin[1] - margin);
+                    bounding_box.includePoint(
+                        pt['xpos'] + this.origin[0] + margin,
+                        pt['ypos'] + this.origin[1] + margin);
+                }
+    }
+
+    // Clear all range information from all axes.
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
-        var physicalLengthMajor = screenSize[j] / (0.015 + 0.01 * Math.abs(Math.sin(screenBearing[j])));
-        var physicalLengthMinor = screenSize[j] / 0.004;
+        var pixel_len_major_ticks = this.workspace.screen_size[j] / (0.015 + 0.01 * Math.abs(Math.sin(this.workspace.screen_bearing[j])));
+        var pixel_len_minor_ticks = this.workspace.screen_size[j] / 0.004;
 
         for (i = 0; i < 2; i++) {
-            axisName = ['x', 'y', 'z'][j] + (i + 1);
-            this.axes[axisName].cleanWorkspace();
-            this.axes[axisName].workspace.physicalLengthMajor = physicalLengthMajor;
-            this.axes[axisName].workspace.physicalLengthMinor = physicalLengthMinor;
+            axis_name = ['x', 'y', 'z'][j] + (i + 1);
+            this.axes[axis_name].cleanWorkspace();
+            this.axes[axis_name].workspace.pixel_len_major_ticks = pixel_len_major_ticks;
+            this.axes[axis_name].workspace.pixel_len_minor_ticks = pixel_len_minor_ticks;
         }
     }
 
     // Return bounding box
-    return boundingBox;
+    return bounding_box;
 };
 
 /**
@@ -378,9 +456,9 @@ JSPlot_Graph.prototype.render = function () {
 
     // Work out lengths of x-, y- and z-axes
     var size = [
-        this.width,
-        this.width * this.aspect,
-        this.width * this.aspectZ
+        this.workspace.width_pixels,
+        this.workspace.width_pixels * this.aspect,
+        this.workspace.width_pixels * this.aspectZ
     ];
 
     // Turn on clipping if 'set clip' is set
@@ -429,16 +507,18 @@ JSPlot_Graph.prototype.render = function () {
         }
     }
 
+    // Keep track of bounding box of all axes, so we can put title at the very top
+    var axes_bounding_box = new JSPlot_BoundingBox();
+
+    // Render axes (back)
+    this.axes_paint(false, axes_bounding_box);
+
     // Activate three-dimensional buffer if graph is 3D
     if (self.threeDimensional) self.page.threeDimensionalBuffer.activate();
 
-    // Render axes (back)
-    // !!! TODO JSPlot_AxesPaint(self, 0);
-
     // Render each dataset in turn
     $.each(this.dataSets, function (index, item) {
-
-        // !!! TODO JSPlot_PlotDataSet(self, item);
+        item.render(self);
     });
 
     // Render text labels and arrows
@@ -454,7 +534,7 @@ JSPlot_Graph.prototype.render = function () {
     }
 
     // Render axes (front)
-    // !!! TODO JSPlot_AxesPaint(self, 1);
+    this.axes_paint(true, axes_bounding_box);
 
     // Render legend
     // !!! TODO JSPlot_GraphLegendRender(self);
@@ -462,6 +542,150 @@ JSPlot_Graph.prototype.render = function () {
     // Put the title on the top of the graph
     if ((self.title !== null) && (self.title !== "") && self.textColor.isVisible()) {
         self.page.canvas._fillStyle(self.textColor.toHTML());
-        self.page.canvas._text(self.origin[0] + size[0] / 2, self.origin[1] + size[1] / 2, self.plotTopMargin, 0, 1, 1, self.title, 0, 0);
+        self.page.canvas._text(
+            self.origin[0] + size[0] / 2,
+            axes_bounding_box.top, 0, 1, 1, self.title, 0, 0);
     }
+};
+
+/**
+ * axes_paint - Draw all of the axes around this graph
+ * @param front_axes {boolean} - If true, draw all the axes which are in front of the data (on 3D plots). If false,
+ * draw the axes behind the data.
+ * @param bounding_box {JSPlot_BoundingBox} - Factor this axis (and attached labels) into this bounding box.
+ */
+JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
+    /** @type JSPlot_Graph */
+    var self = this;
+
+    // 2D graphs don't have any back axes
+    if ((!this.threeDimensional) && (!front_axes)) return;
+
+    // Fetch coordinates of the centre of the graph
+    /** @type {number} */
+    var x_centre = 0, y_centre = 0;
+
+    if (!this.threeDimensional) {
+        x_centre = this.origin[0] + this.workspace.screen_size[0] / 2;
+        y_centre = this.origin[1] + this.workspace.screen_size[1] / 2;
+    } else {
+        var pos = this.project3d(0.5, 0.5, 0.5);
+        x_centre = pos['xpos'];
+        y_centre = pos['ypos'];
+    }
+
+    // Set crossedAtZero flags
+    $.each(this.axes, function (axis_name, axis) {
+        axis.workspace.crossedAtZero = false;
+        if (axis_name[1] === '1') {
+            if ((axis_name[0] !== 'x') && (self.axes['x1'].atZero)) axis.workspace.crossedAtZero = true;
+            if ((axis_name[0] !== 'y') && (self.axes['y1'].atZero)) axis.workspace.crossedAtZero = true;
+            if ((axis_name[0] !== 'z') && (self.axes['z1'].atZero)) axis.workspace.crossedAtZero = true;
+        }
+    })
+
+    function render_one_side(side_key_strings, vertices, index_xyz, axis, axis_name, label) {
+        $.each(side_key_strings, function (index_side, side_key_string) {
+            /** @type Object.<string, number> */
+            var axis_pos_0 = vertices[side_key_string][0];
+            /** @type Object.<string, number> */
+            var axis_pos_1 = vertices[side_key_string][1];
+
+            var mean_depth = (axis_pos_0['depth'] + axis_pos_1['depth']) / 2;
+
+            // Do not draw front axes on first pass, or back axes on second pass
+            if (self.threeDimensional && (front_axes !== (mean_depth < 0))) return;
+
+            // Work out whether to put axis labels on left side, or right side
+            var b = Math.atan2(
+                (axis_pos_0['xpos'] + axis_pos_1['xpos']) / 2 - x_centre,
+                (axis_pos_0['ypos'] + axis_pos_1['ypos']) / 2 - y_centre) -
+                self.workspace.screen_bearing[index_xyz];
+            var right_side = Math.sin(b) > 0;
+
+            // Work out what direction the axis ticks should point in
+            /** @type Array<number> */
+            var theta_ticks = [];
+
+            for (var xyz = 0; xyz < 3; xyz++)
+                if (index_xyz !== xyz) {
+                    theta_ticks.push(self.workspace.screen_bearing[xyz] +
+                    (axis_pos_0['axis_pos'][xyz] > 0) ? Math.PI : 0);
+                }
+
+            // Render this axis
+            axis.render(self.page, self, axis_name, right_side,
+                self.origin[0] + axis_pos_0['xpos'], self.origin[1] + axis_pos_0['ypos'], axis_pos_0['depth'],
+                self.origin[0] + axis_pos_1['xpos'], self.origin[1] + axis_pos_1['ypos'], axis_pos_1['depth'],
+                theta_ticks, label && (index_side === 0));
+
+        });
+    }
+
+    // Loop over axis directions
+    $.each(['x', 'y', 'z'], function (index_xyz, axis_xyz) {
+        // 2D plots don't have z axes
+        if (axis_xyz === 'z' && !self.threeDimensional) return;
+
+        // Make array of all the corners of this graph
+        /** @type Object.<string, Array<Object.<string, number>>> */
+        var vertices = {}
+        for (var xap = 0; xap <= 1; xap += 1)
+            for (var yap = 0; yap <= 1; yap += 1)
+                for (var zap = 0; zap <= 1; zap += 1) {
+                    if (self.threeDimensional) {
+                        var pt = self.project3d(xap, yap, zap);
+                    } else {
+                        pt = {
+                            'xpos': self.origin[0] + xap * self.workspace.screen_size[0],
+                            'ypos': self.origin[1] + yap * self.workspace.screen_size[1],
+                            'depth': 0
+                        }
+                    }
+
+                    pt['axis_pos'] = [xap, yap, zap];
+
+                    // 2D axes appear on two sides of the plot (top and bottom)
+                    // 3D axes appear on four sides of the plot each
+                    var side_key_string = "";
+                    if (axis_xyz !== 'x') side_key_string += xap.toString();
+                    if (axis_xyz !== 'y') side_key_string += yap.toString();
+                    if (axis_xyz !== 'z') side_key_string += zap.toString();
+
+                    if (!vertices.hasOwnProperty(side_key_string)) vertices[side_key_string] = [];
+                    vertices[side_key_string].push(pt);
+
+                    // Make sure this vertex is factored into bounding box
+                    bounding_box.includePoint(pt['xpos'], pt['ypos']);
+                }
+
+        // Draw each axis in this direction in turn
+        $.each(self.axes, function (axis_name, axis) {
+            // Reject if this axis is in the wrong direction, or not visible
+            if (axis_name[0] !== axis_xyz) return;
+            if (!axis.enabled || !axis.visible) return;
+
+            if (!axis.workspace.atZero) {
+                /** @type Array<string> */
+                var side_key_strings;
+                if (axis_name[1] === '1') {
+                    // x1/y1 axis belongs on bottom / left
+                    side_key_strings = self.threeDimensional ? ['00', '01'] : ['00'];
+                } else {
+                    // x2/y2 axis belongs on top / right
+                    side_key_strings = self.threeDimensional ? ['10', '11'] : ['10'];
+                }
+                render_one_side(side_key_strings, vertices, index_xyz, axis, axis_name, true);
+            }
+        });
+
+        // Render mirrored x1/y1 axes
+        if ((!self.axes[axis_xyz + '1'].mirror) && (!self.axes[axis_xyz + '2'].enabled)) {
+            // x2/y2 axis belongs on top / right
+            var side_key_strings = self.threeDimensional ? ['10', '11'] : ['10'];
+            var axis_name = axis_xyz + '2';
+            var axis = self.axes[axis_xyz + '1'];
+            render_one_side(side_key_strings, vertices, index_xyz, axis, axis_name, false);
+        }
+    });
 };

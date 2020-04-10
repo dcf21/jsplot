@@ -1,0 +1,40 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="generator" content="Dominic Ford"/>
+    <meta name="author" content="Dominic Ford"/>
+    <title>A plot of sin(x)</title>
+
+    <script src="vendor/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/tether/dist/js/tether.min.js"></script>
+    <script type="text/javascript" src="js/jsplot.min.js"></script>
+</head>
+<body>
+<h2>A plot of sin(x)</h2>
+<hr style="margin: 20px 0;"/>
+<div id="graph_sin_x" style="max-width:1024px; border: 1px solid #888;"></div>
+<hr style="margin: 20px 0;"/>
+<p style="font-style: italic;">
+    <a href="https://github.com/dcf21/js-plot">https://github.com/dcf21/js-plot</a>
+</p>
+<script type="text/javascript">
+    $(function () {
+        // Create canvas to put graph onto
+        var canvas = new JSPlot_Canvas({
+            "graph_1": new JSPlot_Graph([
+                new JSPlot_FunctionEvaluator(
+                    "sin(x)", {},
+                    [
+                        Math.sin
+                    ]).evaluate_linear_raster(-10, 10, 100)
+            ], {})
+        });
+
+        // Render plot
+        canvas.renderToCanvas(
+            $("#graph_sin_x")[0]
+        );
+    });
+</script>
+</body>
+</html>
