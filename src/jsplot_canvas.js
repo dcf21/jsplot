@@ -117,7 +117,7 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
 
     var render_canvas = function () {
         target_element = $(target_element);
-        this.page_width = target_element.width();
+        self.page_width = target_element.width();
 
         // Create target element, and ensure that if the canvas over-fills the target, it doesn't break page
         target_element.css('overflow', 'hidden');

@@ -146,13 +146,14 @@ JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
         }
     }
     if ((this.workspace.logFinal) && (x_in <= 0)) return NaN;
-    if (this.workspace.logFinal) {
+    if (!this.workspace.logFinal) {
         // Either linear...
         return (x_in - this.workspace.minFinal) / (this.workspace.maxFinal - this.workspace.minFinal);
     } else {
         // ... or logarithmic
+        return (Math.log(x_in) - Math.log(this.workspace.minFinal)) /
+            (Math.log(this.workspace.maxFinal) - Math.log(this.workspace.minFinal));
     }
-    return (Math.log(x_in) - Math.log(this.workspace.minFinal)) / (Math.log(this.workspace.maxFinal) - Math.log(this.workspace.minFinal));
 };
 
 // What is the value of this axis at point xin, in the range 0 (left) to 1 (right)?

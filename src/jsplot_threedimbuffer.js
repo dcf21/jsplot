@@ -14,7 +14,7 @@ function JSPlot_ThreeDimBuffer() {
  * reset - Discard the current list of items to render, and place the JSPlot_ThreeDimBuffer into an inactive state.
  */
 JSPlot_ThreeDimBuffer.prototype.reset = function () {
-    this.active = 0;
+    this.active = false;
     this.buffer = [];
 };
 
@@ -23,9 +23,9 @@ JSPlot_ThreeDimBuffer.prototype.reset = function () {
  * list of items to render in depth order.
  */
 JSPlot_ThreeDimBuffer.prototype.activate = function () {
-    this.deactivate(x);
-    this.active = 1;
-    this.reset()
+    this.deactivate();
+    this.active = true;
+    this.reset();
 };
 
 /**

@@ -38,9 +38,9 @@ function JSPlot_Graph(dataSets, settings) {
     /** @type {Array<string>} */
     this.gridAxes = ['x1', 'y1', 'z1']; // which axes should produce grid lines?
 
-    /** @type {number} */
+    /** @type {?number} */
     this.boxFrom = null; // auto
-    /** @type {number} */
+    /** @type {?number} */
     this.boxWidth = null; // auto
 
     /** @type {Array<number>} */
@@ -87,70 +87,73 @@ function JSPlot_Graph(dataSets, settings) {
  * @param settings {Object} - An object containing settings
  */
 JSPlot_Graph.prototype.configure = function (settings) {
+    /** @type {JSPlot_Graph} */
+    var self = this;
+
     $.each(settings, function (key, value) {
         switch (key) {
             case "aspect":
-                this.aspect = value;
+                self.aspect = value;
                 break;
             case "aspectZ":
-                this.aspectZ = value;
+                self.aspectZ = value;
                 break;
             case "axesColor":
-                this.axesColor = value;
+                self.axesColor = value;
                 break;
             case "clip":
-                this.clip = value;
+                self.clip = value;
                 break;
             case "gridMajorColor":
-                this.gridMajorColor = value;
+                self.gridMajorColor = value;
                 break;
             case "gridMinorColor":
-                this.gridMinorColor = value;
+                self.gridMinorColor = value;
                 break;
             case "key":
-                this.key = value;
+                self.key = value;
                 break;
             case "keyColumns":
-                this.keyColumns = value;
+                self.keyColumns = value;
                 break;
             case "keyPosition":
-                this.keyPosition = value;
+                self.keyPosition = value;
                 break;
             case "textColor":
-                this.textColor = value;
+                self.textColor = value;
                 break;
             case "bar":
-                this.bar = value;
+                self.bar = value;
                 break;
             case "fontSize":
-                this.fontSize = value;
+                self.fontSize = value;
                 break;
             case "gridAxes":
-                this.gridAxes = value;
+                self.gridAxes = value;
                 break;
             case "keyOffset":
-                this.keyOffset = value;
+                self.keyOffset = value;
                 break;
             case "origin":
-                this.origin = value;
+                self.origin = value;
                 break;
             case "titleOffset":
-                this.titleOffset = value;
+                self.titleOffset = value;
                 break;
             case "width":
-                this.width = value;
+                self.width = value;
                 break;
             case "viewAngleXY":
-                this.viewAngleXY = value;
+                self.viewAngleXY = value;
                 break;
             case "viewAngleYZ":
-                this.viewAngleYZ = value;
+                self.viewAngleYZ = value;
                 break;
             case "title":
-                this.title = value;
+                self.title = value;
                 break;
             case "threeDimensional":
-                this.threeDimensional = value;
+                self.threeDimensional = value;
                 break;
             default:
                 throw "Unrecognised graph setting " + key;
@@ -441,6 +444,8 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
             axis.linkedAxisForwardPropagate(self.page, 1);
         }
         if (axis.workspace.tickListFinal === null) {
+            axis.workspace.minFinal = -10;
+            axis.workspace.maxFinal = 10;
             // TODO !!! JSPlot_Ticking(axis, null);
         }
 
@@ -451,6 +456,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
  * render - Step 3 of the plotting process: render the graph
  */
 JSPlot_Graph.prototype.render = function () {
+    /** @type {JSPlot_Graph} */
     var self = this;
     var i;
 
@@ -461,16 +467,23 @@ JSPlot_Graph.prototype.render = function () {
         this.workspace.width_pixels * this.aspectZ
     ];
 
+    // Keep track of bounding box of all axes, so we can put title at the very top
+    var axes_bounding_box = new JSPlot_BoundingBox();
+
+    // Render axes (back)
+    this.axes_paint(false, axes_bounding_box);
+
     // Turn on clipping if 'set clip' is set
     if (this.clip) {
         if (this.threeDimensional) {
             // 3D clip region is the edge of a cuboidal box
             var vertices = [];
             for (i = 0; i < 8; i++) {
-                var xap = ((i & 1) !== 0);
-                var yap = ((i & 2) !== 0);
-                var zap = ((i & 4) !== 0);
-                vertices.push(this.project3d(xap, yap, zap));
+                var xap = ~~((i & 1) !== 0);
+                var yap = ~~((i & 2) !== 0);
+                var zap = ~~((i & 4) !== 0);
+                var point = this.project3d(xap, yap, zap);
+                vertices.push([point['xpos'] - this.origin[0], point['ypos'] - this.origin[1]]);
             }
 
             // Sort vertices into order of distance from centre of the canvas
@@ -507,18 +520,13 @@ JSPlot_Graph.prototype.render = function () {
         }
     }
 
-    // Keep track of bounding box of all axes, so we can put title at the very top
-    var axes_bounding_box = new JSPlot_BoundingBox();
-
-    // Render axes (back)
-    this.axes_paint(false, axes_bounding_box);
-
     // Activate three-dimensional buffer if graph is 3D
     if (self.threeDimensional) self.page.threeDimensionalBuffer.activate();
 
     // Render each dataset in turn
     $.each(this.dataSets, function (index, item) {
-        item.render(self);
+        self.workspace.plotter.renderDataSet(self, item, item.workspace.styleFinal.plotStyle,
+            item.axes[1], item.axes[2], item.axes[3]);
     });
 
     // Render text labels and arrows

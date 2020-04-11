@@ -13,13 +13,21 @@
  * @constructor
  */
 function JSPlot_LineDraw(page, graph, axis_x, axis_y, axis_z, color, line_type, line_width) {
+    /** @type {JSPlot_Canvas} */
     this.page = page;
+    /** @type {JSPlot_Graph} */
     this.graph = graph;
+    /** @type {JSPlot_Color} */
     this.color = color;
+    /** @type {number} */
     this.line_type = line_type;
+    /** @type {number} */
     this.line_width = line_width;
+    /** @type {JSPlot_Axis} */
     this.axis_x = axis_x;
+    /** @type {JSPlot_Axis} */
     this.axis_y = axis_y;
+    /** @type {JSPlot_Axis} */
     this.axis_z = axis_z;
 
     this.pt_old = null;
@@ -156,10 +164,10 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
         return;
     }
 
-    let pt_this = {
-        'position':position,
-        'x_offset':x_offset, 'y_offset':y_offset, 'z_offset':z_offset,
-        'x_perp_offset':x_perp_offset, 'y_perp_offset':y_perp_offset, 'z_perp_offset':z_perp_offset
+    var pt_this = {
+        'position': position,
+        'x_offset': x_offset, 'y_offset': y_offset, 'z_offset': z_offset,
+        'x_perp_offset': x_perp_offset, 'y_perp_offset': y_perp_offset, 'z_perp_offset': z_perp_offset
     };
 
     if (this.pt_old === null) {
@@ -174,25 +182,25 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
         position.xap, position.yap, position.zap);
 
     // Add point to list of points along line
-    var add_point = function(pt, cx_clipped, cy_clipped, cz_clipped) {
+    var add_point = function (pt, cx_clipped, cy_clipped, cz_clipped) {
         var cx = cx_clipped +
             (pt.x_offset * Math.cos(position['theta_x']) +
                 pt.y_offset * Math.cos(position['theta_y']) +
                 pt.z_offset * Math.cos(position['theta_z']) +
-            pt.x_perp_offset * Math.cos(position['theta_x'] + Math.PI/2) +
-                pt.y_perp_offset * Math.cos(position['theta_y'] + Math.PI/2) +
-                pt.z_perp_offset * Math.cos(position['theta_z'] + Math.PI/2)
-            ) * this.page.settings.M_TO_PS;
+                pt.x_perp_offset * Math.cos(position['theta_x'] + Math.PI / 2) +
+                pt.y_perp_offset * Math.cos(position['theta_y'] + Math.PI / 2) +
+                pt.z_perp_offset * Math.cos(position['theta_z'] + Math.PI / 2)
+            );
         var cy = cy_clipped +
             (pt.x_offset * Math.sin(position['theta_x']) +
                 pt.y_offset * Math.sin(position['theta_y']) +
                 pt.z_offset * Math.sin(position['theta_z']) +
-                pt.x_perp_offset * Math.sin(position['theta_x'] + Math.PI/2) +
-                pt.y_perp_offset * Math.sin(position['theta_y'] + Math.PI/2) +
-                pt.z_perp_offset * Math.sin(position['theta_z'] + Math.PI/2)
-            ) * this.page.settings.M_TO_PS;
+                pt.x_perp_offset * Math.sin(position['theta_x'] + Math.PI / 2) +
+                pt.y_perp_offset * Math.sin(position['theta_y'] + Math.PI / 2) +
+                pt.z_perp_offset * Math.sin(position['theta_z'] + Math.PI / 2)
+            );
 
-        self.point_list_in_progress.push([cx,cy,cz_clipped])
+        self.point_list_in_progress.push([cx, cy, cz_clipped])
     };
 
     if (this.point_list_in_progress.length === 0) {
@@ -209,23 +217,23 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
  */
 JSPlot_LineDraw.prototype.penUp = function () {
     this.pt_old = null;
-    
+
     if (this.point_list_in_progress.length > 1) {
         this.line_list.push(this.point_list_in_progress);
     }
-    
+
     this.point_list_in_progress = [];
 };
 
 /**
  * renderLine - Having collected a list of points to join with a line, now render that line.
  */
-JSPlot_LineDraw.prototype.renderLine = function() {
+JSPlot_LineDraw.prototype.renderLine = function () {
     var self = this;
-    var i,j;
+    var i, j;
 
     if (!this.page.threeDimensionalBuffer.active) {
-        self.page.canvas._strokeStyle(this.color, this.lineWidth);
+        self.page.canvas._strokeStyle(this.color, this.line_width);
 
         for (i = 0; i < this.line_list.length; i++) {
             self.page.canvas._moveTo(this.line_list[i][0][0], this.line_list[i][0][1]);
@@ -233,23 +241,24 @@ JSPlot_LineDraw.prototype.renderLine = function() {
                 self.page.canvas._lineTo(this.line_list[i][j][0], this.line_list[i][j][1]);
             }
         }
+
+        self.page.canvas._stroke();
     } else {
         for (i = 0; i < this.line_list.length; i++) {
             for (j = 1; j < this.line_list[i].length; j++) {
                 var depth = self.line_list[i][j][2];
 
-                var renderer = function(i, j) {
+                var renderer = function (i, j) {
                     return function () {
                         self.page.canvas._strokeStyle(self.color, self.lineWidth);
-                        self.page.canvas._moveTo(self.line_list[i][j-1][0], self.line_list[i][j-1][1]);
+                        self.page.canvas._moveTo(self.line_list[i][j - 1][0], self.line_list[i][j - 1][1]);
                         self.page.canvas._lineTo(self.line_list[i][j][0], self.line_list[i][j][1]);
                         self.page.canvas._stroke();
 
                     }
-                }(i,j);
+                }(i, j);
 
                 this.page.threeDimensionalBuffer.addItem(depth, renderer);
-
             }
         }
     }
