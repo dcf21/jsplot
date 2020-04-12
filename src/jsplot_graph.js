@@ -78,6 +78,7 @@ function JSPlot_Graph(dataSets, settings) {
     this.arrows = [];
     this.labels = [];
 
+    // Read user supplied settings
     this.configure(settings);
     this.cleanWorkspace();
 }
@@ -479,9 +480,9 @@ JSPlot_Graph.prototype.render = function () {
             // 3D clip region is the edge of a cuboidal box
             var vertices = [];
             for (i = 0; i < 8; i++) {
-                var xap = ~~((i & 1) !== 0);
-                var yap = ~~((i & 2) !== 0);
-                var zap = ~~((i & 4) !== 0);
+                var xap = toInt((i & 1) !== 0);
+                var yap = toInt((i & 2) !== 0);
+                var zap = toInt((i & 4) !== 0);
                 var point = this.project3d(xap, yap, zap);
                 vertices.push([point['xpos'] - this.origin[0], point['ypos'] - this.origin[1]]);
             }

@@ -2,15 +2,19 @@
 
 /**
  * JSPlot_Canvas - a page onto which we can draw graphs, represented by JSPlot_Graph objects.
- * @param initialItemList {Object.<string, JSPlot_Graph>}
+ * @param initialItemList {Object.<string, JSPlot_Graph>} - Initial list of items to render onto this canvas
+ * @param settings {Object} - Configuration options for this canvas
  * @constructor
  */
 
-function JSPlot_Canvas(initialItemList) {
+function JSPlot_Canvas(initialItemList, settings) {
+    // Populate initial list of items to render onto canvas
     this.itemList = initialItemList;
 
     // Default rendering settings
     this.settings = {};
+    this.settings.allow_export_png = true;
+    this.settings.allow_export_svg = true;
     this.settings.EPS_DEFAULT_LINEWIDTH = 0.566929;  // 0.2mm in TeX points
     this.settings.EPS_DEFAULT_PS = 3.0;
     this.settings.EPS_ARROW_ANGLE = 45.0 * Math.PI / 180;
@@ -26,6 +30,9 @@ function JSPlot_Canvas(initialItemList) {
     this.settings.EPS_GRID_MAJLINEWIDTH = 1.0;
     this.settings.EPS_GRID_MINLINEWIDTH = 0.5;
 
+    // Read user supplied settings
+    this.configure(settings);
+
     // Styling of items to appear on this page
     this.styling = new JSPlot_Styling(this);
 
@@ -37,8 +44,29 @@ function JSPlot_Canvas(initialItemList) {
     this.canvas = null;
     /** @type {?JSPlot_ThreeDimBuffer} */
     this.threeDimensionalBuffer = null;
-    this.canvas = null;
 }
+
+/**
+ * configure - Configure settings for a canvas
+ * @param settings {Object} - An object containing settings
+ */
+JSPlot_Canvas.prototype.configure = function (settings) {
+    /** @type {JSPlot_Canvas} */
+    var self = this;
+
+    $.each(settings, function (key, value) {
+        switch (key) {
+            case "allow_export_png":
+                self.settings.allow_export_png = value;
+                break;
+            case "allow_export_svg":
+                self.settings.allow_export_svg = value;
+                break;
+            default:
+                throw "Unrecognised canvas setting " + key;
+        }
+    });
+};
 
 /**
  * _render - Render this page to an output context
@@ -119,10 +147,35 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
         target_element = $(target_element);
         self.page_width = target_element.width();
 
-        // Create target element, and ensure that if the canvas over-fills the target, it doesn't break page
-        target_element.css('overflow', 'hidden');
-        target_element.html("<canvas width='1' height='1'></canvas>");
+        // Create HTML for this canvas
+        var html = "<canvas width='1' height='1'></canvas>"
 
+        if (self.settings.allow_export_png) {
+            html += "<input class='btn btn-sm btn-success jsplot_export_png' type='button' value='Export PNG' />";
+        }
+
+        if (self.settings.allow_export_svg) {
+            html += "<input class='btn btn-sm btn-success jsplot_export_svg' type='button' value='Export SVG' />";
+        }
+
+        // Ensure that if the canvas over-fills the target, it doesn't break page
+        target_element.css('overflow', 'hidden');
+
+        // Create target elements
+        target_element.html(html);
+
+        // Wire up buttons to export images
+        $(".jsplot_export_png").click(function() {
+            self.renderToPNG();
+        });
+
+
+        $(".jsplot_export_svg").click(function() {
+            var doc = self.renderToSVG();
+            saveBlob("plot.svg", doc);
+        });
+
+        // Render plot onto the canvas we have just created
         var target_canvas = $("canvas", target_element)[0];
 
         var renderer = function (width, height) {
