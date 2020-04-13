@@ -8,6 +8,9 @@
  */
 
 function JSPlot_Canvas(initialItemList, settings) {
+    /** @type {JSPlot_Canvas} */
+    var self = this;
+
     // Populate initial list of items to render onto canvas
     this.itemList = initialItemList;
 
@@ -38,12 +41,31 @@ function JSPlot_Canvas(initialItemList, settings) {
 
     // Internal state
     this.page_width = 1024;
+    this.html_initialised = false;
     this.workspace = {};
     this.workspace.errorLog = "";
+
+    // Interactivity state
+    this.interactive_holder_element = null;
+    this.interactive_canvas_element = null;
+    this.is_pinching = false;
+    this.pinch_distance = 0;
+    this.mousedown = false;
+    this.pos_start = [0, 0];
+    this.pos_latest = [0, 0];
+    this.needs_refresh = false;
 
     this.canvas = null;
     /** @type {?JSPlot_ThreeDimBuffer} */
     this.threeDimensionalBuffer = null;
+
+    // Check if we need to re-render
+    setInterval(function () {
+        if (self.needs_refresh && (self.interactive_holder_element !== null)) {
+            self.renderToCanvas(self.interactive_holder_element);
+            self.needs_refresh = false;
+        }
+    }, 200); // poll for mouse moves at 5fps
 }
 
 /**
@@ -148,32 +170,100 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
         self.page_width = target_element.width();
 
         // Create HTML for this canvas
-        var html = "<canvas width='1' height='1'></canvas>"
+        if (!self.html_initialised) {
+            var html = "<canvas width='1' height='1'></canvas>"
 
-        if (self.settings.allow_export_png) {
-            html += "<input class='btn btn-sm btn-success jsplot_export_png' type='button' value='Export PNG' />";
+            if (self.settings.allow_export_png) {
+                html += "<input class='btn btn-sm btn-success jsplot_export_png' type='button' value='Export PNG' />";
+            }
+
+            if (self.settings.allow_export_svg) {
+                html += "<input class='btn btn-sm btn-success jsplot_export_svg' type='button' value='Export SVG' />";
+            }
+
+            // Ensure that if the canvas over-fills the target, it doesn't break page
+            target_element.css('overflow', 'hidden');
+
+            // Create target elements
+            target_element.html(html);
+
+            // Wire up buttons to export images
+            $(".jsplot_export_png").click(function () {
+                self.renderToPNG();
+            });
+
+
+            $(".jsplot_export_svg").click(function () {
+                var doc = self.renderToSVG();
+                saveBlob("plot.svg", doc);
+            });
+
+            // Bind mouse events
+            var fore = $("canvas", target_element);
+            self.interactive_holder_element = target_element;
+            self.interactive_canvas_element = fore;
+
+            fore.mousedown(function (e) {
+                self.mouseDown(e);
+            });
+            fore.mouseup(function (e) {
+                self.mouseUp(e);
+            });
+            fore.mousemove(function (e) {
+                self.mouseDrag(e);
+            });
+            fore.mouseleave(function () {
+                self.mouseUp(0);
+            });
+
+            // Bind touch events
+            fore.on({
+                "touchstart": function (e) {
+                    e.preventDefault();
+                    var oe = e.originalEvent;
+                    if (oe.touches.length === 1) {
+                        self.is_pinching = false;
+                        self.mouseDown(oe.touches[0]);
+                    } else if (oe.touches.length === 2) {
+                        self.is_pinching = true;
+                        self.pinch_distance = self.hypot(oe.touches[0].pageX - oe.touches[1].pageX, oe.touches[0].pageY - oe.touches[1].pageY);
+                    }
+                },
+                "touchend": function (e) {
+                    e.preventDefault();
+                    if (!self.is_pinching) self.mouseUp(0);
+                    self.is_pinching = false;
+                    self.mousedown = false;
+                },
+                "touchmove": function (e) {
+                    e.preventDefault();
+                    var oe = e.originalEvent;
+                    if (!self.is_pinching) {
+                        self.mouseDrag(oe.touches[0]);
+                    } else {
+                        var newpinch_distance = self.hypot(oe.touches[0].pageX - oe.touches[1].pageX, oe.touches[0].pageY - oe.touches[1].pageY);
+                        if (Math.abs(newpinch_distance - self.pinch_distance) > 25) {
+                            self.displayWheel(oe.touches[0], self.pinch_distance - newpinch_distance);
+                            self.pinch_distance = newpinch_distance;
+                        }
+                    }
+                },
+                "touchcancel": function (e) {
+                    e.preventDefault();
+                    if (!self.is_pinching) self.mouseUp(0);
+                    self.is_pinching = false;
+                    self.mousedown = false;
+                }
+            });
+
+            // Re-render if the page changes size
+            $(window).resize(function () {
+                self.renderToCanvas(self.interactive_holder_element);
+            });
+
+            // We have now initialised the HTML elements we will use
+            self.html_initialised = true;
         }
-
-        if (self.settings.allow_export_svg) {
-            html += "<input class='btn btn-sm btn-success jsplot_export_svg' type='button' value='Export SVG' />";
-        }
-
-        // Ensure that if the canvas over-fills the target, it doesn't break page
-        target_element.css('overflow', 'hidden');
-
-        // Create target elements
-        target_element.html(html);
-
-        // Wire up buttons to export images
-        $(".jsplot_export_png").click(function() {
-            self.renderToPNG();
-        });
-
-
-        $(".jsplot_export_svg").click(function() {
-            var doc = self.renderToSVG();
-            saveBlob("plot.svg", doc);
-        });
 
         // Render plot onto the canvas we have just created
         var target_canvas = $("canvas", target_element)[0];
@@ -186,9 +276,6 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
 
     // Render now
     render_canvas();
-
-    // Re-render is the page changes size
-    $(window).resize(render_canvas);
 };
 
 /**
@@ -208,3 +295,65 @@ JSPlot_Canvas.prototype.removeItem = function (name) {
     delete this.itemList[name];
 };
 
+// Interactivity
+
+JSPlot_Canvas.prototype.hypot = function (x, y) {
+    return Math.sqrt(x * x + y * y);
+};
+
+
+JSPlot_Canvas.prototype.mouseDown = function (e) {
+    this.pos_start = getCursorPos(e, this.interactive_canvas_element);
+    this.mousedown = true;
+};
+
+JSPlot_Canvas.prototype.mouseDrag = function (e) {
+    var p;
+    if (e === 0) {
+        p = this.pos_latest;
+    } else {
+        p = getCursorPos(e, this.interactive_canvas_element);
+        this.pos_latest = p;
+    }
+
+    if (!this.mousedown) return;
+    var x_offset = (p[0] - this.pos_start[0]);
+    var y_offset = (p[1] - this.pos_start[1]);
+
+    // Pass scroll event to all graphs
+    $.each(this.itemList, function (index, item) {
+        item.interactive_scroll(x_offset, y_offset);
+    });
+    this.pos_start = p;
+};
+
+JSPlot_Canvas.prototype.mouseUp = function (e) {
+    this.mouseDrag(e);
+    this.mousedown = false;
+};
+
+JSPlot_Canvas.prototype.displayWheel = function (evt, explicit_delta) {
+    // Prevent default event handler
+    if (evt.preventDefault) evt.preventDefault();
+    evt.returnValue = false;
+
+    // Throttle events so that zooming isn't uncontrollably fast
+    var time_now = Date.now();
+    if ((typeof this._lastZoomEventTime !== 'undefined') && (time_now < this._lastZoomEventTime + 100)) {
+        return;
+    }
+    this._lastZoomEventTime = time_now;
+
+    // Work out which direction zoom is moving in
+    var delta;
+    if (typeof explicit_delta !== 'undefined') {
+        delta = explicit_delta;
+    } else {
+        delta = evt.deltaY || evt.wheelDelta;
+    }
+
+    // Pass scroll event to all graphs
+    $.each(this.itemList, function (index, item) {
+        item.interactive_zoom(delta < 0);
+    });
+};

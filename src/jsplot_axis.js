@@ -7,19 +7,43 @@
  * @constructor
  */
 function JSPlot_Axis(enabled, settings) {
+    /** @type {boolean} */
     this.atZero = false;
+    /** @type {boolean} */
     this.enabled = enabled;
+    /** @type {boolean} */
     this.visible = true;
+    /** @type {?Array<string, string>} */
     this.linkTo = null; // Set to, e.g. ['myPlot','x1']
+    /** @type {boolean} */
     this.rangeReversed = false;
+    /** @type {string} */
     this.arrowType = 'none';  // options are 'single', 'double', 'none'
+    /** @type {boolean} */
     this.log = false;
+    /** @type {?number} */
     this.min = null;
+    /** @type {?number} */
     this.max = null;
+    /** @type {boolean} */
+    this.scrollEnabled = false;
+    /** @type {?number} */
+    this.scrollMin = null;
+    /** @type {?number} */
+    this.scrollMax = null;
+    /** @type {?number} */
+    this.scrollSpan = null;
+    /** @type {boolean} */
+    this.zoomEnabled = false;
+    /** @type {boolean} */
     this.mirror = false;
+    /** @type {number} */
     this.tickLabelRotation = 0;
+    /** @type {number} */
     this.labelRotate = 0;
+    /** @type {number} */
     this.tickLabelRotate = 0;
+    /** @type {?string} */
     this.label = null;
     this.ticsM = new JSPlot_AxisTics({});
     this.tics = new JSPlot_AxisTics({});
@@ -61,6 +85,21 @@ JSPlot_Axis.prototype.configure = function (settings) {
                 break;
             case "max":
                 this.max = value;
+                break;
+            case "scrollEnabled":
+                this.scrollEnabled = value;
+                break;
+            case "scrollMin":
+                this.scrollMin = value;
+                break;
+            case "scrollMax":
+                this.scrollMax = value;
+                break;
+            case "scrollSpan":
+                this.scrollSpan = value;
+                break;
+            case "zoomEnabled":
+                this.zoomEnabled = value;
                 break;
             case "mirror":
                 this.mirror = value;

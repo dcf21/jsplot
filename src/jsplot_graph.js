@@ -59,6 +59,9 @@ function JSPlot_Graph(dataSets, settings) {
     /** @type {boolean} */
     this.threeDimensional = false;
 
+    /** @type {string} */
+    this.interactiveMode = "none";  // Options are "none", "pan", "rotate"
+
     // Axes
     /** @type {Object.<string, JSPlot_Axis>} */
     this.axes = {
@@ -132,11 +135,20 @@ JSPlot_Graph.prototype.configure = function (settings) {
             case "gridAxes":
                 self.gridAxes = value;
                 break;
+            case "interactiveMode":
+                self.interactiveMode = value;
+                break;
             case "keyOffset":
                 self.keyOffset = value;
                 break;
             case "origin":
                 self.origin = value;
+                break;
+            case "threeDimensional":
+                self.threeDimensional = value;
+                break;
+            case "title":
+                self.title = value;
                 break;
             case "titleOffset":
                 self.titleOffset = value;
@@ -150,11 +162,13 @@ JSPlot_Graph.prototype.configure = function (settings) {
             case "viewAngleYZ":
                 self.viewAngleYZ = value;
                 break;
-            case "title":
-                self.title = value;
-                break;
-            case "threeDimensional":
-                self.threeDimensional = value;
+            case "x1_axis":
+            case "x2_axis":
+            case "y1_axis":
+            case "y2_axis":
+            case "z1_axis":
+            case "z2_axis":
+                self.axes[key.substring(0, 2)].configure(value)
                 break;
             default:
                 throw "Unrecognised graph setting " + key;
@@ -698,3 +712,27 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
         }
     });
 };
+
+// Interactivity
+
+JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
+    if (this.interactiveMode === 'pan') {
+        $.each(this.axes, function (axis_name, axis) {
+            var axis_direction = axis_name.substring(0, 1);
+            if (axis_direction === 'x') axis.interactive_scroll(x_offset);
+            if (axis_direction === 'y') axis.interactive_scroll(y_offset);
+        });
+        this.page.needs_refresh = true;
+    } else if (this.interactiveMode === 'rotate') {
+        this.viewAngleXY += x_offset * 360. / this.workspace.width_pixels;
+        this.viewAngleYZ += y_offset * 360. / this.workspace.width_pixels;
+        this.page.needs_refresh = true;
+    }
+}
+
+JSPlot_Graph.prototype.interactive_zoom = function (delta) {
+    $.each(this.axes, function (axis_name, axis) {
+        axis.interactive_zoom(delta);
+    });
+    this.page.needs_refresh = true;
+}

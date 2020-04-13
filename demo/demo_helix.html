@@ -10,33 +10,43 @@
     <script type="text/javascript" src="js/jsplot.min.js"></script>
 </head>
 <body>
-<h2>A 3D helix</h2>
-<hr style="margin: 20px 0;"/>
-<div id="graph_helix" style="max-width:700px; border: 1px solid #888;"></div>
-<hr style="margin: 20px 0;"/>
-<p style="font-style: italic;">
-    <a href="https://github.com/dcf21/js-plot">https://github.com/dcf21/js-plot</a>
-</p>
-<script type="text/javascript">
-    $(function () {
-        // Create canvas to put graph onto
-        var canvas = new JSPlot_Canvas({
-            "graph_1": new JSPlot_Graph([
-                new JSPlot_FunctionEvaluator(
-                    "Helix", {},
-                    [
-                        Math.sin, Math.cos
-                    ]).evaluate_linear_raster(-10, 10, 100)
-            ], {
-                'threeDimensional': true
-            })
-        }, {});
+<div id="demo_graph">
+    <!-- HTML code -->
+    <h2>A 3D helix</h2>
+    <hr style="margin: 20px 0;"/>
+    <div id="graph_helix" style="max-width:700px; border: 1px solid #888;"></div>
+    <hr style="margin: 20px 0;"/>
+    <p style="font-style: italic;">
+        <a href="https://github.com/dcf21/js-plot">https://github.com/dcf21/js-plot</a>
+    </p>
 
-        // Render plot
-        canvas.renderToCanvas(
-            $("#graph_helix")[0]
-        );
-    });
-</script>
+    <!-- Javascript code -->
+    <script type="text/javascript">
+        $(function () {
+            // Create canvas to put graph onto
+            var canvas = new JSPlot_Canvas({
+                "graph_1": new JSPlot_Graph([
+                    new JSPlot_FunctionEvaluator(
+                        "Helix", {},
+                        [
+                            Math.sin, Math.cos
+                        ]).evaluate_linear_raster(-10, 10, 100)
+                ], {
+                    'threeDimensional': true,
+                    'interactiveMode': 'rotate'
+                })
+            }, {});
+
+            // Render plot
+            canvas.renderToCanvas(
+                $("#graph_helix")[0]
+            );
+        });
+    </script>
+</div>
+
+<h4>Source code for this page</h4>
+<pre id="source_code"></pre>
+
 </body>
 </html>
