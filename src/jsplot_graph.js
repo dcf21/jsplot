@@ -11,9 +11,10 @@ function JSPlot_Graph(dataSets, settings) {
     this.page = null;
     /** @type {string} */
     this.itemType = "graph";
+    /** @type {?number} */
+    this.aspect = null;
     /** @type {number} */
-    this.aspect = 2.0 / (1.0 + Math.sqrt(5));
-    this.aspectZ = 2.0 / (1.0 + Math.sqrt(5));
+    this.aspectZ = 1;
     /** @type {JSPlot_Color} */
     this.axesColor = new JSPlot_Color(0, 0, 0, 1);
     /** @type {JSPlot_Color} */
@@ -49,7 +50,8 @@ function JSPlot_Graph(dataSets, settings) {
     this.origin = [0, 0];
     /** @type {Array<number>} */
     this.titleOffset = [0, 0];
-    this.width = '90%';
+    /** @type {?number|string} */
+    this.width = null;  // Either null (automatic width); a numerical number of pixels; or a string percentage eg '90%'
     /** @type {?number} */
     this.viewAngleXY = 60;
     /** @type {?number} */
@@ -182,6 +184,20 @@ JSPlot_Graph.prototype.configure = function (settings) {
 JSPlot_Graph.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering a plot
     this.workspace = [];
+
+    // Work out aspect ratio for this plot
+    /** @type {number} */
+    this.workspace.aspect = this.aspect;
+    /** @type {number} */
+    this.workspace.aspectZ = this.aspectZ;
+    if (this.aspect === null) {
+        if (!this.threeDimensional) {
+            this.workspace.aspect = 2.0 / (1.0 + Math.sqrt(5));
+        } else {
+            this.workspace.aspect = 1;
+        }
+    }
+
     /** @type {number} */
     this.workspace.defaultColorCounter = 0;
     /** @type {number} */
@@ -195,15 +211,31 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
     /** @type {?Array<number>} */
     this.workspace.screen_bearing = null; // directions of (x, y, z) axes
 
-    if (!isNaN(this.width)) {
-        /** @type {number} */
-        this.workspace.width_pixels = parseFloat(this.width);
-    } else if ((this.width.charAt(this.width.length - 1) === '%') &&
-        (this.page !== null) &&
-        !isNaN(this.width.substring(0, this.width.length - 1))) {
-        this.workspace.width_pixels = parseFloat(this.width.substring(0, this.width.length - 1)) * 0.01 * this.page.page_width;
-    } else {
-        this.workspace.width_pixels = 1024;
+    // Work out the width of this plot, in pixels
+    /** @type {number} */
+    this.workspace.width_pixels = 1024;
+
+    if (this.page !== null) {
+        if (this.width === null) {
+            // Case 1: width is null. We use a default, which is 90% for 2D graphs, and 60% for 3D graphs
+            if (!this.threeDimensional) {
+                this.workspace.width_pixels = 0.9 * this.page.page_width;
+            } else {
+                this.workspace.width_pixels = 0.6 * this.page.page_width;
+            }
+        } else if (!isNaN(this.width)) {
+            // Case 2: width is specified as a numerical number of pixels
+            /** @type {number} */
+            this.workspace.width_pixels = parseFloat(this.width);
+        } else if ((this.width.charAt(this.width.length - 1) === '%') &&
+            (this.page !== null) &&
+            !isNaN(this.width.substring(0, this.width.length - 1))) {
+            // Case 3: width is specified as a percentage of the screen width, in a a string, e.g. '90%'
+            this.workspace.width_pixels = parseFloat(this.width.substring(0, this.width.length - 1)) * 0.01 * this.page.page_width;
+        } else {
+            // Case 4: width is not properly specified
+            this.page.workspace.errorLog += "Graph width of <" + this.width + "> could not be parsed.\n";
+        }
     }
 };
 
@@ -246,8 +278,8 @@ JSPlot_Graph.prototype.insertDefaultStyles = function (style) {
  */
 JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
     var width = this.workspace.width_pixels;
-    var height = this.workspace.width_pixels * this.aspect;
-    var zdepth = this.workspace.width_pixels * this.aspectZ;
+    var height = this.workspace.width_pixels * this.workspace.aspect;
+    var zdepth = this.workspace.width_pixels * this.workspace.aspectZ;
 
     var x = width * (xap - 0.5);
     var y = height * (yap - 0.5);
@@ -282,7 +314,7 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
  */
 JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
     var width = this.workspace.width_pixels;
-    var height = this.workspace.width_pixels * this.aspect;
+    var height = this.workspace.width_pixels * this.workspace.aspect;
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
     var xap = axis_x.getPosition(xin, 1);
@@ -358,8 +390,8 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     // Work out projected lengths and directions of (x,y,z) axes on screen
     this.workspace.screen_size = [
         this.workspace.width_pixels,
-        this.workspace.width_pixels * this.aspect,
-        this.workspace.width_pixels * this.aspectZ
+        this.workspace.width_pixels * this.workspace.aspect,
+        this.workspace.width_pixels * this.workspace.aspectZ
     ];
     this.workspace.screen_bearing = [Math.PI / 2, 0, 0];
 
@@ -379,7 +411,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     if (!this.threeDimensional) {
         bounding_box.includePoint(this.origin[0] - margin, this.origin[1] - margin);
         bounding_box.includePoint(this.origin[0] + this.workspace.width_pixels + margin,
-            this.origin[1] + this.workspace.width_pixels * this.aspect + margin);
+            this.origin[1] + this.workspace.width_pixels * this.workspace.aspect + margin);
     } else {
         for (var xap = 0; xap <= 1; xap += 1)
             for (var yap = 0; yap <= 1; yap += 1)
@@ -478,8 +510,8 @@ JSPlot_Graph.prototype.render = function () {
     // Work out lengths of x-, y- and z-axes
     var size = [
         this.workspace.width_pixels,
-        this.workspace.width_pixels * this.aspect,
-        this.workspace.width_pixels * this.aspectZ
+        this.workspace.width_pixels * this.workspace.aspect,
+        this.workspace.width_pixels * this.workspace.aspectZ
     ];
 
     // Keep track of bounding box of all axes, so we can put title at the very top
@@ -715,24 +747,48 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
 
 // Interactivity
 
+/**
+ * interactive_scroll - Apply interactive mouse-scroll event to this axis, for example when the user clicks and drags
+ * the canvas.
+ * @param x_offset {number} - The numerical number of pixels by which the canvas has been dragged.
+ * @param y_offset {number} - The numerical number of pixels by which the canvas has been dragged.
+ */
 JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
+    /** @type JSPlot_Graph */
+    var self = this;
+
     if (this.interactiveMode === 'pan') {
         $.each(this.axes, function (axis_name, axis) {
             var axis_direction = axis_name.substring(0, 1);
-            if (axis_direction === 'x') axis.interactive_scroll(x_offset);
-            if (axis_direction === 'y') axis.interactive_scroll(y_offset);
+            if (axis_direction === 'x') axis.interactive_scroll(self.page, x_offset / self.workspace.screen_size[0]);
+            if (axis_direction === 'y') axis.interactive_scroll(self.page, y_offset / self.workspace.screen_size[1]);
         });
         this.page.needs_refresh = true;
     } else if (this.interactiveMode === 'rotate') {
-        this.viewAngleXY += x_offset * 360. / this.workspace.width_pixels;
-        this.viewAngleYZ += y_offset * 360. / this.workspace.width_pixels;
+        this.viewAngleXY += x_offset * 180. / this.workspace.width_pixels;
+        this.viewAngleYZ += y_offset * 180. / this.workspace.width_pixels;
+
+        // Set rotation limits
+        if (this.viewAngleYZ > 90) this.viewAngleYZ = 90;
+        if (this.viewAngleYZ < -90) this.viewAngleYZ = -90;
+        if (this.viewAngleXY < 0) this.viewAngleXY += 360;
+        if (this.viewAngleXY > 360) this.viewAngleXY -= 360;
+
+        // Refresh display
         this.page.needs_refresh = true;
     }
 }
 
+/**
+ * interactive_zoom - Apply interactive zoom event to this graph, for example when the user uses the mouse wheel to
+ * zoom.
+ * @param delta {number} - The numerical amount by which the canvas was zoomed
+ */
 JSPlot_Graph.prototype.interactive_zoom = function (delta) {
+    /** @type JSPlot_Graph */
+    var self = this;
+
     $.each(this.axes, function (axis_name, axis) {
-        axis.interactive_zoom(delta);
+        axis.interactive_zoom(self.page, delta);
     });
-    this.page.needs_refresh = true;
 }

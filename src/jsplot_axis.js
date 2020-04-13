@@ -57,70 +57,73 @@ function JSPlot_Axis(enabled, settings) {
  * @param settings {Object} - An object containing settings
  */
 JSPlot_Axis.prototype.configure = function (settings) {
+    /** @type {JSPlot_Axis} */
+    var self = this;
+    
     $.each(settings, function (key, value) {
         switch (key) {
             case "atZero":
-                this.atZero = value;
+                self.atZero = value;
                 break;
             case "enabled":
-                this.enabled = value;
+                self.enabled = value;
                 break;
             case "visible":
-                this.visible = value;
+                self.visible = value;
                 break;
             case "linkTo":
-                this.linkTo = value;
+                self.linkTo = value;
                 break;
             case "rangeReversed":
-                this.rangeReversed = value;
+                self.rangeReversed = value;
                 break;
             case "arrowType":
-                this.arrowType = value;
+                self.arrowType = value;
                 break;
             case "log":
-                this.log = value;
+                self.log = value;
                 break;
             case "min":
-                this.min = value;
+                self.min = value;
                 break;
             case "max":
-                this.max = value;
+                self.max = value;
                 break;
             case "scrollEnabled":
-                this.scrollEnabled = value;
+                self.scrollEnabled = value;
                 break;
             case "scrollMin":
-                this.scrollMin = value;
+                self.scrollMin = value;
                 break;
             case "scrollMax":
-                this.scrollMax = value;
+                self.scrollMax = value;
                 break;
             case "scrollSpan":
-                this.scrollSpan = value;
+                self.scrollSpan = value;
                 break;
             case "zoomEnabled":
-                this.zoomEnabled = value;
+                self.zoomEnabled = value;
                 break;
             case "mirror":
-                this.mirror = value;
+                self.mirror = value;
                 break;
             case "tickLabelRotation":
-                this.tickLabelRotation = value;
+                self.tickLabelRotation = value;
                 break;
             case "labelRotate":
-                this.labelRotate = value;
+                self.labelRotate = value;
                 break;
             case "tickLabelRotate":
-                this.tickLabelRotate = value;
+                self.tickLabelRotate = value;
                 break;
             case "label":
-                this.label = value;
+                self.label = value;
                 break;
             case "ticsM":
-                this.ticsM.configure(value);
+                self.ticsM.configure(value);
                 break;
             case "tics":
-                this.tics.configure(value);
+                self.tics.configure(value);
                 break;
             default:
                 throw "Unrecognised axis setting " + key;
@@ -233,6 +236,18 @@ JSPlot_Axis.prototype.inRange = function (x_in) {
         x_max = null;
     }
 
+    // If scrolling is enabled, we scale perpendicular axes to encompass the full range of data within scroll range
+    if (this.scrollEnabled) {
+        x_min = x_max = null;
+        if (this.scrollMin !== null) {
+            x_min = this.scrollMin;
+        }
+        if (this.scrollMax !== null) {
+            x_max = this.scrollMax;
+        }
+    }
+
+    // If axis has a reversed scale, then we flip the minimum and maximum
     if (this.rangeReversed) {
         var tmp = x_min;
         x_min = x_max;
@@ -333,7 +348,7 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
             break;
         }
 
-        if (!page.itemList[source.linkTo[0]].itemType !== "graph") {
+        if (page.itemList[source.linkTo[0]].itemType !== "graph") {
             page.workspace.errorLog += "Axis linked to plot <" + source.linkTo[0] + "> which is not a graph.\n";
             break;
         }
@@ -395,4 +410,89 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     arrow_renderer.primitive_arrow(page, this.arrowType,
         x0, y0, z0, x1, y1, z1,
         graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0)
+};
+
+// Interactivity
+
+/**
+ * interactive_scroll - Apply interactive mouse-scroll event to this axis, for example when the user clicks and drags
+ * the canvas.
+ * @param page {JSPlot_Canvas} - The canvas page which triggered this scroll event
+ * @param offset {number} - The numerical factor by which the canvas has been dragged, in units of the length of the
+ * axis.
+ */
+JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
+    if (this.scrollEnabled && (this.workspace.minFinal !== null) && (this.workspace.maxFinal !== null)) {
+        // If the span of the axis is not defined, take it from the current automatic scaling
+        if (this.scrollSpan === null) {
+            if (!this.log) {
+                this.scrollSpan = Math.abs(this.workspace.maxFinal - this.workspace.minFinal)
+            } else {
+                this.scrollSpan = this.workspace.maxFinal / this.workspace.minFinal;
+                if (this.scrollSpan < 1) {
+                    this.scrollSpan = 1 / this.scrollSpan;
+                }
+            }
+        }
+
+        // If axis limits are not currently set, set them from the current automatic scaling
+        if (this.min === null) {
+            this.min = this.workspace.minFinal;
+        }
+
+        // Apply scroll
+        if (!this.log) {
+            // Scroll axis
+            this.min += offset * this.scrollSpan;
+            // Check if we've reached lower limit
+            if ((this.scrollMin !== null) && (this.min < this.scrollMin)) {
+                this.min = this.scrollMin;
+            }
+            // Check if we've reached upper limit
+            if ((this.scrollMax !== null) && (this.min > this.scrollMax - this.scrollSpan)) {
+                this.min = this.scrollMax - this.scrollSpan;
+            }
+            // Set upper limit of axis, based on the new lower limit
+            this.max = this.min + this.scrollSpan;
+        } else {
+            // Scroll axis
+            this.min *= Math.pow(this.scrollSpan, offset);
+            // Check if we've reached lower limit
+            if ((this.scrollMin !== null) && (this.min < this.scrollMin)) {
+                this.min = this.scrollMin;
+            }
+            // Check if we've reached upper limit
+            if ((this.scrollMax !== null) && (this.min > this.scrollMax / this.scrollSpan)) {
+                this.min = this.scrollMax / this.scrollSpan;
+            }
+            // Set upper limit of axis, based on the new lower limit
+            this.max = this.min * this.scrollSpan;
+        }
+
+        // Refresh display
+        page.needs_refresh = true;
+    }
+};
+
+/**
+ * interactive_zoom - Apply interactive zoom event to this axis, for example when the user uses the mouse wheel to zoom.
+ * @param page {JSPlot_Canvas} - The canvas page which triggered this zoom event
+ * @param delta {number} - The numerical amount by which the canvas was zoomed
+ */
+JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
+    /** @type {number} */
+    var zoom_factor = 0.9;
+
+    if (this.zoomEnabled && (this.scrollSpan !== null)) {
+        if (delta > 0) {
+            this.scrollSpan *= zoom_factor;
+            this.interactive_scroll(page, 0);
+        } else {
+            this.scrollSpan /= zoom_factor;
+            this.interactive_scroll(page, 0);
+        }
+
+        // Refresh display
+        page.needs_refresh = true;
+    }
 };

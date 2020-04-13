@@ -65,7 +65,7 @@ function JSPlot_Canvas(initialItemList, settings) {
             self.renderToCanvas(self.interactive_holder_element);
             self.needs_refresh = false;
         }
-    }, 200); // poll for mouse moves at 5fps
+    }, 100); // poll for mouse moves at 10fps
 }
 
 /**
