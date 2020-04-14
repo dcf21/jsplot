@@ -68,11 +68,11 @@ function JSPlot_Graph(dataSets, settings) {
     /** @type {Object.<string, JSPlot_Axis>} */
     this.axes = {
         'x1': new JSPlot_Axis(this, true, {}),
-        'x2': new JSPlot_Axis(this,false, {}),
-        'y1': new JSPlot_Axis(this,true, {}),
-        'y2': new JSPlot_Axis(this,false, {}),
-        'z1': new JSPlot_Axis(this,true, {}),
-        'z2': new JSPlot_Axis(this,false, {}),
+        'x2': new JSPlot_Axis(this, false, {}),
+        'y1': new JSPlot_Axis(this, true, {}),
+        'y2': new JSPlot_Axis(this, false, {}),
+        'z1': new JSPlot_Axis(this, true, {}),
+        'z2': new JSPlot_Axis(this, false, {}),
     };
 
     // Data sets
@@ -761,6 +761,23 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
             if (axis_direction === 'x') axis.interactive_scroll(self.page, x_offset / self.workspace.screen_size[0]);
             if (axis_direction === 'y') axis.interactive_scroll(self.page, y_offset / self.workspace.screen_size[1]);
         });
+
+        // Invite all data sets to recompute for the new axis range
+        $.each(this.dataSets, function (index, dataset) {
+            /** @type {string} */
+            var x_axis_name = dataset.axes[1];
+            /** @type {JSPlot_Axis} */
+            var x_axis = self.axes[x_axis_name];
+            /** @type {?number} */
+            var x_min = x_axis.min;
+            /** @type {?number} */
+            var x_max = x_axis.max;
+
+            if ((x_min !== null) && (x_max !== null)) {
+                dataset.axisRangeUpdated(x_min, x_max);
+            }
+        });
+
         this.page.needs_refresh = true;
     } else if (this.interactiveMode === 'rotate') {
         this.viewAngleXY += x_offset * 180. / this.workspace.width_pixels;
@@ -786,7 +803,24 @@ JSPlot_Graph.prototype.interactive_zoom = function (delta) {
     /** @type JSPlot_Graph */
     var self = this;
 
+    // Pass zoom event to all axes
     $.each(this.axes, function (axis_name, axis) {
         axis.interactive_zoom(self.page, delta);
+    });
+
+    // Invite all data sets to recompute for the new axis range
+    $.each(this.dataSets, function (index, dataset) {
+        /** @type {string} */
+        var x_axis_name = dataset.axes[1];
+        /** @type {JSPlot_Axis} */
+        var x_axis = self.axes[x_axis_name];
+        /** @type {?number} */
+        var x_min = x_axis.min;
+        /** @type {?number} */
+        var x_max = x_axis.max;
+
+        if ((x_min !== null) && (x_max !== null)) {
+            dataset.axisRangeUpdated(x_min, x_max);
+        }
     });
 }

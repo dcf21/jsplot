@@ -512,10 +512,28 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
     // Apply zoom
     if (this.zoomEnabled && (this.scrollSpan !== null)) {
         if (delta > 0) {
+            // Zoom in
             this.scrollSpan *= zoom_factor;
             this.interactive_scroll(page, -(1 - zoom_factor) / 2);
         } else {
+            // Zoom out
             this.scrollSpan /= zoom_factor;
+
+            // Make sure we have not zoomed out beyond allowed range
+            if ((this.scrollMin !== null) && (this.scrollMax !== null)) {
+                if (!this.logarithmic) {
+                    if (this.scrollSpan > this.scrollMax - this.scrollMin) {
+                        this.scrollSpan = this.scrollMax - this.scrollMin;
+                    }
+                } else {
+                    if (this.scrollSpan > this.scrollMax / this.scrollMin) {
+                        this.scrollSpan = this.scrollMax / this.scrollMin;
+                    }
+
+                }
+            }
+
+            // Update axis range
             this.interactive_scroll(page, (1 - zoom_factor) / 2);
         }
 
