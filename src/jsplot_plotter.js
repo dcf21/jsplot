@@ -82,7 +82,7 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
             // We are rendering a series of boxes with a constant defined width
             $.each(data.data, function (index, dataPoint) {
                 if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1])) {
-                    if (!a1.log) {
+                    if (!a1.logarithmic) {
                         a1.includePoint(dataPoint[0] - self.graph.boxWidth / 2);
                         a1.includePoint(dataPoint[0] + self.graph.boxWidth / 2);
                     } else {
@@ -101,34 +101,34 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
                 // Work out margin to leave on left side of box
                 if (i > 0) {
                     if ((style === "boxes") || (style === "histeps")) {
-                        if (!a1.log) {
+                        if (!a1.logarithmic) {
                             margin_left = (data.data[i][0] - data.data[i - 1][0]) / 2;
                         } else {
                             margin_left = Math.sqrt(data.data[i][0] / data.data[i - 1][0]);
                         }
                     } else if (style === "steps") {
-                        if (!a1.log) {
+                        if (!a1.logarithmic) {
                             margin_left = data.data[i][0] - data.data[i - 1][0];
                         } else {
                             margin_left = data.data[i][0] / data.data[i - 1][0];
                         }
                     } else {
-                        margin_left = a1.log ? 1 : 0;
+                        margin_left = a1.logarithmic ? 1 : 0;
                     }
                 }
 
                 // Work out margin to leave on right side of box
                 if (i < data.data.length - 1) {
                     if ((style === "boxes") || (style === "histeps")) {
-                        if (!a1.log) {
+                        if (!a1.logarithmic) {
                             margin_right = (data.data[i + 1][0] - data.data[i][0]) / 2;
                         } else {
                             margin_right = Math.sqrt(data.data[i + 1][0] / data.data[i][0])
                         }
                     } else if (style === "steps") {
-                        margin_right = a1.log ? 1 : 0;
+                        margin_right = a1.logarithmic ? 1 : 0;
                     } else {
-                        if (!a1.log) {
+                        if (!a1.logarithmic) {
                             margin_right = data.data[i + 1][0] - data.data[i][0];
                         } else {
                             margin_right = data.data[i + 1][0] / data.data[i][0];
@@ -147,7 +147,7 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
                 }
 
                 // Factor this box into the ranges of each axis
-                if (!a1.log) {
+                if (!a1.logarithmic) {
                     a1.includePoint(dataPoint[0] - margin_left);
                     a1.includePoint(dataPoint[0] + margin_right);
                 } else {

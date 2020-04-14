@@ -28,6 +28,9 @@ JSPlot_AxisTics.prototype.configure = function (settings) {
             case "ticDir":
                 this.ticDir = value;
                 break;
+            case "tickList":
+                this.tickList = value;
+                break;
             case "tickMin":
                 this.tickMin = value;
                 break;
@@ -36,9 +39,6 @@ JSPlot_AxisTics.prototype.configure = function (settings) {
                 break;
             case "tickStep":
                 this.tickStep = value;
-                break;
-            case "tickList":
-                this.tickList = value;
                 break;
             default:
                 throw "Unrecognised axis tick setting " + key;

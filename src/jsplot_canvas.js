@@ -216,6 +216,14 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
                 self.mouseUp(0);
             });
 
+            // Bind mouse scroll-wheel events
+            var wheelEvt = "onwheel" in document.createElement("div") ? "wheel" :  // Modern browsers support "wheel"
+                document.onmousewheel !== undefined ? "mousewheel" :  // Webkit and IE support at least "mousewheel"
+                    "DOMMouseScroll";  // let's assume that remaining browsers are older Firefox
+            fore.bind(wheelEvt, function (e) {
+                self.displayWheel(e.originalEvent);
+            });
+
             // Bind touch events
             fore.on({
                 "touchstart": function (e) {

@@ -2,11 +2,14 @@
 
 /**
  * JSPlot_Axis - A class representing a graph axis
+ * @param graph {JSPlot_Graph} - The graph this axis belongs to
  * @param enabled {boolean} - If false, then this axis is not rendered
  * @param settings {Object} - Settings for this axis
  * @constructor
  */
-function JSPlot_Axis(enabled, settings) {
+function JSPlot_Axis(graph, enabled, settings) {
+    /** @type {JSPlot_Graph} */
+    this.graph = graph;
     /** @type {boolean} */
     this.atZero = false;
     /** @type {boolean} */
@@ -20,11 +23,13 @@ function JSPlot_Axis(enabled, settings) {
     /** @type {string} */
     this.arrowType = 'none';  // options are 'single', 'double', 'none'
     /** @type {boolean} */
-    this.log = false;
+    this.logarithmic = false;
     /** @type {?number} */
     this.min = null;
     /** @type {?number} */
     this.max = null;
+    /** @type {string} */
+    this.data_type = 'numeric';  // options are 'numeric', 'timestamp'
     /** @type {boolean} */
     this.scrollEnabled = false;
     /** @type {?number} */
@@ -43,9 +48,13 @@ function JSPlot_Axis(enabled, settings) {
     this.labelRotate = 0;
     /** @type {number} */
     this.tickLabelRotate = 0;
+    /** @type {?JSPlot_TickingNumericLinear|JSPlot_TickingNumericLogarithmic|JSPlot_TickingTimestamp} */
+    this.ticking_allocator = null;
     /** @type {?string} */
     this.label = null;
+    /** @type {JSPlot_AxisTics} */
     this.ticsM = new JSPlot_AxisTics({});
+    /** @type {JSPlot_AxisTics} */
     this.tics = new JSPlot_AxisTics({});
     this.configure(settings);
 
@@ -59,35 +68,44 @@ function JSPlot_Axis(enabled, settings) {
 JSPlot_Axis.prototype.configure = function (settings) {
     /** @type {JSPlot_Axis} */
     var self = this;
-    
+
     $.each(settings, function (key, value) {
         switch (key) {
+            case "arrowType":
+                self.arrowType = value;
+                break;
             case "atZero":
                 self.atZero = value;
+                break;
+            case "dataType":
+                self.data_type = value;
                 break;
             case "enabled":
                 self.enabled = value;
                 break;
-            case "visible":
-                self.visible = value;
-                break;
             case "linkTo":
                 self.linkTo = value;
                 break;
-            case "rangeReversed":
-                self.rangeReversed = value;
-                break;
-            case "arrowType":
-                self.arrowType = value;
-                break;
             case "log":
-                self.log = value;
+                self.logarithmic = value;
                 break;
             case "min":
                 self.min = value;
                 break;
             case "max":
                 self.max = value;
+                break;
+            case "mirror":
+                self.mirror = value;
+                break;
+            case "label":
+                self.label = value;
+                break;
+            case "labelRotate":
+                self.labelRotate = value;
+                break;
+            case "rangeReversed":
+                self.rangeReversed = value;
                 break;
             case "scrollEnabled":
                 self.scrollEnabled = value;
@@ -101,29 +119,23 @@ JSPlot_Axis.prototype.configure = function (settings) {
             case "scrollSpan":
                 self.scrollSpan = value;
                 break;
-            case "zoomEnabled":
-                self.zoomEnabled = value;
-                break;
-            case "mirror":
-                self.mirror = value;
-                break;
-            case "tickLabelRotation":
-                self.tickLabelRotation = value;
-                break;
-            case "labelRotate":
-                self.labelRotate = value;
-                break;
             case "tickLabelRotate":
                 self.tickLabelRotate = value;
                 break;
-            case "label":
-                self.label = value;
+            case "tickLabelRotation":
+                self.tickLabelRotation = value;
                 break;
             case "ticsM":
                 self.ticsM.configure(value);
                 break;
             case "tics":
                 self.tics.configure(value);
+                break;
+            case "visible":
+                self.visible = value;
+                break;
+            case "zoomEnabled":
+                self.zoomEnabled = value;
                 break;
             default:
                 throw "Unrecognised axis setting " + key;
@@ -144,9 +156,8 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.maxFinal = null;
     this.workspace.minHard = this.min;
     this.workspace.maxHard = this.max;
-    this.workspace.logFinal = this.log;
-    this.workspace.rangeFinalised = null;
-    this.workspace.activeFinal = null;
+    this.workspace.logFinal = this.logarithmic;
+    this.workspace.rangeFinalised = false;
     this.workspace.pixel_len_major_ticks = null;
     this.workspace.pixel_len_minor_ticks = null;
     this.workspace.axisName = null;
@@ -154,6 +165,18 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.mode0BackPropagated = false;
     this.workspace.axisLabelFinal = null;
     this.workspace.tickListFinal = null;
+
+    // Class used for deciding ticking logic along this axis
+    if (this.data_type === 'timestamp') {
+        this.ticking_allocator = new JSPlot_TickingTimestamp(this);
+    } else {
+        if (!this.logarithmic) {
+            this.ticking_allocator = new JSPlot_TickingNumericLinear(this);
+        } else {
+            this.ticking_allocator = new JSPlot_TickingNumericLogarithmic(this);
+
+        }
+    }
 };
 
 /**
@@ -362,8 +385,8 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
         chain.push(source);
     }
 
-    if ((mode === 1) && (source.workspace.rangeFinalised)) {
-        JSPlot_Ticking(source, null);
+    if ((mode === 1) && (!source.workspace.rangeFinalised)) {
+        source.ticking_allocator.process();
     }
 
     for (var index = chain.length - 2; index >= 0; index--) {
@@ -383,8 +406,8 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
             axis.workspace.logFinal = source.workspace.logFinal;
             axis.workspace.minFinal = source.workspace.minFinal;
             axis.workspace.maxFinal = source.workspace.maxFinal;
-            axis.workspace.rangeFinalised = 1;
-            JSPlot_Ticking(axis, null);
+            axis.workspace.rangeFinalised = true;
+            axis.ticking_allocator.process();
         }
     }
 };
@@ -425,7 +448,7 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
     if (this.scrollEnabled && (this.workspace.minFinal !== null) && (this.workspace.maxFinal !== null)) {
         // If the span of the axis is not defined, take it from the current automatic scaling
         if (this.scrollSpan === null) {
-            if (!this.log) {
+            if (!this.logarithmic) {
                 this.scrollSpan = Math.abs(this.workspace.maxFinal - this.workspace.minFinal)
             } else {
                 this.scrollSpan = this.workspace.maxFinal / this.workspace.minFinal;
@@ -441,9 +464,9 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
         }
 
         // Apply scroll
-        if (!this.log) {
+        if (!this.logarithmic) {
             // Scroll axis
-            this.min += offset * this.scrollSpan;
+            this.min -= offset * this.scrollSpan;
             // Check if we've reached lower limit
             if ((this.scrollMin !== null) && (this.min < this.scrollMin)) {
                 this.min = this.scrollMin;
@@ -456,7 +479,7 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
             this.max = this.min + this.scrollSpan;
         } else {
             // Scroll axis
-            this.min *= Math.pow(this.scrollSpan, offset);
+            this.min /= Math.pow(this.scrollSpan, offset);
             // Check if we've reached lower limit
             if ((this.scrollMin !== null) && (this.min < this.scrollMin)) {
                 this.min = this.scrollMin;
@@ -483,13 +506,17 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
     /** @type {number} */
     var zoom_factor = 0.9;
 
+    // Make sure scroll span is populated
+    this.interactive_scroll(page, 0);
+
+    // Apply zoom
     if (this.zoomEnabled && (this.scrollSpan !== null)) {
         if (delta > 0) {
             this.scrollSpan *= zoom_factor;
-            this.interactive_scroll(page, 0);
+            this.interactive_scroll(page, -(1 - zoom_factor) / 2);
         } else {
             this.scrollSpan /= zoom_factor;
-            this.interactive_scroll(page, 0);
+            this.interactive_scroll(page, (1 - zoom_factor) / 2);
         }
 
         // Refresh display

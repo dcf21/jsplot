@@ -67,12 +67,12 @@ function JSPlot_Graph(dataSets, settings) {
     // Axes
     /** @type {Object.<string, JSPlot_Axis>} */
     this.axes = {
-        'x1': new JSPlot_Axis(true, {}),
-        'x2': new JSPlot_Axis(false, {}),
-        'y1': new JSPlot_Axis(true, {}),
-        'y2': new JSPlot_Axis(false, {}),
-        'z1': new JSPlot_Axis(true, {}),
-        'z2': new JSPlot_Axis(false, {}),
+        'x1': new JSPlot_Axis(this, true, {}),
+        'x2': new JSPlot_Axis(this,false, {}),
+        'y1': new JSPlot_Axis(this,true, {}),
+        'y2': new JSPlot_Axis(this,false, {}),
+        'z1': new JSPlot_Axis(this,true, {}),
+        'z2': new JSPlot_Axis(this,false, {}),
     };
 
     // Data sets
@@ -491,9 +491,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
             axis.linkedAxisForwardPropagate(self.page, 1);
         }
         if (axis.workspace.tickListFinal === null) {
-            axis.workspace.minFinal = -10;
-            axis.workspace.maxFinal = 10;
-            // TODO !!! JSPlot_Ticking(axis, null);
+            axis.ticking_allocator.process();
         }
 
     });
