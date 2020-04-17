@@ -11,6 +11,9 @@ function JSPlot_TickingNumericLogarithmic(axis) {
 }
 
 JSPlot_TickingNumericLogarithmic.prototype.process = function () {
+    /** @type {JSPlot_TickingNumericLogarithmic} */
+    var self = this;
+
     // Fix the axis range
     if (!this.axis.workspace.rangeFinalised) {
         /** @type {boolean} */

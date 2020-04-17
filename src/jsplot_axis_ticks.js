@@ -6,12 +6,16 @@
  * @constructor
  */
 function JSPlot_AxisTics(settings) {
-    this.logBase = null;
+    /** @type {?string} */
     this.ticDir = null;
+    /** @type {?number} */
     this.tickMin = null;
+    /** @type {?number} */
     this.tickMax = null;
+    /** @type {?number} */
     this.tickStep = null;
-    this.tickList = [];
+    /** @type {Array.<{0: number, 1:string}>} */
+    this.tickList = null;
     this.configure(settings);
 }
 
@@ -22,9 +26,6 @@ function JSPlot_AxisTics(settings) {
 JSPlot_AxisTics.prototype.configure = function (settings) {
     $.each(settings, function (key, value) {
         switch (key) {
-            case "logBase":
-                this.logBase = value;
-                break;
             case "ticDir":
                 this.ticDir = value;
                 break;
