@@ -166,6 +166,13 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.axisLabelFinal = null;
     this.workspace.tickListFinal = null;
 
+    this.ticking_allocator = null;
+}
+
+/**
+ * allocate_axis_ticks - Place ticks along this axis
+ */
+JSPlot_Axis.prototype.allocate_axis_ticks = function() {
     // Class used for deciding ticking logic along this axis
     if (this.data_type === 'timestamp') {
         this.ticking_allocator = new JSPlot_TickingTimestamp(this);
@@ -177,6 +184,9 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
 
         }
     }
+
+    // Assign axis ticks
+    this.ticking_allocator.process();
 };
 
 /**
@@ -386,10 +396,11 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
     }
 
     if ((mode === 1) && (!source.workspace.rangeFinalised)) {
-        source.ticking_allocator.process();
+        source.allocate_axis_ticks();
     }
 
     for (var index = chain.length - 2; index >= 0; index--) {
+        /** @type {JSPlot_Axis} */
         var axis = chain[index];
 
         if (axis.workspace.rangeFinalised) break;
@@ -407,7 +418,7 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
             axis.workspace.minFinal = source.workspace.minFinal;
             axis.workspace.maxFinal = source.workspace.maxFinal;
             axis.workspace.rangeFinalised = true;
-            axis.ticking_allocator.process();
+            axis.allocate_axis_ticks();
         }
     }
 };
@@ -448,7 +459,7 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
     if (this.scrollEnabled && (this.workspace.minFinal !== null) && (this.workspace.maxFinal !== null)) {
         // If the span of the axis is not defined, take it from the current automatic scaling
         if (this.scrollSpan === null) {
-            if (!this.logarithmic) {
+            if (!this.workspace.logFinal) {
                 this.scrollSpan = Math.abs(this.workspace.maxFinal - this.workspace.minFinal)
             } else {
                 this.scrollSpan = this.workspace.maxFinal / this.workspace.minFinal;
@@ -464,7 +475,7 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
         }
 
         // Apply scroll
-        if (!this.logarithmic) {
+        if (!this.workspace.logFinal) {
             // Scroll axis
             this.min -= offset * this.scrollSpan;
             // Check if we've reached lower limit
@@ -521,7 +532,7 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
 
             // Make sure we have not zoomed out beyond allowed range
             if ((this.scrollMin !== null) && (this.scrollMax !== null)) {
-                if (!this.logarithmic) {
+                if (!this.workspace.logFinal) {
                     if (this.scrollSpan > this.scrollMax - this.scrollMin) {
                         this.scrollSpan = this.scrollMax - this.scrollMin;
                     }
