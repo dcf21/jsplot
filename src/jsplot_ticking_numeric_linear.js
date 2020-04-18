@@ -130,9 +130,21 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
                 // Finished
                 return;
             }
+
+            // Automatic ticking
+            self.automatic_ticking(tick_level);
         });
     }
 };
+
+/**
+ * Assign automatically placed ticks along this axis
+ * @param tick_level {string} - Either 'major' or 'minor'
+ */
+JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) {
+
+};
+
 
 /**
  * Convert a number into a string, expressed to a sensible precision

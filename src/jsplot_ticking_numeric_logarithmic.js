@@ -70,7 +70,7 @@ JSPlot_TickingNumericLogarithmic.prototype.process = function () {
         axis_max_data = Math.ceil(axis_max_data / order_of_magnitude) * order_of_magnitude;
 
         axis_min_data = Math.pow(10, axis_min_data);
-        axis_max_data = Math.pow(10,axis_max_data);
+        axis_max_data = Math.pow(10, axis_max_data);
 
         this.axis.workspace.minFinal = hard_min_set ? this.axis.workspace.minHard : axis_min_data;
         this.axis.workspace.maxFinal = hard_max_set ? this.axis.workspace.maxHard : axis_max_data;
@@ -141,6 +141,17 @@ JSPlot_TickingNumericLogarithmic.prototype.process = function () {
                 // Finished
                 return;
             }
+
+            // Automatic ticking
+            self.automatic_ticking(tick_level);
         });
     }
+};
+
+/**
+ * Assign automatically placed ticks along this axis
+ * @param tick_level {string} - Either 'major' or 'minor'
+ */
+JSPlot_TickingNumericLogarithmic.prototype.automatic_ticking = function (tick_level) {
+
 };
