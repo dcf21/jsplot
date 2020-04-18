@@ -85,4 +85,62 @@ JSPlot_TickingNumericLogarithmic.prototype.process = function () {
         // Range is now finalised
         this.axis.workspace.rangeFinalised = true;
     }
+
+    // Fix the axis ticks
+    if (this.axis.workspace.tickListFinal === null) {
+        // Create empty data structure for ticks
+        this.axis.workspace.tickListFinal = {
+            'major': [],
+            'minor': []
+        }
+
+        // Allocate major ticks first, and then minor ticks
+        $.each(['major', 'minor'], function (index, tick_level) {
+            /** @type {JSPlot_AxisTics} */
+            var tick_list = index ? self.axis.ticsM : self.axis.tics;
+
+            // If a list of ticks has been explicitly supplied, use that
+            if (tick_list.tickList !== null) {
+                $.each(tick_list.tickList, function (tick_index, tick_item) {
+                    self.axis.workspace.tickListFinal[tick_level].push(
+                        [parseFloat(tick_item[0]), "" + tick_item[1]]
+                    );
+                });
+
+                // Finished
+                return;
+            }
+
+            // If a tick scheme has been specified via min, max and step, use that scheme
+            if (tick_list.tickStep !== null) {
+                var linear_ticker = new JSPlot_TickingNumericLinear(self.axis);
+                var axis_min = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
+                var axis_max = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
+
+                var ticks_min = tick_list.tickMin;
+                if (ticks_min < axis_min) {
+                    ticks_min *= Math.exp(Math.ceil(Math.log(axis_min / ticks_min) / Math.log(tick_list.tickStep)) *
+                        Math.log(tick_list.tickStep));
+                }
+
+                // Create a maximum of 100 ticks
+                for (var count = 0; count < 100; count++) {
+                    var tick_pos = ticks_min * Math.pow(tick_list.tickStep, count);
+
+                    // Stop if we've exceeded axis range
+                    if (tick_pos > axis_max) {
+                        break;
+                    }
+
+                    // Add tick
+                    self.axis.workspace.tickListFinal[tick_level].push(
+                        [tick_pos, linear_ticker.numeric_display(tick_pos)]
+                    );
+                }
+
+                // Finished
+                return;
+            }
+        });
+    }
 };

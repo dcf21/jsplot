@@ -89,7 +89,7 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
             if (tick_list.tickList !== null) {
                 $.each(tick_list.tickList, function (tick_index, tick_item) {
                     self.axis.workspace.tickListFinal[tick_level].push(
-                        [parseFloat(tick_item[0]), ""+tick_item[1]]
+                        [parseFloat(tick_item[0]), "" + tick_item[1]]
                     );
                 });
 
@@ -108,7 +108,7 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
                 }
 
                 // Create a maximum of 100 ticks
-                for (var count=0; count<100; count++) {
+                for (var count = 0; count < 100; count++) {
                     var tick_pos = ticks_min + count * tick_list.tickStep;
 
                     // Stop if we've exceeded axis range
@@ -130,7 +130,7 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
                 // Finished
                 return;
             }
-        })
+        });
     }
 };
 
@@ -139,5 +139,136 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
  * @param input {number} - The number to turn into a string
  */
 JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
+    /** @type {number} */
+    var x, accuracy, max_decimals;
+    /** @type {number} */
+    var significant_figures = 8;
+    /** @type {string} */
+    var output;
 
+    // Treat zero as a special case
+    if (input === 0) {
+        return "0";
+    }
+
+    // Display numbers between 1e10 and 1e-3 in %f format
+    if ((Math.abs(input) < 1e10) && (Math.abs(input) > 1e-3)) {
+        x = Math.abs(input);
+        accuracy = x * (1.0 + Math.pow(10, -significant_figures));
+        max_decimals = significant_figures - Math.log10(x);
+
+        // Work out how many decimal places are needed to convey this number to required significant figures
+        for (var decimal_place = 0; decimal_place < max_decimals; decimal_place++) {
+            if ((x - ((Math.floor(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place)) - x)) < accuracy) {
+                break;
+            }
+        }
+
+        // Return result in the %f string format
+        return input.toFixed(decimal_place);
+    }
+
+    // Display number in scientific format
+    x = Math.abs(input);
+    x /= Math.pow(10, Math.floor(Math.log10(x)));
+    accuracy = x * (1.0 + Math.pow(10, -significant_figures));
+
+    // Work out how many decimal places are needed to convey this number to required significant figures
+    for (decimal_place = 0; decimal_place < significant_figures; decimal_place++) {
+        if ((x - ((Math.floor(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place)) - x)) < accuracy) {
+            break;
+        }
+    }
+
+    // Return result in the %e string format
+    output = input.toExponential(decimal_place);
+
+    // If we have trailing decimal zeros, get rid of them
+
+    // Search for decimal point in number
+    var i = 0;
+    while ((i < output.length) && (output.charAt(i) !== '.')) i++;
+    if (output.charAt(i) !== '.') {
+        return output;
+    }
+
+    // Then search through subsequent decimal digits
+    var j = i + 1;
+    while (!isNaN(output.charAt(j))) j++;
+
+    // Convert exponential character into a nice UTF-8 string
+    output = output.substr(0, j - 1) + "×10" + this.superscript(output.substr(j + 1, output.length - j - 1));
+
+    // If we found no decimal digits, don't need to remove any trailing zeros
+    if (i === j) {
+        return output;
+    }
+
+    // Now work backwards through any trailing zeros in the decimal digits
+    var k = j - 1;
+    while (output[k] === '0') k--;
+    if (k === i) k--;
+    k++;
+
+    // If there were no, no need to remove trailing digits
+    if (k === j) {
+        return output;
+    }
+
+    // Remove trailing zeros
+    return output.substr(0, k) + output.substr(j, output.length - j);
+};
+
+/**
+ * Convert a string into a UTF-8 string of superscript characters
+ * @param input {string} - The string to render into superscript characters
+ */
+JSPlot_TickingNumericLinear.prototype.superscript = function (input) {
+    var superscript_mapping = {
+        '0': '⁰',
+        '1': '¹',
+        '2': '²',
+        '3': '³',
+        '4': '⁴',
+        '5': '⁵',
+        '6': '⁶',
+        '7': '⁷',
+        '8': '⁸',
+        '9': '⁹',
+        '+': '⁺',
+        '-': '⁻',
+        'a': 'ᵃ',
+        'b': 'ᵇ',
+        'c': 'ᶜ',
+        'd': 'ᵈ',
+        'e': 'ᵉ',
+        'f': 'ᶠ',
+        'g': 'ᵍ',
+        'h': 'ʰ',
+        'i': 'ⁱ',
+        'j': 'ʲ',
+        'k': 'ᵏ',
+        'l': 'ˡ',
+        'm': 'ᵐ',
+        'n': 'ⁿ',
+        'o': 'ᵒ',
+        'p': 'ᵖ',
+        'r': 'ʳ',
+        's': 'ˢ',
+        't': 'ᵗ',
+        'u': 'ᵘ',
+        'v': 'ᵛ',
+        'w': 'ʷ',
+        'x': 'ˣ',
+        'y': 'ʸ',
+        'z': 'ᶻ'
+    }
+
+    return input.split('').map(function (c) {
+        var superscipt_character = superscript_mapping[c];
+        if (superscipt_character) {
+            return superscipt_character;
+        }
+        return '';
+    }).join('');
 };
