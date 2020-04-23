@@ -46,8 +46,6 @@ function JSPlot_Axis(graph, enabled, settings) {
     this.tickLabelRotation = 0;
     /** @type {number} */
     this.labelRotate = 0;
-    /** @type {number} */
-    this.tickLabelRotate = 0;
     /** @type {?JSPlot_TickingNumericLinear|JSPlot_TickingNumericLogarithmic|JSPlot_TickingTimestamp} */
     this.ticking_allocator = null;
     /** @type {?string} */
@@ -119,9 +117,6 @@ JSPlot_Axis.prototype.configure = function (settings) {
             case "scrollSpan":
                 self.scrollSpan = value;
                 break;
-            case "tickLabelRotate":
-                self.tickLabelRotate = value;
-                break;
             case "tickLabelRotation":
                 self.tickLabelRotation = value;
                 break;
@@ -185,7 +180,7 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
 /**
  * allocate_axis_ticks - Place ticks along this axis
  */
-JSPlot_Axis.prototype.allocate_axis_ticks = function() {
+JSPlot_Axis.prototype.allocate_axis_ticks = function () {
     // Class used for deciding ticking logic along this axis
     if (this.data_type === 'timestamp') {
         this.ticking_allocator = new JSPlot_TickingTimestamp(this);
@@ -436,6 +431,21 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
     }
 };
 
+JSPlot_Axis.prototype.axis_tick_text_alignment = function (theta) {
+    theta = theta % (2 * Math.PI);
+    while (theta < 0) theta += 2 * Math.PI;
+
+    if (theta < 1 * Math.PI / 8) return [0, -1];
+    if (theta < 3 * Math.PI / 8) return [1, -1];
+    if (theta < 5 * Math.PI / 8) return [1, 0];
+    if (theta < 7 * Math.PI / 8) return [1, 1];
+    if (theta < 9 * Math.PI / 8) return [0, 1];
+    if (theta < 11 * Math.PI / 8) return [-1, 1];
+    if (theta < 13 * Math.PI / 8) return [-1, 0];
+    if (theta < 15 * Math.PI / 8) return [-1, -1];
+    return [0, -1];
+};
+
 /**
  * render - Draw an axis onto the canvas
  * @param page {JSPlot_Canvas} - The canvas page we are drawing this graph onto
@@ -452,11 +462,97 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
  * @param label {boolean} - Should we label this axis?
  */
 JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0, y0, z0, x1, y1, z1, tick_thetas, label) {
+    /** @type {JSPlot_Axis} */
+    var self = this;
+
     // Stroke line of axis
     var arrow_renderer = new JSPlot_DrawArrow();
     arrow_renderer.primitive_arrow(page, this.arrowType,
         x0, y0, z0, x1, y1, z1,
-        graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0)
+        graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0);
+
+    // Work out xyz index
+    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)]
+
+    // Work out rotation angle of tick labels
+    var theta = -this.tickLabelRotation * Math.PI / 180;
+    var theta_axis = graph.workspace.screen_bearing[xyz_index];
+    var theta_pinpoint = theta + Math.PI / 2 + theta_axis + Math.PI * right_side;
+    var label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
+
+    // Render major ticks and then minor ticks
+    $.each(['major', 'minor'], function (index, tick_level) {
+        var tick_length = ((tick_level === 'major') ?
+            page.settings.EPS_AXES_MAJTICKLEN :
+            page.settings.EPS_AXES_MINTICKLEN);
+        /** @type {JSPlot_AxisTics} */
+        var tick_list = self.workspace.tickListFinal[tick_level];
+
+        // Render each tick in turn
+        $.each(tick_list, function (index2, tick_item) {
+            var state = 0;
+            var tic_lab_xoff = 0.0;
+            var axis_position = self.getPosition(tick_item[0], true);
+            var tic_x1 = x0 + (x1 - x0) * axis_position;
+            var tic_y1 = y0 + (y1 - y0) * axis_position;
+
+            // Render tick marks
+            $.each(tick_thetas, function (index3, tick_theta) {
+                // bottom of tick
+                var tic_x2 = tic_x1 + Math.sin(tick_theta) * tick_length;
+                var tic_y2 = tic_y1 + Math.cos(tick_theta) * tick_length;
+
+                // If this tick is at the end of an axis with an arrow head, don't render
+                if ((axis_position < 1e-3) && (
+                    (self.arrowType === 'back') || (self.arrowType === 'double')
+                )) {
+                    return;
+                }
+
+                if ((axis_position > 0.999) && (
+                    (self.arrowType === 'single') || (self.arrowType === 'double')
+                )) {
+                    return;
+                }
+
+                // Stroke tick mark
+                page.canvas._strokeStyle(graph.axesColor.toHTML(), page.settings.EPS_AXES_LINEWIDTH);
+                page.canvas._beginPath();
+                page.canvas._moveTo(tic_x1, tic_y1);
+                page.canvas._lineTo(tic_x2, tic_y2);
+                page.canvas._stroke();
+
+                // Write tick label
+                if (label && tick_item[1] !== '') {
+                    var xlab = tic_x1 + (right_side ? -1.0 : 1.0) * Math.sin(theta_axis + Math.PI / 2) * page.settings.EPS_AXES_TEXTGAP + tic_lab_xoff;
+                    var ylab = tic_y1 + (right_side ? -1.0 : 1.0) * Math.cos(theta_axis + Math.PI / 2) * page.settings.EPS_AXES_TEXTGAP;
+
+                    page.canvas._translate(xlab, ylab, self.tickLabelRotation);
+                    page.canvas._text(xlab, ylab, label_alignment[0], label_alignment[1], true, tick_item[1], false, true);
+                    page.canvas._unsetTranslate();
+                }
+            });
+        });
+    });
+
+    // Write axis label
+    theta = -self.labelRotate;
+    theta_pinpoint = theta + Math.PI * right_side; // Angle around textbox where it is anchored
+    label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
+
+    var xlab = (x0 + x1) / 2 + (right_side ? -1.0 : 1.0) * (2 * page.settings.EPS_AXES_TEXTGAP) * Math.sin(theta_axis + Math.PI / 2);
+    var ylab = (y0 + y1) / 2 + (right_side ? -1.0 : 1.0) * (2 * page.settings.EPS_AXES_TEXTGAP) * Math.cos(theta_axis + Math.PI / 2);
+
+    var theta_text = theta + Math.PI / 2 - theta_axis;
+    theta_text = theta_text % (2 * Math.PI);
+    if (theta_text < -Math.PI) theta_text += 2 * Math.PI;
+    if (theta_text > Math.PI) theta_text -= 2 * Math.PI;
+    if (theta_text > Math.PI / 2) theta_text -= Math.PI;
+    if (theta_text < -Math.PI / 2) theta_text += Math.PI;
+
+    page.canvas._translate(xlab, ylab, theta_text);
+    page.canvas._text(xlab, ylab, label_alignment[0], label_alignment[1], true, self.label, false, true);
+    page.canvas._unsetTranslate();
 };
 
 // Interactivity
