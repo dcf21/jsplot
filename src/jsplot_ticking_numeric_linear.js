@@ -138,11 +138,143 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
 };
 
 /**
+ * Create a list of potential schemes for placing ticks along this axis
+ */
+JSPlot_TickingNumericLinear.prototype.ticking_schemes = function (order_of_magnitude, is_log) {
+    // The maximum number of ticks allowed along any axis
+    var ticks_maximum = 256;
+
+    // How many orders of magnitude within the span of the axis have we descended?
+    var level_descend = 1;
+
+    // List of potential ticking schemes (each representing a particular spacing of ticks)
+    var output = [];
+
+    // Factors of 100. We can divide the span 0-1 into divisions of 0.01, 0.02, 0.04, etc
+    var factor_multiply = 2;
+    var factors = [1, 2, 4, 5, 10, 20, 25, 50, 100];
+    var n_factors = factors.length;
+
+    // Repeatedly descend into 10 times more detail along the axis
+    while (Math.pow(10, level_descend-1) < 10 * ticks_maximum) {
+        // The current order of magnitude which we are sub-dividing
+        var order_magnitude_scan = order_of_magnitude / Math.pow(10, level_descend);
+
+        if (is_log && (order_magnitude_scan>0.9) && (order_magnitude_scan<1.1)) {
+            // For logarithmic axis, if we are sub-dividing a single order of magnitude, do so by putting ticks at
+            // evenly spaced intervals - for example at 1, 2, 5, 10. But if we are dividing many orders of magnitude
+            // we tick the axis like a linear axis, but with linear steps in the exponent
+            var log_ticker = new JSPlot_TickingNumericLogarithmic(this.axis);
+            output = output.concat(log_ticker.ticking_schemes());
+        } else {
+            // Loop over each factor we can use to divide this order of magnitude
+            for (var i=n_factors-1; i>=0 ; i--) {
+                var tick_separation = factors[i] * order_magnitude_scan / Math.pow(10, factor_multiply);
+
+                // Don't allow fractional steps, i.e. sqrts, on log axis
+                if (is_log && (Math.abs(Math.round(tick_separation) - tick_separation)) > 0.1) continue;
+
+                // Data structure representing this ticking scheme
+                output.push({
+                    'multipliers': [1],
+                    'tick_separation': tick_separation,
+                    'offset': 0
+                })
+            }
+        }
+
+        // Next order of magnitude
+        level_descend++;
+    }
+
+    return output;
+};
+
+/**
  * Assign automatically placed ticks along this axis
  * @param tick_level {string} - Either 'major' or 'minor'
  */
 JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) {
+    /** @type {JSPlot_TickingNumericLinear} */
+    var self = this;
 
+    var max_allowed_ticks = 256;
+
+    var axis_min = Math.min(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
+    var axis_max = Math.max(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
+
+    var order_of_magnitude = Math.pow(10, Math.ceil(Math.log10(axis_max - axis_min)));
+    var outer_min = Math.floor(axis_min / order_of_magnitude) * order_of_magnitude;
+    var outer_max = Math.ceil(axis_min / order_of_magnitude) * order_of_magnitude;
+
+    // Estimate how many ticks belong along this axis
+    var target_tick_count = ((tick_level === 'minor') ?
+        this.axis.workspace.target_number_major_ticks :
+        this.axis.workspace.target_number_minor_ticks);
+    target_tick_count = Math.max(target_tick_count, 2);
+    target_tick_count = Math.min(target_tick_count, max_allowed_ticks);
+
+    // Generate a list of candidate tick schemes for this axis
+    var tick_schemes = this.ticking_schemes(order_of_magnitude, false);
+
+    // Try each ticking scheme in turn
+    var ticking_scheme_best = [];
+    var too_many_ticks = false;
+
+    $.each(tick_schemes, function (index, tick_scheme) {
+        // Once one ticking scheme has produced too many ticks, subsequent schemes will only produce more
+        if (too_many_ticks) return;
+
+        // Data structures for holding this list of ticks
+        var candidate_ticking_scheme = [];
+        var tick_scheme_min = outer_min + tick_scheme['offset'];
+
+        for (var j=0; j<(outer_max-outer_min) / tick_scheme['tick_separation'] + 2; j++) {
+            if (candidate_ticking_scheme.length > max_allowed_ticks) break;
+
+            $.each(tick_scheme['multipliers'], function (index2, multiplier) {
+                var x = tick_scheme_min + j * tick_scheme['tick_separation'];
+                if (Math.abs(x) < 1e-8 * tick_scheme['tick_separation']) x = 0;
+                x *= multiplier;
+                if ((x < axis_min) || (x > axis_max)) return;
+                candidate_ticking_scheme.push(x);
+            });
+        }
+
+        // If we're allocating minor ticks, we need to ensure this scheme overlays the major ticks
+        var overlay_match = true;
+        if (tick_level !== 'major') {
+            $.each(self.axis.workspace.tickListFinal['major'], function (index3, major_tick) {
+                if (!overlay_match) return;
+                var matched = false;
+                $.each(candidate_ticking_scheme, function (index4, minor_tick) {
+                    if (matched) return;
+                   if (Math.abs(major_tick - minor_tick) / (axis_max - axis_min) < 1e-6) matched = true;
+                });
+                if (!matched) overlay_match = false;
+            });
+        }
+        if (!overlay_match) return;
+
+        // See if this ticking scheme is better than the previous best
+
+        // Linear ticking schemes only introduce more ticks in successive schemes, so if this scheme has too many
+        // ticks, we don't need to trial any more schemes.
+        if (candidate_ticking_scheme.length > target_tick_count) {
+            too_many_ticks = true;
+            return;
+        } else {
+            ticking_scheme_best = candidate_ticking_scheme;
+            return;
+        }
+    });
+
+    // Commit the best list of ticks we've found
+    var tick_list = [];
+    $.each(ticking_scheme_best, function(index, tick_value) {
+        tick_list.push([tick_value, self.numeric_display(tick_value)])
+    });
+    this.axis.workspace.tickListFinal[tick_level] = tick_list;
 };
 
 

@@ -429,14 +429,15 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     // Clear all range information from all axes.
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
-        var pixel_len_major_ticks = this.workspace.screen_size[j] / (0.015 + 0.01 * Math.abs(Math.sin(this.workspace.screen_bearing[j])));
-        var pixel_len_minor_ticks = this.workspace.screen_size[j] / 0.004;
+        // Estimate how many axis ticks we want to put along this axis
+        var target_number_major_ticks = this.workspace.screen_size[j] / (80 + 60 * Math.abs(Math.sin(this.workspace.screen_bearing[j])));
+        var target_number_minor_ticks = this.workspace.screen_size[j] / 40;
 
         for (i = 0; i < 2; i++) {
             axis_name = ['x', 'y', 'z'][j] + (i + 1);
             this.axes[axis_name].cleanWorkspace();
-            this.axes[axis_name].workspace.pixel_len_major_ticks = pixel_len_major_ticks;
-            this.axes[axis_name].workspace.pixel_len_minor_ticks = pixel_len_minor_ticks;
+            this.axes[axis_name].workspace.target_number_major_ticks = target_number_major_ticks;
+            this.axes[axis_name].workspace.target_number_minor_ticks = target_number_minor_ticks;
         }
     }
 

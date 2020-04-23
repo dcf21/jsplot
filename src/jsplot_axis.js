@@ -149,21 +149,34 @@ JSPlot_Axis.prototype.configure = function (settings) {
 JSPlot_Axis.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering an axis
     this.workspace = [];
+    /** @type {?boolean} */
     this.workspace.crossedAtZero = null;
+    /** @type {?boolean} */
     this.workspace.minUsed = null;
+    /** @type {?boolean} */
     this.workspace.maxUsed = null;
+    /** @type {?number} */
     this.workspace.minFinal = null;
+    /** @type {?number} */
     this.workspace.maxFinal = null;
+    /** @type {?number} */
     this.workspace.minHard = this.min;
+    /** @type {?number} */
     this.workspace.maxHard = this.max;
+    /** @type {?boolean} */
     this.workspace.logFinal = this.logarithmic;
+    /** @type {?boolean} */
     this.workspace.rangeFinalised = false;
-    this.workspace.pixel_len_major_ticks = null;
-    this.workspace.pixel_len_minor_ticks = null;
+    /** @type {?number} */
+    this.workspace.target_number_major_ticks = null;
+    /** @type {?number} */
+    this.workspace.target_number_minor_ticks = null;
+    /** @type {?string} */
     this.workspace.axisName = null;
+    /** @type {?string} */
     this.workspace.canvasId = null;
+    /** @type {?boolean} */
     this.workspace.mode0BackPropagated = false;
-    this.workspace.axisLabelFinal = null;
     this.workspace.tickListFinal = null;
 
     this.ticking_allocator = null;
