@@ -485,7 +485,6 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
         var tick_length = ((tick_level === 'major') ?
             page.settings.EPS_AXES_MAJTICKLEN :
             page.settings.EPS_AXES_MINTICKLEN);
-        /** @type {JSPlot_AxisTics} */
         var tick_list = self.workspace.tickListFinal[tick_level];
 
         // Render each tick in turn

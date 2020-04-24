@@ -767,8 +767,10 @@ JSPlot_Graph.prototype.grid_lines_paint = function () {
     }
 
     $.each(self.gridAxes, function (index3, axis_name) {
+        var axis = self.axes[axis_name];
         // Render major ticks and then minor ticks
         $.each(['major', 'minor'], function (index, tick_level) {
+            var tick_list = axis.workspace.tickListFinal[tick_level];
             // Loop over all ticks along this axis
             $.each(tick_list, function (index2, tick_item) {
             });
