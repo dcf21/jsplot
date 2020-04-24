@@ -516,6 +516,9 @@ JSPlot_Graph.prototype.render = function () {
     // Keep track of bounding box of all axes, so we can put title at the very top
     var axes_bounding_box = new JSPlot_BoundingBox();
 
+    // Render grid lines
+    this.grid_lines_paint();
+
     // Render axes (back)
     this.axes_paint(false, axes_bounding_box);
 
@@ -742,6 +745,36 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
             render_one_side(side_key_strings, vertices, index_xyz, axis, axis_name, false);
         }
     });
+};
+
+/**
+ * grid_lines_paint - Draw grid lines for this graph
+ */
+JSPlot_Graph.prototype.grid_lines_paint = function () {
+    /** @type JSPlot_Graph */
+    var self = this;
+
+    // Work out which faces of 3D cube are at back
+    var ap_back = [0, 0, 0];
+    if (this.threeDimensional) {
+        var pt_a = self.project3d(0.5, 0.5, 0.5);
+        var pt_b = self.project3d(1.0, 0.5, 0.5);
+        var pt_c = self.project3d(0.5, 1.0, 0.5);
+        var pt_d = self.project3d(0.5, 0.5, 1.0);
+        ap_back[0] = toInt(pt_a['depth'] < pt_b['depth']);
+        ap_back[1] = toInt(pt_a['depth'] < pt_c['depth']);
+        ap_back[2] = toInt(pt_a['depth'] < pt_d['depth']);
+    }
+
+    $.each(self.gridAxes, function (index3, axis_name) {
+        // Render major ticks and then minor ticks
+        $.each(['major', 'minor'], function (index, tick_level) {
+            // Loop over all ticks along this axis
+            $.each(tick_list, function (index2, tick_item) {
+            });
+        });
+    });
+
 };
 
 // Interactivity
