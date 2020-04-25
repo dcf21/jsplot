@@ -198,6 +198,9 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
         }
     }
 
+    // The y-axis of plots should run up - whereas HTML canvases count the y-axis down from the top.
+    this.workspace.aspect *= -1
+
     /** @type {number} */
     this.workspace.defaultColorCounter = 0;
     /** @type {number} */
@@ -207,9 +210,9 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
     /** @type {?JSPlot_Plotter} */
     this.workspace.plotter = null;
     /** @type {?Array<number>} */
-    this.workspace.screen_size = null; // pixel lengths of (x, y, z) axes
+    this.workspace.axis_length = null; // pixel lengths of (x, y, z) axes
     /** @type {?Array<number>} */
-    this.workspace.screen_bearing = null; // directions of (x, y, z) axes
+    this.workspace.axis_bearing = null; // directions of (x, y, z) axes
 
     // Work out the width of this plot, in pixels
     /** @type {number} */
@@ -388,50 +391,53 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     var bounding_box = new JSPlot_BoundingBox();
 
     // Work out projected lengths and directions of (x,y,z) axes on screen
-    this.workspace.screen_size = [
+    this.workspace.axis_length = [
         this.workspace.width_pixels,
-        this.workspace.width_pixels * this.workspace.aspect,
-        this.workspace.width_pixels * this.workspace.aspectZ
+        Math.abs(this.workspace.width_pixels * this.workspace.aspect),
+        Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
     ];
-    this.workspace.screen_bearing = [Math.PI / 2, 0, 0];
+    this.workspace.axis_bearing = [Math.PI / 2, 0, 0];
 
     if (this.threeDimensional) {
         for (j = 0; j < 3; j++) {
             var ptA = this.project3d((j === 0) ? 0 : 0.5, (j === 1) ? 0 : 0.5, (j === 2) ? 0 : 0.5);
             var ptB = this.project3d((j === 0) ? 1 : 0.5, (j === 1) ? 1 : 0.5, (j === 2) ? 1 : 0.5);
-            this.workspace.screen_size   [j] = Math.hypot(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
-            this.workspace.screen_bearing[j] = Math.atan2(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
-            if (!isFinite(this.workspace.screen_size   [j])) this.workspace.screen_size   [j] = 0.0;
-            if (!isFinite(this.workspace.screen_bearing[j])) this.workspace.screen_bearing[j] = 0.0;
+            this.workspace.axis_length [j] = Math.hypot(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
+            this.workspace.axis_bearing[j] = Math.atan2(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
+            if (!isFinite(this.workspace.axis_length   [j])) this.workspace.axis_length   [j] = 0.0;
+            if (!isFinite(this.workspace.axis_bearing[j])) this.workspace.axis_bearing[j] = 0.0;
         }
     }
 
     // Populate the bounding box of the plot
     var margin = 40;
-    if (!this.threeDimensional) {
-        bounding_box.includePoint(this.origin[0] - margin, this.origin[1] - margin);
-        bounding_box.includePoint(this.origin[0] + this.workspace.width_pixels + margin,
-            this.origin[1] + this.workspace.width_pixels * this.workspace.aspect + margin);
-    } else {
-        for (var xap = 0; xap <= 1; xap += 1)
-            for (var yap = 0; yap <= 1; yap += 1)
-                for (var zap = 0; zap <= 1; zap += 1) {
-                    var pt = this.project3d(xap, yap, zap);
-                    bounding_box.includePoint(
-                        pt['xpos'] + this.origin[0] - margin,
-                        pt['ypos'] + this.origin[1] - margin);
-                    bounding_box.includePoint(
-                        pt['xpos'] + this.origin[0] + margin,
-                        pt['ypos'] + this.origin[1] + margin);
+    var pt = null;
+
+    for (var xap = 0; xap <= 1; xap += 1)
+        for (var yap = 0; yap <= 1; yap += 1)
+            for (var zap = 0; zap <= 1; zap += 1) {
+                if (!this.threeDimensional) {
+                    pt = {
+                        'xpos': this.origin[0] + xap * this.workspace.width_pixels,
+                        'ypos': this.origin[1] + yap * this.workspace.width_pixels * this.workspace.aspect
+                    };
+                } else {
+                    pt = this.project3d(xap, yap, zap);
                 }
-    }
+                bounding_box.includePoint(
+                    pt['xpos'] + this.origin[0] - margin,
+                    pt['ypos'] + this.origin[1] - margin);
+                bounding_box.includePoint(
+                    pt['xpos'] + this.origin[0] + margin,
+                    pt['ypos'] + this.origin[1] + margin);
+            }
 
     // Clear all range information from all axes.
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
-        var target_number_major_ticks = this.workspace.screen_size[j] / (80 + 60 * Math.abs(Math.sin(this.workspace.screen_bearing[j])));
-        var target_number_minor_ticks = this.workspace.screen_size[j] / 40;
+        var target_number_major_ticks = this.workspace.axis_length[j] / (80 + 60 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
+        var target_number_minor_ticks = this.workspace.axis_length[j] / 40;
 
         for (i = 0; i < 2; i++) {
             axis_name = ['x', 'y', 'z'][j] + (i + 1);
@@ -623,8 +629,8 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
     var x_centre = 0, y_centre = 0;
 
     if (!this.threeDimensional) {
-        x_centre = this.origin[0] + this.workspace.screen_size[0] / 2;
-        y_centre = this.origin[1] + this.workspace.screen_size[1] / 2;
+        x_centre = this.origin[0] + this.workspace.axis_length[0] / 2;
+        y_centre = this.origin[1] + this.workspace.axis_length[1] / 2;
     } else {
         var pos = this.project3d(0.5, 0.5, 0.5);
         x_centre = pos['xpos'];
@@ -657,7 +663,7 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
             var b = Math.atan2(
                 (axis_pos_0['xpos'] + axis_pos_1['xpos']) / 2 - x_centre,
                 (axis_pos_0['ypos'] + axis_pos_1['ypos']) / 2 - y_centre) -
-                self.workspace.screen_bearing[index_xyz];
+                self.workspace.axis_bearing[index_xyz];
             var right_side = Math.sin(b) > 0;
 
             // Work out what direction the axis ticks should point in
@@ -666,7 +672,7 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
 
             for (var xyz = 0; xyz < 3; xyz++)
                 if (index_xyz !== xyz) {
-                    theta_ticks.push(self.workspace.screen_bearing[xyz] +
+                    theta_ticks.push(self.workspace.axis_bearing[xyz] +
                     (axis_pos_0['axis_pos'][xyz] > 0) ? Math.PI : 0);
                 }
 
@@ -694,8 +700,8 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
                         var pt = self.project3d(xap, yap, zap);
                     } else {
                         pt = {
-                            'xpos': self.origin[0] + xap * self.workspace.screen_size[0],
-                            'ypos': self.origin[1] + yap * self.workspace.screen_size[1],
+                            'xpos': self.origin[0] + xap * self.workspace.axis_length[0],
+                            'ypos': self.origin[1] + yap * self.workspace.axis_length[1],
                             'depth': 0
                         }
                     }
@@ -782,7 +788,7 @@ JSPlot_Graph.prototype.grid_lines_paint = function () {
 // Interactivity
 
 /**
- * interactive_scroll - Apply interactive mouse-scroll event to this axis, for example when the user clicks and drags
+ * interactive_scroll - Apply interactive mouse-scroll event to this graph, for example when the user clicks and drags
  * the canvas.
  * @param x_offset {number} - The numerical number of pixels by which the canvas has been dragged.
  * @param y_offset {number} - The numerical number of pixels by which the canvas has been dragged.
@@ -794,8 +800,8 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
     if (this.interactiveMode === 'pan') {
         $.each(this.axes, function (axis_name, axis) {
             var axis_direction = axis_name.substring(0, 1);
-            if (axis_direction === 'x') axis.interactive_scroll(self.page, x_offset / self.workspace.screen_size[0]);
-            if (axis_direction === 'y') axis.interactive_scroll(self.page, y_offset / self.workspace.screen_size[1]);
+            if (axis_direction === 'x') axis.interactive_scroll(self.page, x_offset / self.workspace.axis_length[0]);
+            if (axis_direction === 'y') axis.interactive_scroll(self.page, y_offset / self.workspace.axis_length[1]);
         });
 
         // Invite all data sets to recompute for the new axis range
@@ -828,7 +834,7 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
         // Refresh display
         this.page.needs_refresh = true;
     }
-}
+};
 
 /**
  * interactive_zoom - Apply interactive zoom event to this graph, for example when the user uses the mouse wheel to
@@ -859,4 +865,4 @@ JSPlot_Graph.prototype.interactive_zoom = function (delta) {
             dataset.axisRangeUpdated(x_min, x_max);
         }
     });
-}
+};

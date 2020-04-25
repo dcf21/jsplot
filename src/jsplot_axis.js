@@ -476,7 +476,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
 
     // Work out rotation angle of tick labels
     var theta = -this.tickLabelRotation * Math.PI / 180;
-    var theta_axis = graph.workspace.screen_bearing[xyz_index];
+    var theta_axis = graph.workspace.axis_bearing[xyz_index];
     var theta_pinpoint = theta + Math.PI / 2 + theta_axis + Math.PI * right_side;
     var label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
 

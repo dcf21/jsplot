@@ -171,7 +171,7 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
 
         // Create HTML for this canvas
         if (!self.html_initialised) {
-            var html = "<canvas width='1' height='1'></canvas>"
+            var html = "<div><canvas width='1' height='1'></canvas></div>";
 
             if (self.settings.allow_export_png) {
                 html += "<input class='btn btn-sm btn-success jsplot_export_png' type='button' value='Export PNG' />";
