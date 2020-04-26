@@ -145,7 +145,7 @@ JSPlot_TickingNumericLinear.prototype.ticking_schemes = function (order_of_magni
     var ticks_maximum = 256;
 
     // How many orders of magnitude within the span of the axis have we descended?
-    var level_descend = 1;
+    var level_descend = 0;
 
     // List of potential ticking schemes (each representing a particular spacing of ticks)
     var output = [];
@@ -156,11 +156,11 @@ JSPlot_TickingNumericLinear.prototype.ticking_schemes = function (order_of_magni
     var n_factors = factors.length;
 
     // Repeatedly descend into 10 times more detail along the axis
-    while (Math.pow(10, level_descend-1) < 10 * ticks_maximum) {
+    while (Math.pow(10, level_descend) < 10 * ticks_maximum) {
         // The current order of magnitude which we are sub-dividing
         var order_magnitude_scan = order_of_magnitude / Math.pow(10, level_descend);
 
-        if (is_log && (order_magnitude_scan>0.9) && (order_magnitude_scan<1.1)) {
+        if (is_log && (order_magnitude_scan > 0.9) && (order_magnitude_scan < 1.1)) {
             // For logarithmic axis, if we are sub-dividing a single order of magnitude, do so by putting ticks at
             // evenly spaced intervals - for example at 1, 2, 5, 10. But if we are dividing many orders of magnitude
             // we tick the axis like a linear axis, but with linear steps in the exponent
@@ -168,7 +168,7 @@ JSPlot_TickingNumericLinear.prototype.ticking_schemes = function (order_of_magni
             output = output.concat(log_ticker.ticking_schemes());
         } else {
             // Loop over each factor we can use to divide this order of magnitude
-            for (var i=n_factors-1; i>=0 ; i--) {
+            for (var i = n_factors - 1; i >= 0; i--) {
                 var tick_separation = factors[i] * order_magnitude_scan / Math.pow(10, factor_multiply);
 
                 // Don't allow fractional steps, i.e. sqrts, on log axis
@@ -205,10 +205,10 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
 
     var order_of_magnitude = Math.pow(10, Math.ceil(Math.log10(axis_max - axis_min)));
     var outer_min = Math.floor(axis_min / order_of_magnitude) * order_of_magnitude;
-    var outer_max = Math.ceil(axis_min / order_of_magnitude) * order_of_magnitude;
+    var outer_max = Math.ceil(axis_max / order_of_magnitude) * order_of_magnitude;
 
     // Estimate how many ticks belong along this axis
-    var target_tick_count = ((tick_level === 'minor') ?
+    var target_tick_count = ((tick_level === 'major') ?
         this.axis.workspace.target_number_major_ticks :
         this.axis.workspace.target_number_minor_ticks);
     target_tick_count = Math.max(target_tick_count, 2);
@@ -229,7 +229,7 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
         var candidate_ticking_scheme = [];
         var tick_scheme_min = outer_min + tick_scheme['offset'];
 
-        for (var j=0; j<(outer_max-outer_min) / tick_scheme['tick_separation'] + 2; j++) {
+        for (var j = 0; j < (outer_max - outer_min) / tick_scheme['tick_separation'] + 2; j++) {
             if (candidate_ticking_scheme.length > max_allowed_ticks) break;
 
             $.each(tick_scheme['multipliers'], function (index2, multiplier) {
@@ -249,7 +249,9 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
                 var matched = false;
                 $.each(candidate_ticking_scheme, function (index4, minor_tick) {
                     if (matched) return;
-                   if (Math.abs(major_tick - minor_tick) / (axis_max - axis_min) < 1e-6) matched = true;
+                    if (Math.abs(major_tick[0] - minor_tick) / (axis_max - axis_min) < 1e-6) {
+                        matched = true;
+                    }
                 });
                 if (!matched) overlay_match = false;
             });
@@ -271,7 +273,7 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
 
     // Commit the best list of ticks we've found
     var tick_list = [];
-    $.each(ticking_scheme_best, function(index, tick_value) {
+    $.each(ticking_scheme_best, function (index, tick_value) {
         tick_list.push([tick_value, self.numeric_display(tick_value)])
     });
     this.axis.workspace.tickListFinal[tick_level] = tick_list;
@@ -295,21 +297,23 @@ JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
         return "0";
     }
 
-    // Display numbers between 1e10 and 1e-3 in %f format
-    if ((Math.abs(input) < 1e10) && (Math.abs(input) > 1e-3)) {
+    // Display numbers between 1e5 and 1e-3 in %f format
+    if ((Math.abs(input) < 1e5) && (Math.abs(input) > 1e-3)) {
         x = Math.abs(input);
         accuracy = x * (1.0 + Math.pow(10, -significant_figures));
         max_decimals = significant_figures - Math.log10(x);
 
         // Work out how many decimal places are needed to convey this number to required significant figures
         for (var decimal_place = 0; decimal_place < max_decimals; decimal_place++) {
-            if ((x - ((Math.floor(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place)) - x)) < accuracy) {
+            if ((x - ((Math.round(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place)) - x)) < accuracy) {
                 break;
             }
         }
 
         // Return result in the %f string format
-        return input.toFixed(decimal_place);
+        output = input.toFixed(decimal_place);
+        output = output.replace("-", "–"); // Render minus signs as &ndash;
+        return output;
     }
 
     // Display number in scientific format
@@ -331,8 +335,8 @@ JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
 
     // Search for decimal point in number
     var i = 0;
-    while ((i < output.length) && (output.charAt(i) !== '.')) i++;
-    if (output.charAt(i) !== '.') {
+    while ((i < output.length) && (output.charAt(i) !== '.') && (output.charAt(i) !== 'e')) i++;
+    if ((output.charAt(i) !== '.') && (output.charAt(i) !== 'e')) {
         return output;
     }
 
@@ -341,26 +345,37 @@ JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
     while (!isNaN(output.charAt(j))) j++;
 
     // Convert exponential character into a nice UTF-8 string
-    output = output.substr(0, j - 1) + "×10" + this.superscript(output.substr(j + 1, output.length - j - 1));
+    if (output.charAt(j + 1) === "+") j++;
+    var output_1 = output.substr(0, j - 1);
+    var output_2 = "×10" + this.superscript(output.substr(j + 1, output.length - j - 1));
+
+    // Render minus signs as &ndash;
+    output_1 = output_1.replace("-", "–");
 
     // If we found no decimal digits, don't need to remove any trailing zeros
     if (i === j) {
-        return output;
+        // Remove trailing decimal point, if present
+        if (output_1.charAt(output_1.length - 1) === '.') {
+            output_1 = output_1.substr(0, output_1.length - 1);
+        }
+        return output_1 + output_2;
     }
 
     // Now work backwards through any trailing zeros in the decimal digits
     var k = j - 1;
-    while (output[k] === '0') k--;
+    while (output_1[k] === '0') k--;
     if (k === i) k--;
     k++;
 
-    // If there were no, no need to remove trailing digits
-    if (k === j) {
-        return output;
+    // Remove trailing zeros
+    output_1 = output_1.substr(0, k);
+
+    // Remove trailing decimal point, if present
+    if (output_1.charAt(output_1.length - 1) === '.') {
+        output_1 = output_1.substr(0, output_1.length - 1);
     }
 
-    // Remove trailing zeros
-    return output.substr(0, k) + output.substr(j, output.length - j);
+    return output_1 + output_2;
 };
 
 /**

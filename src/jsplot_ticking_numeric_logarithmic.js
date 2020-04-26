@@ -156,15 +156,15 @@ JSPlot_TickingNumericLogarithmic.prototype.ticking_schemes = function () {
 
     // For log axes, dividing a single order of magnitude, e.g. 1 -> 10, we place N ticks at evenly-spaced intervals
     // between 1 and 10. For example, at 1, 2, 5, 10.
-    var divisor=1; // The number of ticks to place between 1 and 10
+    var divisor = 1; // The number of ticks to place between 1 and 10
     while (true) {
         var fail = false;
         var multiplier_list = []; // List of positions where we place ticks, e.g. 1, 2, 5, 10
         var previous_value = null;
 
-        for (var i=0; i<divisor; i++) {
+        for (var i = 0; i < divisor; i++) {
             // Work out the position of this tick
-            var new_value = Math.round(Math.pow(10, i/divisor));
+            var new_value = Math.round(Math.pow(10, i / divisor));
 
             // If we're creating a scheme which places two ticks at, for example, 2, reject it
             if (new_value === previous_value) {
@@ -191,10 +191,10 @@ JSPlot_TickingNumericLogarithmic.prototype.ticking_schemes = function () {
 
     // For completeness, try and tick scheme where every multiplier is ticked
     output.push({
-        'multipliers': [1,2,3,4,5,6,7,8,9],
-            'tick_separation': 1,
-            'offset': 0
-        });
+        'multipliers': [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        'tick_separation': 1,
+        'offset': 0
+    });
 
     return output;
 };
@@ -224,10 +224,10 @@ JSPlot_TickingNumericLogarithmic.prototype.automatic_ticking = function (tick_le
 
     var order_of_magnitude = Math.pow(10, Math.ceil(Math.log10(axis_max - axis_min)));
     var outer_min = Math.floor(axis_min / order_of_magnitude) * order_of_magnitude;
-    var outer_max = Math.ceil(axis_min / order_of_magnitude) * order_of_magnitude;
+    var outer_max = Math.ceil(axis_max / order_of_magnitude) * order_of_magnitude;
 
     // Estimate how many ticks belong along this axis
-    var target_tick_count = ((tick_level === 'minor') ?
+    var target_tick_count = ((tick_level === 'major') ?
         this.axis.workspace.target_number_major_ticks :
         this.axis.workspace.target_number_minor_ticks);
     target_tick_count = Math.max(target_tick_count, 2);
@@ -248,7 +248,7 @@ JSPlot_TickingNumericLogarithmic.prototype.automatic_ticking = function (tick_le
         var candidate_ticking_scheme = [];
         var tick_scheme_min = outer_min + tick_scheme['offset'];
 
-        for (var j=0; j<(outer_max-outer_min) / tick_scheme['tick_separation'] + 2; j++) {
+        for (var j = 0; j < (outer_max - outer_min) / tick_scheme['tick_separation'] + 2; j++) {
             if (candidate_ticking_scheme.length > max_allowed_ticks) break;
 
             $.each(tick_scheme['multipliers'], function (index2, multiplier) {
@@ -269,7 +269,9 @@ JSPlot_TickingNumericLogarithmic.prototype.automatic_ticking = function (tick_le
                 var matched = false;
                 $.each(candidate_ticking_scheme, function (index4, minor_tick) {
                     if (matched) return;
-                   if (Math.abs(major_tick - minor_tick) / (axis_max - axis_min) < 1e-6) matched = true;
+                    if (Math.abs(major_tick[0] - minor_tick) / (axis_max - axis_min) < 1e-6) {
+                        matched = true;
+                    }
                 });
                 if (!matched) overlay_match = false;
             });
@@ -313,7 +315,7 @@ JSPlot_TickingNumericLogarithmic.prototype.automatic_ticking = function (tick_le
 
     // Commit the best list of ticks we've found
     var tick_list = [];
-    $.each(ticking_scheme_best, function(index, tick_value) {
+    $.each(ticking_scheme_best, function (index, tick_value) {
         tick_list.push([tick_value, self.numeric_display(tick_value)])
     });
     this.axis.workspace.tickListFinal[tick_level] = tick_list;

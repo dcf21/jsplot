@@ -396,7 +396,10 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
         Math.abs(this.workspace.width_pixels * this.workspace.aspect),
         Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
     ];
-    this.workspace.axis_bearing = [Math.PI / 2, 0, 0];
+    this.workspace.axis_bearing = [
+        (this.workspace.width_pixels > 0) ? (Math.PI / 2) : (3 * Math.PI / 2),
+        (this.workspace.width_pixels * this.workspace.aspect > 0) ? 0 : Math.PI,
+        0];
 
     if (this.threeDimensional) {
         for (j = 0; j < 3; j++) {
@@ -410,7 +413,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     }
 
     // Populate the bounding box of the plot
-    var margin = 40;
+    var margin = [75,45];
     var pt = null;
 
     for (var xap = 0; xap <= 1; xap += 1)
@@ -425,19 +428,19 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
                     pt = this.project3d(xap, yap, zap);
                 }
                 bounding_box.includePoint(
-                    pt['xpos'] + this.origin[0] - margin,
-                    pt['ypos'] + this.origin[1] - margin);
+                    pt['xpos'] + this.origin[0] - margin[0],
+                    pt['ypos'] + this.origin[1] - margin[1]);
                 bounding_box.includePoint(
-                    pt['xpos'] + this.origin[0] + margin,
-                    pt['ypos'] + this.origin[1] + margin);
+                    pt['xpos'] + this.origin[0] + margin[0],
+                    pt['ypos'] + this.origin[1] + margin[1]);
             }
 
     // Clear all range information from all axes.
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
-        var target_number_major_ticks = this.workspace.axis_length[j] / (80 + 60 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
-        var target_number_minor_ticks = this.workspace.axis_length[j] / 40;
+        var target_number_major_ticks = this.workspace.axis_length[j] / (75 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
+        var target_number_minor_ticks = this.workspace.axis_length[j] / 25;
 
         for (i = 0; i < 2; i++) {
             axis_name = ['x', 'y', 'z'][j] + (i + 1);
@@ -627,10 +630,12 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
     // Fetch coordinates of the centre of the graph
     /** @type {number} */
     var x_centre = 0, y_centre = 0;
+    var x_sign = (this.workspace.width_pixels > 0) ? 1 : -1;
+    var y_sign = (this.workspace.width_pixels * this.workspace.aspect > 0) ? 1 : -1;
 
     if (!this.threeDimensional) {
-        x_centre = this.origin[0] + this.workspace.axis_length[0] / 2;
-        y_centre = this.origin[1] + this.workspace.axis_length[1] / 2;
+        x_centre = this.origin[0] + this.workspace.axis_length[0] / 2 * x_sign;
+        y_centre = this.origin[1] + this.workspace.axis_length[1] / 2 * y_sign;
     } else {
         var pos = this.project3d(0.5, 0.5, 0.5);
         x_centre = pos['xpos'];
@@ -670,11 +675,15 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
             /** @type Array<number> */
             var theta_ticks = [];
 
-            for (var xyz = 0; xyz < 3; xyz++)
+            for (var xyz = 0; xyz < 3; xyz++) {
+                if ((xyz === 2) && (!self.threeDimensional)) {
+                    continue;
+                }
                 if (index_xyz !== xyz) {
                     theta_ticks.push(self.workspace.axis_bearing[xyz] +
-                    (axis_pos_0['axis_pos'][xyz] > 0) ? Math.PI : 0);
+                        ((axis_pos_0['axis_pos'][xyz] > 0) ? Math.PI : 0));
                 }
+            }
 
             // Render this axis
             axis.render(self.page, self, axis_name, right_side,
@@ -700,8 +709,8 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
                         var pt = self.project3d(xap, yap, zap);
                     } else {
                         pt = {
-                            'xpos': self.origin[0] + xap * self.workspace.axis_length[0],
-                            'ypos': self.origin[1] + yap * self.workspace.axis_length[1],
+                            'xpos': self.origin[0] + xap * self.workspace.axis_length[0] * x_sign,
+                            'ypos': self.origin[1] + yap * self.workspace.axis_length[1] * y_sign,
                             'depth': 0
                         }
                     }
