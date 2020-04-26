@@ -157,7 +157,7 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
                                             x_perp_offset, y_perp_offset, z_perp_offset) {
     var self = this;
 
-    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, 1);
+    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, true);
 
     if ((!isFinite(position['xpos'])) || (!isFinite(position['ypos'])) || (!isFinite(position['depth']))) {
         this.penUp();
@@ -204,7 +204,7 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
     };
 
     if (this.point_list_in_progress.length === 0) {
-        add_point(this.pt_old, clipped_line_segment.cx1, clipped_line_segment.cy2, clipped_line_segment.cz1);
+        add_point(this.pt_old, clipped_line_segment.cx1, clipped_line_segment.cy1, clipped_line_segment.cz1);
     }
 
     add_point(pt_this, clipped_line_segment.cx2, clipped_line_segment.cy2, clipped_line_segment.cz2);
@@ -234,6 +234,7 @@ JSPlot_LineDraw.prototype.renderLine = function () {
 
     if (!this.page.threeDimensionalBuffer.active) {
         self.page.canvas._strokeStyle(this.color, this.line_width);
+        self.page.canvas._beginPath();
 
         for (i = 0; i < this.line_list.length; i++) {
             self.page.canvas._moveTo(this.line_list[i][0][0], this.line_list[i][0][1]);
@@ -251,6 +252,7 @@ JSPlot_LineDraw.prototype.renderLine = function () {
                 var renderer = function (i, j) {
                     return function () {
                         self.page.canvas._strokeStyle(self.color, self.lineWidth);
+                        self.page.canvas._beginPath();
                         self.page.canvas._moveTo(self.line_list[i][j - 1][0], self.line_list[i][j - 1][1]);
                         self.page.canvas._lineTo(self.line_list[i][j][0], self.line_list[i][j][1]);
                         self.page.canvas._stroke();

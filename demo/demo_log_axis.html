@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <meta name="generator" content="Dominic Ford"/>
     <meta name="author" content="Dominic Ford"/>
-    <title>A 3D helix</title>
+    <title>A plot with a log axis</title>
 
     <script src="vendor/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <script src="vendor/tether/dist/js/tether.min.js"></script>
@@ -12,9 +12,9 @@
 <body>
 <div id="demo_graph">
     <!-- HTML code -->
-    <h2>A 3D helix</h2>
+    <h2>A plot with a log axis</h2>
     <hr style="margin: 20px 0;"/>
-    <div id="graph_helix" style="max-width:700px; border: 1px solid #888;"></div>
+    <div id="graph_pow" style="max-width:1024px; border: 1px solid #888;"></div>
     <hr style="margin: 20px 0;"/>
     <p style="font-style: italic;">
         <a href="https://github.com/dcf21/js-plot">https://github.com/dcf21/js-plot</a>
@@ -23,26 +23,38 @@
     <!-- Javascript code -->
     <script type="text/javascript">
         $(function () {
+            // Display source code for this page
+            $("#source_code").text($("#demo_graph").html());
+
             // Create canvas to put graph onto
             var canvas = new JSPlot_Canvas({
                 "graph_1": new JSPlot_Graph([
                     new JSPlot_FunctionEvaluator(
-                        "Helix", {},
+                        "sin(x)", {},
                         [
-                            Math.sin, Math.cos
-                        ]).evaluate_linear_raster(-10, 10, 100, true)
+                            function (x) {
+                                return Math.pow(10, x);
+                            }
+                        ]).evaluate_linear_raster(-5, 5, 100, true)
                 ], {
-                    'threeDimensional': true,
-                    'interactiveMode': 'rotate',
+                    'interactiveMode': 'pan',
                     'x1_axis': {
+                        'label': "x axis",
+                        'scrollMin': null,
+                        'scrollMax': null,
+                        'scrollEnabled': true,
                         'zoomEnabled': true
+                    },
+                    "y1_axis": {
+                        'log': true,
+                        'label': "y axis"
                     }
                 })
             }, {});
 
             // Render plot
             canvas.renderToCanvas(
-                $("#graph_helix")[0]
+                $("#graph_pow")[0]
             );
         });
     </script>

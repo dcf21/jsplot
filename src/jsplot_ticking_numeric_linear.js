@@ -8,6 +8,7 @@
 function JSPlot_TickingNumericLinear(axis) {
     /** @type {JSPlot_Axis} */
     this.axis = axis;
+    this.max_allowed_ticks = 256;
 }
 
 JSPlot_TickingNumericLinear.prototype.process = function () {
@@ -160,19 +161,20 @@ JSPlot_TickingNumericLinear.prototype.ticking_schemes = function (order_of_magni
         // The current order of magnitude which we are sub-dividing
         var order_magnitude_scan = order_of_magnitude / Math.pow(10, level_descend);
 
-        if (is_log && (order_magnitude_scan > 0.9) && (order_magnitude_scan < 1.1)) {
+        if (is_log && (order_magnitude_scan < 0.9)) {
             // For logarithmic axis, if we are sub-dividing a single order of magnitude, do so by putting ticks at
             // evenly spaced intervals - for example at 1, 2, 5, 10. But if we are dividing many orders of magnitude
             // we tick the axis like a linear axis, but with linear steps in the exponent
             var log_ticker = new JSPlot_TickingNumericLogarithmic(this.axis);
             output = output.concat(log_ticker.ticking_schemes());
+            break;
         } else {
             // Loop over each factor we can use to divide this order of magnitude
             for (var i = n_factors - 1; i >= 0; i--) {
                 var tick_separation = factors[i] * order_magnitude_scan / Math.pow(10, factor_multiply);
 
-                // Don't allow fractional steps, i.e. sqrts, on log axis
-                if (is_log && (Math.abs(Math.round(tick_separation) - tick_separation)) > 0.1) continue;
+                // Don't allow fractional steps finer than one order-of-magnitude on log axes
+                if (is_log && (Math.abs(Math.round(tick_separation) - tick_separation)) > 1e-6) continue;
 
                 // Data structure representing this ticking scheme
                 output.push({
@@ -198,8 +200,6 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
     /** @type {JSPlot_TickingNumericLinear} */
     var self = this;
 
-    var max_allowed_ticks = 256;
-
     var axis_min = Math.min(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
     var axis_max = Math.max(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
 
@@ -212,7 +212,7 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
         this.axis.workspace.target_number_major_ticks :
         this.axis.workspace.target_number_minor_ticks);
     target_tick_count = Math.max(target_tick_count, 2);
-    target_tick_count = Math.min(target_tick_count, max_allowed_ticks);
+    target_tick_count = Math.min(target_tick_count, this.max_allowed_ticks);
 
     // Generate a list of candidate tick schemes for this axis
     var tick_schemes = this.ticking_schemes(order_of_magnitude, false);
@@ -230,7 +230,7 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
         var tick_scheme_min = outer_min + tick_scheme['offset'];
 
         for (var j = 0; j < (outer_max - outer_min) / tick_scheme['tick_separation'] + 2; j++) {
-            if (candidate_ticking_scheme.length > max_allowed_ticks) break;
+            if (candidate_ticking_scheme.length > self.max_allowed_ticks) break;
 
             $.each(tick_scheme['multipliers'], function (index2, multiplier) {
                 var x = tick_scheme_min + j * tick_scheme['tick_separation'];
@@ -286,7 +286,7 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
  */
 JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
     /** @type {number} */
-    var x, accuracy, max_decimals;
+    var x, required_accuracy, max_decimals;
     /** @type {number} */
     var significant_figures = 8;
     /** @type {string} */
@@ -300,12 +300,15 @@ JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
     // Display numbers between 1e5 and 1e-3 in %f format
     if ((Math.abs(input) < 1e5) && (Math.abs(input) > 1e-3)) {
         x = Math.abs(input);
-        accuracy = x * (1.0 + Math.pow(10, -significant_figures));
+        required_accuracy = Math.pow(10, -significant_figures);
         max_decimals = significant_figures - Math.log10(x);
 
         // Work out how many decimal places are needed to convey this number to required significant figures
         for (var decimal_place = 0; decimal_place < max_decimals; decimal_place++) {
-            if ((x - ((Math.round(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place)) - x)) < accuracy) {
+            var rounded_value = Math.round(x * Math.pow(10, decimal_place)) / Math.pow(10, decimal_place);
+            var error_ratio = Math.abs(rounded_value - x) / x;
+
+            if (error_ratio < required_accuracy) {
                 break;
             }
         }
@@ -341,41 +344,38 @@ JSPlot_TickingNumericLinear.prototype.numeric_display = function (input) {
     }
 
     // Then search through subsequent decimal digits
-    var j = i + 1;
+    var j = i;
+    if (output.charAt(i) === '.') j++;
     while (!isNaN(output.charAt(j))) j++;
 
     // Convert exponential character into a nice UTF-8 string
+    var output_1 = output.substr(0, j);
     if (output.charAt(j + 1) === "+") j++;
-    var output_1 = output.substr(0, j - 1);
-    var output_2 = "×10" + this.superscript(output.substr(j + 1, output.length - j - 1));
+    var output_2_in = output.substr(j + 1, output.length - j - 1);
+    var output_2 = "×10" + this.superscript(output_2_in);
 
     // Render minus signs as &ndash;
     output_1 = output_1.replace("-", "–");
 
-    // If we found no decimal digits, don't need to remove any trailing zeros
-    if (i === j) {
-        // Remove trailing decimal point, if present
-        if (output_1.charAt(output_1.length - 1) === '.') {
-            output_1 = output_1.substr(0, output_1.length - 1);
-        }
-        return output_1 + output_2;
-    }
-
     // Now work backwards through any trailing zeros in the decimal digits
     var k = j - 1;
-    while (output_1[k] === '0') k--;
-    if (k === i) k--;
-    k++;
+    while ((k > i) && (output_1.charAt(k) === '0')) k--;
 
     // Remove trailing zeros
-    output_1 = output_1.substr(0, k);
+    output_1 = output_1.substr(0, k + 1);
 
     // Remove trailing decimal point, if present
     if (output_1.charAt(output_1.length - 1) === '.') {
         output_1 = output_1.substr(0, output_1.length - 1);
     }
 
-    return output_1 + output_2;
+    // Remove 1× from the beginning of 1×10²
+    output = output_1 + output_2;
+    if (output.substr(0,2) === "1×") {
+        output = output.substr(2, output.length-2);
+    }
+
+    return output;
 };
 
 /**

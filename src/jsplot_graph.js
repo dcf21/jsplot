@@ -224,7 +224,7 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
             if (!this.threeDimensional) {
                 this.workspace.width_pixels = 0.9 * this.page.page_width;
             } else {
-                this.workspace.width_pixels = 0.6 * this.page.page_width;
+                this.workspace.width_pixels = 0.5 * this.page.page_width;
             }
         } else if (!isNaN(this.width)) {
             // Case 2: width is specified as a numerical number of pixels
@@ -315,17 +315,19 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
  * @param allowOffBounds {boolean} - Flag indicating whether points outside the point area should be calculated
  * @returns {Object}
  */
-JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin, axis_x, axis_y, axis_z, allowOffBounds) {
+JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin,
+                                                axis_x, axis_y, axis_z,
+                                                allowOffBounds) {
     var width = this.workspace.width_pixels;
     var height = this.workspace.width_pixels * this.workspace.aspect;
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
-    var xap = axis_x.getPosition(xin, 1);
-    var yap = axis_y.getPosition(yin, 1);
+    var xap = axis_x.getPosition(xin, true);
+    var yap = axis_y.getPosition(yin, true);
     var zap = 0.5;
     var output = {'xap': xap, 'yap': yap, 'zap': zap};
 
-    if (this.threeDimensional) zap = axis_z.getPosition(zin, 1);
+    if (this.threeDimensional) zap = axis_z.getPosition(zin, true);
 
     if ((!isFinite(xap)) || (!isFinite(yap)) || (!isFinite(zap))) {
         return {'xpos': NaN, 'ypos': NaN, 'xap': NaN, 'yap': NaN, 'zap': NaN};
@@ -434,6 +436,23 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
                     pt['xpos'] + this.origin[0] + margin[0],
                     pt['ypos'] + this.origin[1] + margin[1]);
             }
+
+    // For 3D interactive plots, we increase the bounding box to cover the whole area the plot might cover when rotated
+    if (this.threeDimensional && (this.interactiveMode === 'rotate')) {
+        // Interior diagonal of a cube has length sqrt(3)
+        var maximum_half_size = Math.max(
+            this.workspace.width_pixels,
+            Math.abs(this.workspace.width_pixels * this.workspace.aspect),
+            Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
+        ) * Math.sqrt(3) / 2;
+
+        bounding_box.includePoint(
+            this.origin[0] - maximum_half_size - margin[0],
+            this.origin[1] - maximum_half_size - margin[1]);
+        bounding_box.includePoint(
+            this.origin[0] + maximum_half_size + margin[0],
+            this.origin[1] + maximum_half_size + margin[1]);
+    }
 
     // Clear all range information from all axes.
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
@@ -776,9 +795,9 @@ JSPlot_Graph.prototype.grid_lines_paint = function () {
         var pt_b = self.project3d(1.0, 0.5, 0.5);
         var pt_c = self.project3d(0.5, 1.0, 0.5);
         var pt_d = self.project3d(0.5, 0.5, 1.0);
-        ap_back[0] = toInt(pt_a['depth'] < pt_b['depth']);
-        ap_back[1] = toInt(pt_a['depth'] < pt_c['depth']);
-        ap_back[2] = toInt(pt_a['depth'] < pt_d['depth']);
+        ap_back[0] = toInt(pt_a['depth'] > pt_b['depth']);
+        ap_back[1] = toInt(pt_a['depth'] > pt_c['depth']);
+        ap_back[2] = toInt(pt_a['depth'] > pt_d['depth']);
     }
 
     $.each(self.gridAxes, function (index3, axis_name) {
@@ -868,8 +887,12 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
     if (this.interactiveMode === 'pan') {
         $.each(this.axes, function (axis_name, axis) {
             var axis_direction = axis_name.substring(0, 1);
-            if (axis_direction === 'x') axis.interactive_scroll(self.page, x_offset / self.workspace.axis_length[0]);
-            if (axis_direction === 'y') axis.interactive_scroll(self.page, y_offset / self.workspace.axis_length[1]);
+            if (axis_direction === 'x') {
+                axis.interactive_scroll(self.page, x_offset / self.workspace.axis_length[0], false);
+            }
+            if (axis_direction === 'y') {
+                axis.interactive_scroll(self.page, y_offset / self.workspace.axis_length[1], false);
+            }
         });
 
         // Invite all data sets to recompute for the new axis range

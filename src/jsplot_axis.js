@@ -539,7 +539,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     });
 
     // Write axis label
-    if (self.label !== null) {
+    if (label && self.label !== null) {
         theta = -self.labelRotate;
         theta_pinpoint = theta + Math.PI * left_side; // Angle around textbox where it is anchored
         label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
@@ -569,9 +569,10 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
  * @param page {JSPlot_Canvas} - The canvas page which triggered this scroll event
  * @param offset {number} - The numerical factor by which the canvas has been dragged, in units of the length of the
  * axis.
+ * @param force {boolean} - Perform this scroll, even if scrolling is disabled for this axis
  */
-JSPlot_Axis.prototype.interactive_scroll = function (page, offset) {
-    if (this.scrollEnabled && (this.workspace.minFinal !== null) && (this.workspace.maxFinal !== null)) {
+JSPlot_Axis.prototype.interactive_scroll = function (page, offset, force) {
+    if ((force || this.scrollEnabled) && (this.workspace.minFinal !== null) && (this.workspace.maxFinal !== null)) {
         // If the span of the axis is not defined, take it from the current automatic scaling
         if (this.scrollSpan === null) {
             if (!this.workspace.logFinal) {
@@ -633,14 +634,14 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
     var zoom_factor = 0.9;
 
     // Make sure scroll span is populated
-    this.interactive_scroll(page, 0);
+    this.interactive_scroll(page, 0, this.zoomEnabled);
 
     // Apply zoom
     if (this.zoomEnabled && (this.scrollSpan !== null)) {
         if (delta > 0) {
             // Zoom in
             this.scrollSpan *= zoom_factor;
-            this.interactive_scroll(page, -(1 - zoom_factor) / 2);
+            this.interactive_scroll(page, -(1 - zoom_factor) / 2, true);
         } else {
             // Zoom out
             this.scrollSpan /= zoom_factor;
@@ -660,7 +661,7 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
             }
 
             // Update axis range
-            this.interactive_scroll(page, (1 - zoom_factor) / 2);
+            this.interactive_scroll(page, (1 - zoom_factor) / 2, true);
         }
 
         // Refresh display

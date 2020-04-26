@@ -27,7 +27,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings.EPS_AXES_MAJTICKLEN = 8;
     this.settings.EPS_AXES_MINTICKLEN = 4;
     this.settings.EPS_AXES_SEPARATION = 0.008;
-    this.settings.EPS_AXES_TEXTGAP = 4;
+    this.settings.EPS_AXES_TEXTGAP = 6;
     this.settings.EPS_AXES_LABELGAP = 20;
     this.settings.EPS_COLORSCALE_MARG = 3e-3;
     this.settings.EPS_COLORSCALE_WIDTH = 4e-3;

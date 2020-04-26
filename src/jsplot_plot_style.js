@@ -11,7 +11,7 @@ function JSPlot_PlotStyle(settings) {
     this.plotStyle = 'lines';
     this.lineType = null;
     this.pointType = null;
-    this.lineWidth = 4;
+    this.lineWidth = 2;
     this.pointLineWidth = 1;
     this.pointSize = 1;
 
