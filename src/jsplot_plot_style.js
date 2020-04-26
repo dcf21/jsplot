@@ -22,18 +22,38 @@ function JSPlot_PlotStyle(settings) {
  * configure - Configure settings for plotting a data set
  * @param settings {Object} - An object containing settings
  */
-JSPlot_PlotStyle.prototype.configure = function(settings) {
+JSPlot_PlotStyle.prototype.configure = function (settings) {
+    /** @type {JSPlot_PlotStyle} */
+    var self = this;
+
     $.each(settings, function (key, value) {
         switch (key) {
-            case "color": this.color = value; break;
-            case "fillColor": this.fillColor = value; break;
-            case "plotStyle": this.plotStyle = value; break;
-            case "lineType": this.lineType = value; break;
-            case "pointType": this.pointType = value; break;
-            case "lineWidth": this.lineWidth = value; break;
-            case "pointLineWidth": this.pointLineWidth = value; break;
-            case "pointSize": this.pointSize = value; break;
-            default: throw "Unrecognised plot style setting " + key;
+            case "color":
+                self.color = value;
+                break;
+            case "fillColor":
+                self.fillColor = value;
+                break;
+            case "plotStyle":
+                self.plotStyle = value;
+                break;
+            case "lineType":
+                self.lineType = value;
+                break;
+            case "pointType":
+                self.pointType = value;
+                break;
+            case "lineWidth":
+                self.lineWidth = value;
+                break;
+            case "pointLineWidth":
+                self.pointLineWidth = value;
+                break;
+            case "pointSize":
+                self.pointSize = value;
+                break;
+            default:
+                throw "Unrecognised plot style setting " + key;
         }
     });
 };

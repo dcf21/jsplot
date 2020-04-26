@@ -681,7 +681,7 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
             var mean_depth = (axis_pos_0['depth'] + axis_pos_1['depth']) / 2;
 
             // Do not draw front axes on first pass, or back axes on second pass
-            if (self.threeDimensional && (front_axes !== (mean_depth < 0))) return;
+            if (self.threeDimensional && (front_axes !== (mean_depth > 0))) return;
 
             // Work out whether to put axis labels on left side, or right side
             var b = Math.atan2(

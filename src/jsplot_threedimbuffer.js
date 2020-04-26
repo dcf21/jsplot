@@ -24,8 +24,8 @@ JSPlot_ThreeDimBuffer.prototype.reset = function () {
  */
 JSPlot_ThreeDimBuffer.prototype.activate = function () {
     this.deactivate();
-    this.active = true;
     this.reset();
+    this.active = true;
 };
 
 /**
@@ -40,7 +40,7 @@ JSPlot_ThreeDimBuffer.prototype.deactivate = function () {
 
     // Display all items in 3D display buffer, from back to front
     $.each(this.buffer, function (index, item) {
-        item();
+        item[1]();
     });
 
     // Delete the list of items we have just rendered, and deactivate

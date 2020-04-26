@@ -229,7 +229,9 @@ JSPlot_LineDraw.prototype.penUp = function () {
  * renderLine - Having collected a list of points to join with a line, now render that line.
  */
 JSPlot_LineDraw.prototype.renderLine = function () {
+    /** @type {JSPlot_LineDraw} */
     var self = this;
+    /** @type {?number} */
     var i, j;
 
     if (!this.page.threeDimensionalBuffer.active) {
@@ -251,7 +253,7 @@ JSPlot_LineDraw.prototype.renderLine = function () {
 
                 var renderer = function (i, j) {
                     return function () {
-                        self.page.canvas._strokeStyle(self.color, self.lineWidth);
+                        self.page.canvas._strokeStyle(self.color, self.line_width);
                         self.page.canvas._beginPath();
                         self.page.canvas._moveTo(self.line_list[i][j - 1][0], self.line_list[i][j - 1][1]);
                         self.page.canvas._lineTo(self.line_list[i][j][0], self.line_list[i][j][1]);
