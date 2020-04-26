@@ -416,7 +416,7 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
  * @param a2_name {string} - The name of the axis we are going to use as an y axis
  * @param a3_name {string} - The name of the axis we are going to use as an z axis
  */
-JSPlot_Plotter.prototype.renderDataSet = function(graph, data, style, a1_name, a2_name, a3_name) {
+JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, a2_name, a3_name) {
     /** @type {JSPlot_Axis} */
     var a1 = graph.axes[a1_name];
     /** @type {JSPlot_Axis} */
@@ -424,18 +424,18 @@ JSPlot_Plotter.prototype.renderDataSet = function(graph, data, style, a1_name, a
     /** @type {JSPlot_Axis} */
     var a3 = graph.axes[a3_name];
 
-    if ((style === "lines") || (style==="linespoints")) {
+    if ((style === "lines") || (style === "linespoints")) {
         var line_draw = new JSPlot_LineDraw(graph.page, graph, a1, a2, a3,
-            data.workspace.styleFinal.color,
+            data.workspace.styleFinal.color.toHTML(),
             data.workspace.styleFinal.lineType, data.workspace.styleFinal.lineWidth);
 
-    // Cycle through data table, plotting each point in turn
-    $.each(data.data, function (index, dataPoint) {
-        line_draw.point(dataPoint[0], dataPoint[1], graph.threeDimensional ? dataPoint[2] : 0,
-            0,0,0,0,0,0);
-    });
+        // Cycle through data table, plotting each point in turn
+        $.each(data.data, function (index, dataPoint) {
+            line_draw.point(dataPoint[0], dataPoint[1], graph.threeDimensional ? dataPoint[2] : 0,
+                0, 0, 0, 0, 0, 0);
+        });
 
-    // Finish up
+        // Finish up
         line_draw.penUp();
         line_draw.renderLine();
     }

@@ -18,9 +18,9 @@ function JSPlot_Graph(dataSets, settings) {
     /** @type {JSPlot_Color} */
     this.axesColor = new JSPlot_Color(0, 0, 0, 1);
     /** @type {JSPlot_Color} */
-    this.gridMajorColor = new JSPlot_Color(0.6, 0.6, 0.6, 1);
+    this.gridMajorColor = new JSPlot_Color(0.8, 0.8, 0.8, 1);
     /** @type {JSPlot_Color} */
-    this.gridMinorColor = new JSPlot_Color(0.85, 0.85, 0.85, 1);
+    this.gridMinorColor = new JSPlot_Color(0.8, 0.8, 0.8, 1);
     /** @type {JSPlot_Color} */
     this.textColor = new JSPlot_Color(0, 0, 0, 1);
     /** @type {boolean} */
@@ -413,7 +413,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     }
 
     // Populate the bounding box of the plot
-    var margin = [75,45];
+    var margin = [75, 45];
     var pt = null;
 
     for (var xap = 0; xap <= 1; xap += 1)
@@ -440,7 +440,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
         var target_number_major_ticks = this.workspace.axis_length[j] / (75 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
-        var target_number_minor_ticks = this.workspace.axis_length[j] / 25;
+        var target_number_minor_ticks = this.workspace.axis_length[j] / 20;
 
         for (i = 0; i < 2; i++) {
             axis_name = ['x', 'y', 'z'][j] + (i + 1);
@@ -783,11 +783,70 @@ JSPlot_Graph.prototype.grid_lines_paint = function () {
 
     $.each(self.gridAxes, function (index3, axis_name) {
         var axis = self.axes[axis_name];
+
+        // Do not sure grid lines from axes which are not active
+        if ((axis_name.charAt(0) === 'z') && !self.threeDimensional) return;
+        if ((!axis.workspace.activeFinal) || (axis.workspace.tickListFinal === null)) return;
+
         // Render major ticks and then minor ticks
         $.each(['major', 'minor'], function (index, tick_level) {
+            if (tick_level === 'major') {
+                self.page.canvas._strokeStyle(self.gridMajorColor.toHTML(), self.page.settings.EPS_GRID_MAJLINEWIDTH);
+            } else {
+                self.page.canvas._strokeStyle(self.gridMinorColor.toHTML(), self.page.settings.EPS_GRID_MINLINEWIDTH);
+            }
             var tick_list = axis.workspace.tickListFinal[tick_level];
+
             // Loop over all ticks along this axis
             $.each(tick_list, function (index2, tick_item) {
+                var axis_pos = axis.getPosition(tick_item[0], true);
+
+                // Do not draw grid lines close to ends of axes
+                if ((axis_pos < 0.001) || (axis_pos > 0.999)) return;
+
+                // Draw grid line
+                self.page.canvas._beginPath();
+                if (!self.threeDimensional) {
+                    if (axis_name.charAt(0) === 'x') {
+                        self.page.canvas._moveTo(
+                            self.origin[0] + axis_pos * self.workspace.width_pixels,
+                            self.origin[1]);
+                        self.page.canvas._lineTo(
+                            self.origin[0] + axis_pos * self.workspace.width_pixels,
+                            self.origin[1] + self.workspace.width_pixels * self.workspace.aspect);
+
+                    } else {
+                        self.page.canvas._moveTo(
+                            self.origin[0],
+                            self.origin[1] + axis_pos * self.workspace.width_pixels * self.workspace.aspect);
+                        self.page.canvas._lineTo(
+                            self.origin[0] + self.workspace.width_pixels,
+                            self.origin[1] + axis_pos * self.workspace.width_pixels * self.workspace.aspect);
+                    }
+                } else {
+                    var axis_xyz = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)];
+                    var other_axis_xyz = [[1, 2], [0, 2], [0, 1]][axis_xyz];
+                    var axis_positions = [0, 0, 0];
+                    var pt = null;
+                    axis_positions[axis_xyz] = axis_pos;
+
+                    axis_positions[other_axis_xyz[0]] = ap_back[other_axis_xyz[0]];
+                    axis_positions[other_axis_xyz[1]] = 0;
+                    pt = self.project3d(axis_positions[0], axis_positions[1], axis_positions[2]);
+                    self.page.canvas._moveTo(pt['xpos'], pt['ypos']);
+                    axis_positions[other_axis_xyz[1]] = 1;
+                    pt = self.project3d(axis_positions[0], axis_positions[1], axis_positions[2]);
+                    self.page.canvas._lineTo(pt['xpos'], pt['ypos']);
+
+                    axis_positions[other_axis_xyz[1]] = ap_back[other_axis_xyz[1]];
+                    axis_positions[other_axis_xyz[0]] = 0;
+                    pt = self.project3d(axis_positions[0], axis_positions[1], axis_positions[2]);
+                    self.page.canvas._moveTo(pt['xpos'], pt['ypos']);
+                    axis_positions[other_axis_xyz[0]] = 1;
+                    pt = self.project3d(axis_positions[0], axis_positions[1], axis_positions[2]);
+                    self.page.canvas._lineTo(pt['xpos'], pt['ypos']);
+                }
+                self.page.canvas._stroke();
             });
         });
     });

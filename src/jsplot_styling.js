@@ -69,12 +69,12 @@ JSPlot_Styling.prototype.setLineType = function (color, lineType, lineWidth, off
  * @type {Array<JSPlot_Color>}
  */
 JSPlot_Styling.prototype.defaultColors = [
-    new JSPlot_Color(0, 0, 0, 1),
     new JSPlot_Color(1, 0, 0, 1),
     new JSPlot_Color(0, 0, 1, 1),
     new JSPlot_Color(0, 0.75, 0, 1),
     new JSPlot_Color(1, 0, 1, 1),
-    new JSPlot_Color(0, 0.75, 0.75, 1)
+    new JSPlot_Color(0, 0.75, 0.75, 1),
+    new JSPlot_Color(0, 0, 0, 1)
 ];
 
 /**

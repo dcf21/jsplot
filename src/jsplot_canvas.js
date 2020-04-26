@@ -23,7 +23,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings.EPS_ARROW_ANGLE = 45.0 * Math.PI / 180;
     this.settings.EPS_ARROW_CONSTRICT = 0.2;
     this.settings.EPS_ARROW_HEADSIZE = 6.0;
-    this.settings.EPS_AXES_LINEWIDTH = 1.0;
+    this.settings.EPS_AXES_LINEWIDTH = 2.5;
     this.settings.EPS_AXES_MAJTICKLEN = 8;
     this.settings.EPS_AXES_MINTICKLEN = 4;
     this.settings.EPS_AXES_SEPARATION = 0.008;
@@ -31,7 +31,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings.EPS_AXES_LABELGAP = 20;
     this.settings.EPS_COLORSCALE_MARG = 3e-3;
     this.settings.EPS_COLORSCALE_WIDTH = 4e-3;
-    this.settings.EPS_GRID_MAJLINEWIDTH = 1.0;
+    this.settings.EPS_GRID_MAJLINEWIDTH = 0.8;
     this.settings.EPS_GRID_MINLINEWIDTH = 0.5;
 
     // Read user supplied settings

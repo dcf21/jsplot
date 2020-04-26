@@ -473,7 +473,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
         graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0);
 
     // Work out xyz index
-    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)]
+    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)];
 
     // Work out rotation angle of tick labels
     var theta = -this.tickLabelRotation * Math.PI / 180;
@@ -514,12 +514,15 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
                     return;
                 }
 
-                // Stroke tick mark
-                page.canvas._strokeStyle(graph.axesColor.toHTML(), page.settings.EPS_AXES_LINEWIDTH);
-                page.canvas._beginPath();
-                page.canvas._moveTo(tic_x1, tic_y1);
-                page.canvas._lineTo(tic_x2, tic_y2);
-                page.canvas._stroke();
+                // Do not draw grid lines close to ends of axes
+                if ((axis_position > 0.001) && (axis_position < 0.999)) {
+                    // Stroke tick mark
+                    page.canvas._strokeStyle(graph.axesColor.toHTML(), page.settings.EPS_AXES_LINEWIDTH);
+                    page.canvas._beginPath();
+                    page.canvas._moveTo(tic_x1, tic_y1);
+                    page.canvas._lineTo(tic_x2, tic_y2);
+                    page.canvas._stroke();
+                }
 
                 // Write tick label
                 if (label && (tick_level === 'major') && (tick_item[1] !== '')) {
