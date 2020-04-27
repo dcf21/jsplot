@@ -9,9 +9,9 @@ RUN apt-get install -y nginx ; apt-get clean
 WORKDIR /code
 ADD build build
 ADD src src
-ADD demo demo
+ADD website website
 
-# Produce distributable version of demos
+# Produce distributable version of website
 RUN /code/build/build.py
 
 # Serve demos

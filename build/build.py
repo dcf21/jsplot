@@ -3,22 +3,22 @@
 # build.py
 
 # -------------------------------------------------
-# Copyright 2019 Dominic Ford.
+# Copyright 2020 Dominic Ford.
 
-# This file is part of Pi Gazing.
+# This file is part of JSPlot.
 
-# Pi Gazing is free software: you can redistribute it and/or modify
+# JSPlot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Pi Gazing is distributed in the hope that it will be useful,
+# JSPlot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Pi Gazing.  If not, see <http://www.gnu.org/licenses/>.
+# along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------
 
 import os
@@ -39,7 +39,7 @@ def makehtml():
 
     # Paths from where we get web content
     python_path = os.path.split(os.path.abspath(__file__))[0]
-    root1 = os.path.join(python_path, "..", "demo")
+    root1 = os.path.join(python_path, "..", "website")
     root_list = [root1]
 
     # Path to which we output processed web content
@@ -107,7 +107,7 @@ def makehtml():
                     print("Compiling LESS file <%s>" % fname)
                     css_minify = ""
                     if minify:
-                        css_minify = "--clean-css=\"--s1 --advanced --compatibility=ie8\"";
+                        css_minify = "--clean-css=\"--s1 --advanced --compatibility=ie8\""
                     cmd = "lessc %s %s %s" % (infile, css_minify, outfile[:-4] + "css")
                     print(cmd)
                     os.system(cmd)
