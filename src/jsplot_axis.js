@@ -466,6 +466,9 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     var self = this;
     var left_side = !right_side;
 
+    // Do not render axes which are not visible
+    if (!this.visible) return;
+
     // Stroke line of axis
     var arrow_renderer = new JSPlot_DrawArrow();
     arrow_renderer.primitive_arrow(page, this.arrowType,

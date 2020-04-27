@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "An example autoscaling timeline",
-    "pageDescription" => "JSPlot - An example autoscaling timeline",
+    "pageTitle" => "An example autoscaling time axis",
+    "pageDescription" => "JSPlot - An example autoscaling time axis",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -60,12 +60,14 @@ $pageTemplate->header($pageInfo);
                     ], {
                         'interactiveMode': 'pan',
                         'x1_axis': {
+                            'label': 'Unix time',
                             'scrollMin': null,
                             'scrollMax': null,
                             'scrollEnabled': true,
                             'zoomEnabled': true
                         },
                         'y1_axis': {
+                            'label': 'Date and time',
                             'dataType': 'timestamp'
                         }
                     })

@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "An example timeline",
-    "pageDescription" => "JSPlot - An example timeline",
+    "pageTitle" => "An example time axis",
+    "pageDescription" => "JSPlot - An example time axis",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -62,11 +62,15 @@ $pageTemplate->header($pageInfo);
                     ], {
                         'interactiveMode': 'pan',
                         'x1_axis': {
+                            'label': 'Time and date',
                             'dataType': 'timestamp',
                             'scrollMin': null,
                             'scrollMax': null,
                             'scrollEnabled': true,
                             'zoomEnabled': true
+                        },
+                        'y1_axis': {
+                            'label': 'Fraction of day',
                         }
                     })
                 }, {});

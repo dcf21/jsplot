@@ -64,7 +64,6 @@ table.stripy tbody tr:nth-child( odd) { background-color: #e8e8e8; }
 }
 
 .pointer { cursor:pointer;}
-.position_relative { position:relative; top:0; left:0; }
 
 select.slt { box-shadow: 3px 3px 2px #e0e0e0; padding:2px; border: 1px solid #aaa; background-color:#fff; border-radius: 2px; margin: 2px; }
 
@@ -88,7 +87,10 @@ div.contentwrapper p.smtext { margin: 0; }
 .paging-nav .active { font-weight: bold; display:inline-block;background-color: #eee; }
 
 /* Top banner formatting */
-.bannerback { position:relative; top:0; left:0; width:100%; height: 200px; background-color: #000000; padding: 0; margin:0 0 15px 0; border: 0; border-bottom: 0 solid #222; overflow:hidden; }
+@banner_height: 200px;
+@banner_shadow: rgba(0,0,0,0.3);
+.position_relative { position:relative; top:0; left:0; }
+.bannerback { .position_relative; width:100%; height: @banner_height;  background: rgb(130,30,118); background: linear-gradient(0deg, rgba(130,30,118,1) 0%, rgba(150,112,29,1) 90%); padding: 0; margin:0 0 15px 0; border: 0; border-bottom: 0 solid #222; overflow:hidden; }
 
 div.tallright { padding: 8px 4px; background: #dddddd; vertical-align: top; min-height: 300px; }
 
@@ -96,14 +98,14 @@ div.tallright { padding: 8px 4px; background: #dddddd; vertical-align: top; min-
 div.centred_table { text-align:center; }
 table.centred { margin-left: auto; margin-right: auto; }
 
-.banner { position:relative; top:0; left:0; color: #eee; max-width: 1170px; height: 200px; margin: 0 auto; overflow: hidden; padding: 0; border: 0; }
+.banner { position:relative; top:0; left:0; color: #eee; max-width: 1170px; height: @banner_height; margin: 0 auto; overflow: hidden; padding: 0; border: 0; }
 
 .banner a         { color: #eeeeee; text-decoration:none; }
 .banner a:hover   { color: #ffffff; }
 .banner_txt_left  { position:absolute; bottom:0; left:0; display:inline-block; z-index:2; padding: 0 0 20px 36px; }
 .banner_txt_right { position:absolute; bottom:0; right:0; display:inline-block; z-index:2; padding: 0 36px 55px 0; }
 
-#bannerfull { position:absolute; bottom:0; left:0; width:100%; height: 200px; background: url(../img/topbg.png) left top repeat; }
+#bannerfull { position:absolute; bottom:0; left:0; width:100%; height: 170px; background: url(../img/topbg.png) left top repeat; }
 .bannerfade { position:fixed; left:0; top: 50px; width:100%; height: 8px; background: linear-gradient(rgba(34,34,34,0.8) 0%, rgba(34,34,34,0) 100%); z-index:998; }
 
 .toptitleA { margin:0; padding-bottom: 4px; font-size: 36px; font-weight: bold; text-shadow: 2px 2px rgba(0,0,0,0.3); }

@@ -53,16 +53,23 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "logo", {},
+                            "logo", {
+                                'color': new JSPlot_Color(0.5, 0.5, 0.5, 0.5),
+                            },
                             [
                                 function (x) {
-                                    return Math.sin(1/Math.hypot(x, 0.1));
+                                    return Math.sin(
+                                        1 / Math.hypot(x + 1.2, 0.1) + 1 / Math.hypot(x - 0.2, 0.15)
+                                    );
                                 }
-                            ]).evaluate_linear_raster(-2, 2, 1000, true)
+                            ]).evaluate_linear_raster(-2, 3, 1000, true)
                     ], {
                         'interactiveMode': 'pan',
                         'gridAxes': [],
-                        'aspect': 0.07
+                        'aspect': 0.07,
+                        'clip': false,
+                        'x1_axis': {visible: false},
+                        'y1_axis': {visible: false}
                     })
                 }, {});
 
