@@ -38,7 +38,7 @@ class local_mods
     {
         ?>
         <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-22395429-8"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-22395429-9"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
 
@@ -47,7 +47,7 @@ class local_mods
             }
 
             gtag('js', new Date());
-            gtag('config', 'UA-22395429-8');
+            gtag('config', 'UA-22395429-9');
         </script>
         <?php
     }
