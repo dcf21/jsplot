@@ -64,7 +64,6 @@ $pageTemplate->header($pageInfo);
                                 }
                             ]).evaluate_linear_raster(-2, 3, 1000, true)
                     ], {
-                        'interactiveMode': 'pan',
                         'gridAxes': [],
                         'aspect': 0.07,
                         'clip': false,

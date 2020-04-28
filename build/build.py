@@ -29,7 +29,7 @@ import make_htaccess
 import php_preprocess
 
 # Flag to choose whether we minify CSS and Javascript
-minify = False
+minify = True
 
 # These subdirectories get symlinked rather than copies, because they're quite big
 symlinkDirectories = ['vendor']
@@ -121,7 +121,7 @@ def makehtml():
     javascripts = glob.glob(os.path.join(output, "js/*.js")) + glob.glob(os.path.join(output, "js/*/*.js"))
     if minify:
         cmd = "cd %s ; uglifyjs *.js " % (os.path.join(output, "js"))
-        cmd += " --compress --mangle --mangle-props "
+        cmd += " --compress --mangle "
         # cmd += " --source-map " + os.path.join(output, "js", "jsplot.min.map")
         cmd += " --output " + os.path.join(output, "js", "jsplot.min.js")
         print(cmd)

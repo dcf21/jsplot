@@ -8,17 +8,19 @@
 function JSPlot_TickingTimestamp(axis) {
     /** @type {JSPlot_Axis} */
     this.axis = axis;
+    this.max_allowed_ticks = 256;
+
+    // Acceptable intervals between ticks
+    this.acceptable_intervals =
+        [1, 2, 5, 10, 20, 30, 60,
+            120, 300, 600, 900, 1800, 3600,
+            7200, 10800, 14400, 21600, 43200, 86400,
+            172800, 259200, 345600, 604800];
 }
 
 JSPlot_TickingTimestamp.prototype.process = function () {
     /** @type {JSPlot_TickingTimestamp} */
     var self = this;
-
-    var acceptable_intervals =
-        [1, 2, 5, 10, 20, 30, 60,
-            120, 300, 600, 900, 1800, 3600,
-            7200, 10800, 14400, 21600, 43200, 86400,
-            172800, 259200, 345600, 604800];
 
     // Fix the axis range
     if (!this.axis.workspace.rangeFinalised) {
@@ -53,22 +55,49 @@ JSPlot_TickingTimestamp.prototype.process = function () {
                 this.axis.graph.page.workspace.errorLog += "Axis range set to zero. Ignoring manually set range.\n"
             }
 
-            var expansion = 30;
+            var expansion = 30;  // arbitrary span of 30 seconds either side of single data point
             axis_min_data -= expansion;
             axis_max_data += expansion;
         }
 
         // If axis does not have a user-specified range, round it outwards
-        for (var i = 0; i < acceptable_intervals.length; i++) {
-            if (acceptable_intervals[i] > Math.abs(axis_max_data - axis_min_data)) {
-                break;
+        var data_span = Math.abs(axis_max_data - axis_min_data);
+
+        if (data_span > 3 * 365 * 86400) {
+            // For spans longer than 3 years, we round axis range outwards to encompass a whole number of years
+            var calendar_date_min = this.timestamp_to_calendar(axis_min_data);
+            var calendar_date_max = this.timestamp_to_calendar(axis_max_data);
+
+            axis_min_data = this.calendar_to_timestamp(calendar_date_min[0], 1, 1, 0, 0, 0);
+            axis_max_data = this.calendar_to_timestamp(calendar_date_max[0], 1, 1, 0, 0, 0);
+        } else if (data_span > 90 * 86400) {
+            // For spans longer than 3 months, we round axis range outwards to encompass a whole number of months
+            calendar_date_min = this.timestamp_to_calendar(axis_min_data);
+            calendar_date_max = this.timestamp_to_calendar(axis_max_data);
+
+            // Find the start of the month following the one containing <calendar_date_max>
+            if (calendar_date_max[1]++ > 12) {
+                calendar_date_max[1] = 1;
+                calendar_date_min[0]++;
             }
+
+            axis_min_data = this.calendar_to_timestamp(calendar_date_min[0], calendar_date_min[1], 1, 0, 0, 0);
+            axis_max_data = this.calendar_to_timestamp(calendar_date_max[0], calendar_date_max[1], 1, 0, 0, 0);
+
+        } else {
+            // For spans shorter than 3 months round outwards to some appropriate interval
+            for (var i = 0; i < this.acceptable_intervals.length; i++) {
+                if (this.acceptable_intervals[i] > Math.abs(axis_max_data - axis_min_data)) {
+                    break;
+                }
+            }
+            i = Math.min(0, i - 2);
+
+            axis_min_data = Math.floor(axis_min_data / this.acceptable_intervals[i]) * this.acceptable_intervals[i];
+            axis_max_data = Math.ceil(axis_max_data / this.acceptable_intervals[i]) * this.acceptable_intervals[i];
         }
-        i = Math.min(0, i - 2);
 
-        axis_min_data = Math.floor(axis_min_data / acceptable_intervals[i]) * acceptable_intervals[i];
-        axis_max_data = Math.ceil(axis_max_data / acceptable_intervals[i]) * acceptable_intervals[i];
-
+        // Set final range of axis
         this.axis.workspace.minFinal = hard_min_set ? this.axis.workspace.minHard : axis_min_data;
         this.axis.workspace.maxFinal = hard_max_set ? this.axis.workspace.maxHard : axis_max_data;
 
@@ -129,7 +158,7 @@ JSPlot_TickingTimestamp.prototype.process = function () {
 
                     // Add tick
                     self.axis.workspace.tickListFinal[tick_level].push(
-                        [tick_pos, self.date_display(tick_pos, tick_list.tickStep)]
+                        [tick_pos, self.date_display(tick_pos, true, true, true, true)]
                     );
                 }
 
@@ -148,16 +177,214 @@ JSPlot_TickingTimestamp.prototype.process = function () {
  * @param tick_level {string} - Either 'major' or 'minor'
  */
 JSPlot_TickingTimestamp.prototype.automatic_ticking = function (tick_level) {
+    /** @type {JSPlot_TickingTimestamp} */
+    var self = this;
 
+    var axis_min = Math.min(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
+    var axis_max = Math.max(this.axis.workspace.minFinal, this.axis.workspace.maxFinal);
+
+    // Estimate how many ticks belong along this axis
+    var target_tick_count = ((tick_level === 'major') ?
+        this.axis.workspace.target_number_major_ticks :
+        this.axis.workspace.target_number_minor_ticks);
+    target_tick_count = Math.max(target_tick_count, 2);
+    target_tick_count = Math.min(target_tick_count, this.max_allowed_ticks);
+
+    // Generate a list of candidate tick schemes for this axis
+    var tick_schemes = [
+        {'year_step': 1000},
+        {'year_step': 500},
+        {'year_step': 250},
+        {'year_step': 200},
+        {'year_step': 100},
+        {'year_step': 50},
+        {'year_step': 25},
+        {'year_step': 20},
+        {'year_step': 10},
+        {'year_step': 5},
+        {'year_step': 2},
+        {'year_step': 1},
+        {'month_step': 6},
+        {'month_step': 4},
+        {'month_step': 3},
+        {'month_step': 2},
+        {'month_step': 1},
+    ]
+
+    // Add candidate tick schemes where ticks are placed at fixed time intervals, not fixed calendar dates
+    for (var i = this.acceptable_intervals.length - 1; i >= 0; i--) {
+        tick_schemes.push({'tick_interval': this.acceptable_intervals[i]});
+    }
+
+    // Try each ticking scheme in turn
+    var ticking_scheme_best = [[], null];
+    var too_many_ticks = false;
+
+    $.each(tick_schemes, function (index, tick_scheme) {
+        // Once one ticking scheme has produced too many ticks, subsequent schemes will only produce more
+        if (too_many_ticks) return;
+
+        // Data structures for holding this list of ticks
+        var candidate_ticking_scheme = [[], null];
+
+        // Start realising this ticking scheme
+        if (tick_scheme.hasOwnProperty('year_step')) {
+            var year_min = self.timestamp_to_calendar(axis_min)[0];
+            var year_max = self.timestamp_to_calendar(axis_max)[0];
+
+            year_min = Math.floor(year_min / tick_scheme['year_step']) * tick_scheme['year_step'];
+
+            for (var year = year_min; year <= year_max; year += tick_scheme['year_step']) {
+                if (candidate_ticking_scheme[0].length > self.max_allowed_ticks) break;
+                var timestamp = self.calendar_to_timestamp(year, 1, 1, 0, 0, 0);
+                if ((timestamp < axis_min) || (timestamp > axis_max)) continue;
+                candidate_ticking_scheme[0].push([
+                    timestamp,
+                    self.date_display(timestamp, true, false, false, false, false)
+                ]);
+            }
+        } else if (tick_scheme.hasOwnProperty('month_step')) {
+            var calendar_min = self.timestamp_to_calendar(axis_min);
+            var calendar_max = self.timestamp_to_calendar(axis_max);
+            var month_min = calendar_min[0] * 12 + calendar_min[1] - 1;
+            var month_max = calendar_max[0] * 12 + calendar_max[1] - 1;
+
+            month_min = Math.floor(month_min / tick_scheme['month_step']) * tick_scheme['month_step'];
+
+            for (var month = month_min; month <= month_max; month += tick_scheme['month_step']) {
+                if (candidate_ticking_scheme[0].length > self.max_allowed_ticks) break;
+                timestamp = self.calendar_to_timestamp(Math.floor(month / 12), (month % 12) + 1, 1, 0, 0, 0);
+                if ((timestamp < axis_min) || (timestamp > axis_max)) continue;
+                candidate_ticking_scheme[0].push([
+                    timestamp,
+                    self.date_display(timestamp, (month % 12) === 0, true, false, false, false)
+                ]);
+            }
+        } else {
+            var interval = tick_scheme['tick_interval'];
+            var show_year = (interval > 28 * 86400);
+            var show_date = (interval > 7200);
+            var tick_scheme_min = Math.floor(axis_min / interval) * interval;
+
+            for (timestamp = tick_scheme_min; timestamp <= axis_max; timestamp += interval) {
+                if (candidate_ticking_scheme[0].length > self.max_allowed_ticks) break;
+                if ((timestamp < axis_min) || (timestamp > axis_max)) continue;
+
+                candidate_ticking_scheme[0].push([
+                    timestamp,
+                    self.date_display(timestamp, show_year, show_date, show_date, (interval < 86400), (interval < 60))
+                ]);
+            }
+
+            candidate_ticking_scheme[1] = function () {
+                var year_min = self.date_display(axis_min, true, false, false, false, false);
+                var year_max = self.date_display(axis_max, true, false, false, false, false);
+
+                var date_min = self.date_display(axis_min, false, true, true, false, false);
+                var date_max = self.date_display(axis_max, false, true, true, false, false);
+
+                if (!show_date) {
+                    if (year_max !== year_min) {
+                        return date_min + " " + year_min + " – " + date_max + " " + year_max;
+                    } else if (date_max !== date_min) {
+                        return date_min + " – " + date_max + year_max;
+                    } else {
+                        return date_min + year_min;
+                    }
+                } else if (!show_year) {
+                    if (year_max !== year_min) {
+                        return year_min + " – " + year_max;
+                    } else {
+                        return year_min;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        // If we're allocating minor ticks, we need to ensure this scheme overlays the major ticks
+        var overlay_match = true;
+        if (tick_level !== 'major') {
+            $.each(self.axis.workspace.tickListFinal['major'], function (index3, major_tick) {
+                if (!overlay_match) return;
+                var matched = false;
+                $.each(candidate_ticking_scheme[0], function (index4, minor_tick) {
+                    if (matched) return;
+                    if (Math.abs(major_tick[0] - minor_tick[0]) < 1e-2) {
+                        matched = true;
+                    }
+                });
+                if (!matched) overlay_match = false;
+            });
+        }
+        if (!overlay_match) return;
+
+        // See if this ticking scheme is better than the previous best
+
+        // Linear ticking schemes only introduce more ticks in successive schemes, so if this scheme has too many
+        // ticks, we don't need to trial any more schemes.
+        if (candidate_ticking_scheme[0].length > target_tick_count) {
+            too_many_ticks = true;
+        } else {
+            ticking_scheme_best = candidate_ticking_scheme;
+        }
+    });
+
+    // Commit the best list of ticks we've found
+    this.axis.workspace.tickListFinal[tick_level] = ticking_scheme_best[0];
+
+    // Run callback function of the ticking scheme we accepted, which may append some text to the text label
+    if ((tick_level === 'major') && (ticking_scheme_best[1] !== null)) {
+        var label_suffix = ticking_scheme_best[1]();
+        if (label_suffix !== null) {
+            if ((this.axis.workspace.labelFinal === null) || (this.axis.workspace.labelFinal.length === 0)) {
+                this.axis.workspace.labelFinal = label_suffix;
+            } else {
+                this.axis.workspace.labelFinal += ", within " + label_suffix;
+            }
+        }
+    }
 };
 
 /**
  * date_display - convert a unix time into a string representation
  * @param timestamp {number} - The unix time to render
- * @param tick_interval {number} - The interval in seconds between the ticks we are placing along the axis
+ * @param include_year {boolean} - Should the date string include the year?
+ * @param include_month {boolean} - Should the date string include the month?
+ * @param include_day {boolean} - Should the date string include the day?
+ * @param include_time {boolean} - Should the date string include the time?
+ * @param include_seconds {boolean} - Should the date string include the seconds?
+ * @return {string} - A textual representation of the supplied unix timestamp
  */
-JSPlot_TickingTimestamp.prototype.date_display = function (timestamp, tick_interval) {
+JSPlot_TickingTimestamp.prototype.date_display = function (timestamp, include_year,
+                                                           include_month, include_day,
+                                                           include_time, include_seconds) {
     var month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // Add a millisecond offset to input timestamp, to ensure data points at midnight round correctly
+    var date = this.timestamp_to_calendar(timestamp + 1e-3);
+    var output = "";
+
+    if (include_day) {
+        output += date[2] + " " + month_names[date[1] - 1] + " ";
+    } else if (include_month) {
+        output += month_names[date[1] - 1] + " ";
+    }
+
+    if (include_year) {
+        output += date[0] + " ";
+    }
+
+    if (include_time) {
+        output += padStr(date[3]) + ":" + padStr(date[4]);
+    }
+
+    if (include_seconds) {
+        output += ":" + padStr(date[5].toFixed(0));
+    }
+
+    return output
 }
 
 /**

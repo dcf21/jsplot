@@ -1,6 +1,6 @@
 <?php
 
-// about.php
+// demos.php
 
 // -------------------------------------------------
 // Copyright 2020 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "About JSPlot",
-    "pageDescription" => "JSPlot",
+    "pageTitle" => "JSPlot Examples",
+    "pageDescription" => "JSPlot - Examples",
     "activeTab" => "about",
     "teaserImg" => null,
     "cssextra" => null,

@@ -1,5 +1,11 @@
 // common.js
 
+// Common functions
+
+function padStr(i) {
+    return (i < 10) ? "0" + i : "" + i;
+}
+
 /**
  * Offer a blob of text (e.g. an SVG file) as a download.
  * @param filename - The filename to suggest to the user for this download

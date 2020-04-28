@@ -122,6 +122,8 @@ JSPlot_Arrow.prototype.interactive_scroll = function (x_offset, y_offset) {
  * interactive_zoom - Apply interactive zoom event to this item, for example when the user uses the mouse wheel to
  * zoom.
  * @param delta {number} - The numerical amount by which the canvas was zoomed
+ * @return {boolean} - Flag indicating whether this canvas item responded to event
  */
 JSPlot_Arrow.prototype.interactive_zoom = function (delta) {
+    return false;
 };

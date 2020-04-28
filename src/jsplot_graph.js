@@ -415,7 +415,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     }
 
     // Populate the bounding box of the plot
-    var margin = [75, 45];
+    var margin = [90, 48];
     var pt = null;
 
     for (var xap = 0; xap <= 1; xap += 1)
@@ -430,11 +430,11 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
                     pt = this.project3d(xap, yap, zap);
                 }
                 bounding_box.includePoint(
-                    pt['xpos'] + this.origin[0] - margin[0],
-                    pt['ypos'] + this.origin[1] - margin[1]);
+                    pt['xpos'] - margin[0],
+                    pt['ypos'] - margin[1]);
                 bounding_box.includePoint(
-                    pt['xpos'] + this.origin[0] + margin[0],
-                    pt['ypos'] + this.origin[1] + margin[1]);
+                    pt['xpos'] + margin[0],
+                    pt['ypos'] + margin[1]);
             }
 
     // For 3D interactive plots, we increase the bounding box to cover the whole area the plot might cover when rotated
@@ -931,14 +931,16 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
  * interactive_zoom - Apply interactive zoom event to this graph, for example when the user uses the mouse wheel to
  * zoom.
  * @param delta {number} - The numerical amount by which the canvas was zoomed
+ * @return {boolean} - Flag indicating whether this canvas item responded to event
  */
 JSPlot_Graph.prototype.interactive_zoom = function (delta) {
     /** @type JSPlot_Graph */
     var self = this;
 
     // Pass zoom event to all axes
+    var handled = false;
     $.each(this.axes, function (axis_name, axis) {
-        axis.interactive_zoom(self.page, delta);
+        handled |= axis.interactive_zoom(self.page, delta);
     });
 
     // Invite all data sets to recompute for the new axis range
@@ -956,4 +958,6 @@ JSPlot_Graph.prototype.interactive_zoom = function (delta) {
             dataset.axisRangeUpdated(x_min, x_max);
         }
     });
+
+    return handled;
 };

@@ -170,6 +170,8 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     this.workspace.axisName = null;
     /** @type {?string} */
     this.workspace.canvasId = null;
+    /** @type {?string} */
+    this.workspace.labelFinal = this.label;
     /** @type {?boolean} */
     this.workspace.mode0BackPropagated = false;
     this.workspace.tickListFinal = null;
@@ -542,7 +544,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     });
 
     // Write axis label
-    if (label && self.label !== null) {
+    if (label && self.workspace.labelFinal !== null) {
         theta = -self.labelRotate;
         theta_pinpoint = theta + Math.PI * left_side; // Angle around textbox where it is anchored
         label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
@@ -559,7 +561,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
 
         page.canvas._translate(xlab, ylab, theta_text);
         page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
-        page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true, self.label, false, true);
+        page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true,
+            self.workspace.labelFinal, false, true);
         page.canvas._unsetTranslate();
     }
 };
@@ -631,6 +634,7 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset, force) {
  * interactive_zoom - Apply interactive zoom event to this axis, for example when the user uses the mouse wheel to zoom.
  * @param page {JSPlot_Canvas} - The canvas page which triggered this zoom event
  * @param delta {number} - The numerical amount by which the canvas was zoomed
+ * @return {boolean} - Flag indicating whether this axis responded to event
  */
 JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
     /** @type {number} */
@@ -670,4 +674,6 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
         // Refresh display
         page.needs_refresh = true;
     }
+
+    return this.zoomEnabled;
 };

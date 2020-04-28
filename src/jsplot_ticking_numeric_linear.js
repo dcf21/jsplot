@@ -264,10 +264,8 @@ JSPlot_TickingNumericLinear.prototype.automatic_ticking = function (tick_level) 
         // ticks, we don't need to trial any more schemes.
         if (candidate_ticking_scheme.length > target_tick_count) {
             too_many_ticks = true;
-            return;
         } else {
             ticking_scheme_best = candidate_ticking_scheme;
-            return;
         }
     });
 

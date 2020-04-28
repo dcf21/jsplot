@@ -28,7 +28,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings.EPS_AXES_MINTICKLEN = 4;
     this.settings.EPS_AXES_SEPARATION = 0.008;
     this.settings.EPS_AXES_TEXTGAP = 6;
-    this.settings.EPS_AXES_LABELGAP = 20;
+    this.settings.EPS_AXES_LABELGAP = 24;
     this.settings.EPS_COLORSCALE_MARG = 3e-3;
     this.settings.EPS_COLORSCALE_WIDTH = 4e-3;
     this.settings.EPS_GRID_MAJLINEWIDTH = 0.8;
@@ -342,16 +342,15 @@ JSPlot_Canvas.prototype.mouseUp = function (e) {
 };
 
 JSPlot_Canvas.prototype.displayWheel = function (evt, explicit_delta) {
-    // Prevent default event handler
-    if (evt.preventDefault) evt.preventDefault();
-    evt.returnValue = false;
 
     // Throttle events so that zooming isn't uncontrollably fast
     var time_now = Date.now();
     if ((typeof this._lastZoomEventTime !== 'undefined') && (time_now < this._lastZoomEventTime + 100)) {
+        // Prevent default event handler
+        if (evt.preventDefault) evt.preventDefault();
+        evt.returnValue = false;
         return;
     }
-    this._lastZoomEventTime = time_now;
 
     // Work out which direction zoom is moving in
     var delta;
@@ -362,7 +361,15 @@ JSPlot_Canvas.prototype.displayWheel = function (evt, explicit_delta) {
     }
 
     // Pass scroll event to all graphs
+    var event_handled = false
     $.each(this.itemList, function (index, item) {
-        item.interactive_zoom(delta < 0);
+        event_handled |= item.interactive_zoom(delta < 0);
     });
+
+    if (event_handled) {
+        // Prevent default event handler
+        if (evt.preventDefault) evt.preventDefault();
+        evt.returnValue = false;
+        this._lastZoomEventTime = time_now;
+    }
 };
