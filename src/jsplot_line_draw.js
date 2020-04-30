@@ -1,5 +1,24 @@
 // jsplot_line_draw.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_LineDraw - Class for drawing a line across a graph, clipping it to the plot area.
  * @param page {JSPlot_Canvas} - The canvas that this graph is being drawn onto
@@ -157,7 +176,7 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
                                             x_perp_offset, y_perp_offset, z_perp_offset) {
     var self = this;
 
-    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, true);
+    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, false);
 
     if ((!isFinite(position['xpos'])) || (!isFinite(position['ypos'])) || (!isFinite(position['depth']))) {
         this.penUp();

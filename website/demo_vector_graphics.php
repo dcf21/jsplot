@@ -60,20 +60,24 @@ $pageTemplate->header($pageInfo);
                     }),
                     "box_1": new JSPlot_Rectangle({
                         'origin': [0, 0],
-                        'fillColor': "rgba(255,0,0,0.5)"
+                        'z_index': -1,
+                        'fillColor': "rgba(255,0,0,0.8)"
                     }),
                     "box_2": new JSPlot_Rectangle({
-                        'origin': [250, 0],
-                        'fillColor': "rgba(0,255,0,0.5)"
+                        'origin': [150, 0],
+                        'z_index': 5,
+                        'fillColor': "rgba(0,255,0,0.8)"
                     }),
                     "box_3": new JSPlot_Rectangle({
-                        'origin': [0, 250],
-                        'fillColor': "rgba(0,0,255,0.5)"
+                        'origin': [0, 150],
+                        'z_index': 5,
+                        'fillColor': "rgba(0,0,255,0.8)"
                     }),
                     "circle": new JSPlot_Circle({
                         'origin': [125, 125],
+                        'z_index': 5,
                         'radius': 25,
-                        'fillColor': "rgba(255,255,255,0.25)",
+                        'fillColor': "rgba(255,255,0,0.8)",
                         'strokeColor': "#000",
                         'strokeLineWidth': 4
                     }),

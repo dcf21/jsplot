@@ -1,5 +1,24 @@
 // jsplot_rectangle.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_Rectangle - A class representing a rectangle, to be rendered onto a <JSPlot_Canvas>
  * @param settings {Object} - An object containing settings
@@ -10,6 +29,8 @@ function JSPlot_Rectangle(settings) {
     this.page = null;
     /** @type {string} */
     this.itemType = "rectangle";
+    /** @type {number} */
+    this.z_index = 0;
     /** @type {?JSPlot_Color} */
     this.strokeColor = new JSPlot_Color(0, 0, 0, 1);
     /** @type {?JSPlot_Color} */
@@ -39,23 +60,26 @@ JSPlot_Rectangle.prototype.configure = function (settings) {
 
     $.each(settings, function (key, value) {
         switch (key) {
-            case "strokeColor":
-                self.strokeColor = value;
-                break;
             case "fillColor":
                 self.fillColor = value;
                 break;
-            case "strokeLineWidth":
-                self.strokeLineWidth = value;
+            case "height":
+                self.height = value;
                 break;
             case "origin":
                 self.origin = value;
                 break;
+            case "strokeColor":
+                self.strokeColor = value;
+                break;
+            case "strokeLineWidth":
+                self.strokeLineWidth = value;
+                break;
             case "width":
                 self.width = value;
                 break;
-            case "height":
-                self.height = value;
+            case "z_index":
+                self.z_index = value;
                 break;
             default:
                 throw "Unrecognised rectangle setting " + key;

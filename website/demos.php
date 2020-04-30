@@ -60,6 +60,14 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
+                <a href="demo_linked_axes.php">Linked axes demo</a>
+            </td>
+            <td>
+                A panel of charts with linked x axes
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_log_axis.php">Log axis demo</a>
             </td>
             <td>

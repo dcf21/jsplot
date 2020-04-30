@@ -1,5 +1,24 @@
 // jsplot_axis.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_Axis - A class representing a graph axis
  * @param graph {JSPlot_Graph} - The graph this axis belongs to
@@ -50,6 +69,8 @@ function JSPlot_Axis(graph, enabled, settings) {
     this.ticking_allocator = null;
     /** @type {?string} */
     this.label = null;
+    /** @type {boolean} */
+    this.showLabels = true;
     /** @type {JSPlot_AxisTics} */
     this.ticsM = new JSPlot_AxisTics({});
     /** @type {JSPlot_AxisTics} */
@@ -116,6 +137,9 @@ JSPlot_Axis.prototype.configure = function (settings) {
                 break;
             case "scrollSpan":
                 self.scrollSpan = value;
+                break;
+            case "showLabels":
+                self.showLabels = value;
                 break;
             case "tickLabelRotation":
                 self.tickLabelRotation = value;
@@ -471,11 +495,14 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     // Do not render axes which are not visible
     if (!this.visible) return;
 
+    // Do not label axes where labels are disabled
+    label = (label && this.showLabels);
+
     // Stroke line of axis
     var arrow_renderer = new JSPlot_DrawArrow();
     arrow_renderer.primitive_arrow(page, this.arrowType,
         x0, y0, z0, x1, y1, z1,
-        graph.axesColor, page.settings.EPS_AXES_LINEWIDTH, 0);
+        graph.axesColor, page.constants.AXES_LINEWIDTH, 0);
 
     // Work out xyz index
     var xyz_index = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)];
@@ -489,8 +516,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     // Render major ticks and then minor ticks
     $.each(['major', 'minor'], function (index, tick_level) {
         var tick_length = ((tick_level === 'major') ?
-            page.settings.EPS_AXES_MAJTICKLEN :
-            page.settings.EPS_AXES_MINTICKLEN);
+            page.constants.AXES_MAJTICKLEN :
+            page.constants.AXES_MINTICKLEN);
         var tick_list = self.workspace.tickListFinal[tick_level];
 
         // Render each tick in turn
@@ -522,7 +549,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
                 // Do not draw grid lines close to ends of axes
                 if ((axis_position > 0.001) && (axis_position < 0.999)) {
                     // Stroke tick mark
-                    page.canvas._strokeStyle(graph.axesColor.toHTML(), page.settings.EPS_AXES_LINEWIDTH);
+                    page.canvas._strokeStyle(graph.axesColor.toHTML(), page.constants.AXES_LINEWIDTH);
                     page.canvas._beginPath();
                     page.canvas._moveTo(tic_x1, tic_y1);
                     page.canvas._lineTo(tic_x2, tic_y2);
@@ -531,8 +558,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
 
                 // Write tick label
                 if (label && (tick_level === 'major') && (tick_item[1] !== '')) {
-                    var xlab = tic_x1 + (left_side ? -1.0 : 1.0) * Math.sin(theta_axis + Math.PI / 2) * page.settings.EPS_AXES_TEXTGAP + tic_lab_xoff;
-                    var ylab = tic_y1 + (left_side ? -1.0 : 1.0) * Math.cos(theta_axis + Math.PI / 2) * page.settings.EPS_AXES_TEXTGAP;
+                    var xlab = tic_x1 + (left_side ? -1.0 : 1.0) * Math.sin(theta_axis + Math.PI / 2) * page.constants.AXES_TEXTGAP + tic_lab_xoff;
+                    var ylab = tic_y1 + (left_side ? -1.0 : 1.0) * Math.cos(theta_axis + Math.PI / 2) * page.constants.AXES_TEXTGAP;
 
                     page.canvas._translate(xlab, ylab, self.tickLabelRotation);
                     page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
@@ -549,8 +576,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
         theta_pinpoint = theta + Math.PI * left_side; // Angle around textbox where it is anchored
         label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
 
-        var xlab = (x0 + x1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.settings.EPS_AXES_LABELGAP) * Math.sin(theta_axis + Math.PI / 2) * 1.75;
-        var ylab = (y0 + y1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.settings.EPS_AXES_LABELGAP) * Math.cos(theta_axis + Math.PI / 2);
+        var xlab = (x0 + x1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.constants.AXES_LABELGAP) * Math.sin(theta_axis + Math.PI / 2) * 1.75;
+        var ylab = (y0 + y1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.constants.AXES_LABELGAP) * Math.cos(theta_axis + Math.PI / 2);
 
         var theta_text = theta + Math.PI / 2 - theta_axis;
         theta_text = theta_text % (2 * Math.PI);

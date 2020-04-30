@@ -1,5 +1,24 @@
 // jsplot_draw_arrow.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_DrawArrow - Primitive routine for drawing arrow
  * @constructor
@@ -36,7 +55,7 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
 
     // Set line width and line type
     /** @type {number} */
-    var lw = page.settings.EPS_DEFAULT_LINEWIDTH * lineWidth;
+    var lw = page.constants.DEFAULT_LINEWIDTH * lineWidth;
 
     // Work out direction of arrow
     if (Math.hypot(x2 - x1, y2 - y1) < 1e-200) {
@@ -48,16 +67,16 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
     // Draw arrowhead on beginning of arrow if desired
     if ((arrowType === 'double') || (arrowType === 'back')) {
         // Pointy back of arrowhead on one side
-        x3 = x1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin((direction + Math.PI) - page.settings.EPS_ARROW_ANGLE / 2);
-        y3 = y1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos((direction + Math.PI) - page.settings.EPS_ARROW_ANGLE / 2);
+        x3 = x1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin((direction + Math.PI) - page.constants.ARROW_ANGLE / 2);
+        y3 = y1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos((direction + Math.PI) - page.constants.ARROW_ANGLE / 2);
 
         // Pointy back of arrowhead on other side
-        x5 = x1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin((direction + Math.PI) + page.settings.EPS_ARROW_ANGLE / 2);
-        y5 = y1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos((direction + Math.PI) + page.settings.EPS_ARROW_ANGLE / 2);
+        x5 = x1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin((direction + Math.PI) + page.constants.ARROW_ANGLE / 2);
+        y5 = y1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos((direction + Math.PI) + page.constants.ARROW_ANGLE / 2);
 
         // Point where back of arrowhead crosses stalk
-        x4 = x1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction + Math.PI) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
-        y4 = y1 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction + Math.PI) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
+        x4 = x1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin(direction + Math.PI) * (1.0 - page.constants.ARROW_CONSTRICT) * Math.cos(page.constants.ARROW_ANGLE / 2);
+        y4 = y1 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos(direction + Math.PI) * (1.0 - page.constants.ARROW_CONSTRICT) * Math.cos(page.constants.ARROW_ANGLE / 2);
 
         page.threeDimensionalBuffer.addItem(z1, function () {
             page.canvas._fillStyle(color.toHTML());
@@ -79,16 +98,16 @@ JSPlot_DrawArrow.prototype.primitive_arrow = function(page, arrowType, x1, y1, z
     // Draw arrowhead on end of arrow if desired
     if ((arrowType === 'single') || (arrowType === 'double')) {
         // Pointy back of arrowhead on one side
-        x3 = x2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction - page.settings.EPS_ARROW_ANGLE / 2);
-        y3 = y2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction - page.settings.EPS_ARROW_ANGLE / 2);
+        x3 = x2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin(direction - page.constants.ARROW_ANGLE / 2);
+        y3 = y2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos(direction - page.constants.ARROW_ANGLE / 2);
 
         // Pointy back of arrowhead on other side
-        x5 = x2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction + page.settings.EPS_ARROW_ANGLE / 2);
-        y5 = y2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction + page.settings.EPS_ARROW_ANGLE / 2);
+        x5 = x2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin(direction + page.constants.ARROW_ANGLE / 2);
+        y5 = y2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos(direction + page.constants.ARROW_ANGLE / 2);
 
         // Point where back of arrowhead crosses stalk
-        x4 = x2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.sin(direction) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
-        y4 = y2 - page.settings.EPS_ARROW_HEADSIZE * lineWidth * Math.cos(direction) * (1.0 - page.settings.EPS_ARROW_CONSTRICT) * Math.cos(page.settings.EPS_ARROW_ANGLE / 2);
+        x4 = x2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.sin(direction) * (1.0 - page.constants.ARROW_CONSTRICT) * Math.cos(page.constants.ARROW_ANGLE / 2);
+        y4 = y2 - page.constants.ARROW_HEADSIZE * lineWidth * Math.cos(direction) * (1.0 - page.constants.ARROW_CONSTRICT) * Math.cos(page.constants.ARROW_ANGLE / 2);
 
         page.threeDimensionalBuffer.addItem(z1, function () {
             page.canvas._fillStyle(color.toHTML());

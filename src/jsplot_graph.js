@@ -1,5 +1,24 @@
 // jsplot_graph.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_Graph - A class representing a graph, to be rendered onto a <JSPlot_Canvas>
  * @param dataSets {Array<JSPlot_DataSet>} - A list of <JSPlot_DataSet> objects to plot on this graph
@@ -11,6 +30,8 @@ function JSPlot_Graph(dataSets, settings) {
     this.page = null;
     /** @type {string} */
     this.itemType = "graph";
+    /** @type {number} */
+    this.z_index = 0;
     /** @type {?number} */
     this.aspect = null;
     /** @type {number} */
@@ -171,6 +192,9 @@ JSPlot_Graph.prototype.configure = function (settings) {
             case "z1_axis":
             case "z2_axis":
                 self.axes[key.substring(0, 2)].configure(value)
+                break;
+            case "z_index":
+                self.z_index = value;
                 break;
             default:
                 throw "Unrecognised graph setting " + key;
@@ -706,8 +730,8 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
 
             // Render this axis
             axis.render(self.page, self, axis_name, right_side,
-                self.origin[0] + axis_pos_0['xpos'], self.origin[1] + axis_pos_0['ypos'], axis_pos_0['depth'],
-                self.origin[0] + axis_pos_1['xpos'], self.origin[1] + axis_pos_1['ypos'], axis_pos_1['depth'],
+                axis_pos_0['xpos'], axis_pos_0['ypos'], axis_pos_0['depth'],
+                axis_pos_1['xpos'], axis_pos_1['ypos'], axis_pos_1['depth'],
                 theta_ticks, label && (index_side === 0));
 
         });
@@ -810,9 +834,9 @@ JSPlot_Graph.prototype.grid_lines_paint = function () {
         // Render major ticks and then minor ticks
         $.each(['major', 'minor'], function (index, tick_level) {
             if (tick_level === 'major') {
-                self.page.canvas._strokeStyle(self.gridMajorColor.toHTML(), self.page.settings.EPS_GRID_MAJLINEWIDTH);
+                self.page.canvas._strokeStyle(self.gridMajorColor.toHTML(), self.page.constants.GRID_MAJLINEWIDTH);
             } else {
-                self.page.canvas._strokeStyle(self.gridMinorColor.toHTML(), self.page.settings.EPS_GRID_MINLINEWIDTH);
+                self.page.canvas._strokeStyle(self.gridMinorColor.toHTML(), self.page.constants.GRID_MINLINEWIDTH);
             }
             var tick_list = axis.workspace.tickListFinal[tick_level];
 

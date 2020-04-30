@@ -1,5 +1,24 @@
 // jsplot_canvas.js
 
+// -------------------------------------------------
+// Copyright 2020 Dominic Ford.
+
+// This file is part of JSPlot.
+
+// JSPlot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// JSPlot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with JSPlot.  If not, see <http://www.gnu.org/licenses/>.
+// -------------------------------------------------
+
 /**
  * JSPlot_Canvas - a page onto which we can draw graphs, represented by JSPlot_Graph objects.
  * @param initialItemList {Object.<string, JSPlot_Graph>} - Initial list of items to render onto this canvas
@@ -18,21 +37,24 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings = {};
     this.settings.allow_export_png = true;
     this.settings.allow_export_svg = true;
-    this.settings.EPS_DEFAULT_LINEWIDTH = 0.566929;  // 0.2mm in TeX points
-    this.settings.EPS_DEFAULT_PS = 3.0;
-    this.settings.EPS_ARROW_ANGLE = 45.0 * Math.PI / 180;
-    this.settings.EPS_ARROW_CONSTRICT = 0.2;
-    this.settings.EPS_ARROW_HEADSIZE = 6.0;
-    this.settings.EPS_AXES_LINEWIDTH = 2.5;
-    this.settings.EPS_AXES_MAJTICKLEN = 8;
-    this.settings.EPS_AXES_MINTICKLEN = 4;
-    this.settings.EPS_AXES_SEPARATION = 0.008;
-    this.settings.EPS_AXES_TEXTGAP = 6;
-    this.settings.EPS_AXES_LABELGAP = 24;
-    this.settings.EPS_COLORSCALE_MARG = 3e-3;
-    this.settings.EPS_COLORSCALE_WIDTH = 4e-3;
-    this.settings.EPS_GRID_MAJLINEWIDTH = 0.8;
-    this.settings.EPS_GRID_MINLINEWIDTH = 0.5;
+
+    // Constants which affect rendering
+    this.constants = {};
+    this.constants.DEFAULT_LINEWIDTH = 0.566929;  // 0.2mm in TeX points
+    this.constants.DEFAULT_PS = 3.0;
+    this.constants.ARROW_ANGLE = 45.0 * Math.PI / 180;
+    this.constants.ARROW_CONSTRICT = 0.2;
+    this.constants.ARROW_HEADSIZE = 6.0;
+    this.constants.AXES_LINEWIDTH = 2.5;
+    this.constants.AXES_MAJTICKLEN = 8;
+    this.constants.AXES_MINTICKLEN = 4;
+    this.constants.AXES_SEPARATION = 0.008;
+    this.constants.AXES_TEXTGAP = 6;
+    this.constants.AXES_LABELGAP = 24;
+    this.constants.COLORSCALE_MARG = 3e-3;
+    this.constants.COLORSCALE_WIDTH = 4e-3;
+    this.constants.GRID_MAJLINEWIDTH = 0.8;
+    this.constants.GRID_MINLINEWIDTH = 0.5;
 
     // Read user supplied settings
     this.configure(settings);
@@ -102,13 +124,22 @@ JSPlot_Canvas.prototype._render = function (renderer) {
     /** @type {JSPlot_BoundingBox} */
     var boundingBox = new JSPlot_BoundingBox();
 
-    // Work out bounding box of all elements
+    // Make a list of all items, sorted by z_index
+    var sorted_item_list = [];
     $.each(this.itemList, function (index, item) {
+        sorted_item_list.push(item);
+    });
+    sorted_item_list.sort(function (a, b) {
+        return (a.z_index > b.z_index) ? 1 : -1;
+    });
+
+    // Work out bounding box of all elements
+    $.each(sorted_item_list, function (index, item) {
         boundingBox.includeBox(item.calculateBoundingBox(self));
     });
 
     // Work out axis ranges of all graphs
-    $.each(this.itemList, function (index, item) {
+    $.each(sorted_item_list, function (index, item) {
         item.calculateDataRanges();
     });
 
@@ -121,7 +152,7 @@ JSPlot_Canvas.prototype._render = function (renderer) {
     this.threeDimensionalBuffer = new JSPlot_ThreeDimBuffer();
 
     // Render each item
-    $.each(this.itemList, function (index, item) {
+    $.each(sorted_item_list, function (index, item) {
         item.render();
     });
 
