@@ -120,7 +120,7 @@ JSPlot_TickingNumericLinear.prototype.process = function () {
             // If a tick scheme has been specified via min, max and step, use that scheme
             if (tick_list.tickStep !== null) {
                 var axis_min = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
-                var axis_max = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
+                var axis_max = Math.max(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
 
                 var ticks_min = tick_list.tickMin;
                 if (ticks_min < axis_min) {

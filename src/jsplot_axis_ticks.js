@@ -43,22 +43,25 @@ function JSPlot_AxisTics(settings) {
  * @param settings {Object} - An object containing settings
  */
 JSPlot_AxisTics.prototype.configure = function (settings) {
+    /** @type {JSPlot_AxisTics} */
+    var self = this;
+
     $.each(settings, function (key, value) {
         switch (key) {
             case "ticDir":
-                this.ticDir = value;
+                self.ticDir = value;
                 break;
             case "tickList":
-                this.tickList = value;
+                self.tickList = value;
                 break;
             case "tickMin":
-                this.tickMin = value;
+                self.tickMin = value;
                 break;
             case "tickMax":
-                this.tickMax = value;
+                self.tickMax = value;
                 break;
             case "tickStep":
-                this.tickStep = value;
+                self.tickStep = value;
                 break;
             default:
                 throw "Unrecognised axis tick setting " + key;

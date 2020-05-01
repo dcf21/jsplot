@@ -134,7 +134,7 @@ JSPlot_TickingNumericLogarithmic.prototype.process = function () {
             if (tick_list.tickStep !== null) {
                 var linear_ticker = new JSPlot_TickingNumericLinear(self.axis);
                 var axis_min = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
-                var axis_max = Math.min(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
+                var axis_max = Math.max(self.axis.workspace.minFinal, self.axis.workspace.maxFinal);
 
                 var ticks_min = tick_list.tickMin;
                 if (ticks_min < axis_min) {

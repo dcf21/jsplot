@@ -563,6 +563,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
 
                     page.canvas._translate(xlab, ylab, self.tickLabelRotation);
                     page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
+                    page.canvas._fillStyle(graph.axesColor.toHTML());
                     page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true, tick_item[1], false, true);
                     page.canvas._unsetTranslate();
                 }
@@ -588,6 +589,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
 
         page.canvas._translate(xlab, ylab, theta_text);
         page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
+        page.canvas._fillStyle(graph.axesColor.toHTML());
         page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true,
             self.workspace.labelFinal, false, true);
         page.canvas._unsetTranslate();
