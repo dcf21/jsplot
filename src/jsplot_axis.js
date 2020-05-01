@@ -72,9 +72,9 @@ function JSPlot_Axis(graph, enabled, settings) {
     /** @type {boolean} */
     this.showLabels = true;
     /** @type {JSPlot_AxisTics} */
-    this.ticsM = new JSPlot_AxisTics({});
+    this.ticksMinor = new JSPlot_AxisTics({});
     /** @type {JSPlot_AxisTics} */
-    this.tics = new JSPlot_AxisTics({});
+    this.ticks = new JSPlot_AxisTics({});
     this.configure(settings);
 
     this.cleanWorkspace();
@@ -144,11 +144,11 @@ JSPlot_Axis.prototype.configure = function (settings) {
             case "tickLabelRotation":
                 self.tickLabelRotation = value;
                 break;
-            case "ticsM":
-                self.ticsM.configure(value);
+            case "ticksMinor":
+                self.ticksMinor.configure(value);
                 break;
-            case "tics":
-                self.tics.configure(value);
+            case "ticks":
+                self.ticks.configure(value);
                 break;
             case "visible":
                 self.visible = value;

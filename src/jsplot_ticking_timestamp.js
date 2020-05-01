@@ -142,7 +142,7 @@ JSPlot_TickingTimestamp.prototype.process = function () {
         // Allocate major ticks first, and then minor ticks
         $.each(['major', 'minor'], function (index, tick_level) {
             /** @type {JSPlot_AxisTics} */
-            var tick_list = index ? self.axis.ticsM : self.axis.tics;
+            var tick_list = index ? self.axis.ticksMinor : self.axis.ticks;
 
             // If a list of ticks has been explicitly supplied, use that
             if (tick_list.tickList !== null) {
