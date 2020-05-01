@@ -482,7 +482,7 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
     // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
-        var target_number_major_ticks = this.workspace.axis_length[j] / (75 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
+        var target_number_major_ticks = this.workspace.axis_length[j] / (60 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
         var target_number_minor_ticks = this.workspace.axis_length[j] / 20;
 
         for (i = 0; i < 2; i++) {

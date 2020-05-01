@@ -276,8 +276,19 @@ JSPlot_TickingTimestamp.prototype.automatic_ticking = function (tick_level) {
                 if ((timestamp < axis_min) || (timestamp > axis_max)) continue;
                 candidate_ticking_scheme[0].push([
                     timestamp,
-                    self.date_display(timestamp, (month % 12) === 0, true, false, false, false)
+                    self.date_display(timestamp, (month % 12) === 0, true, true, false, false)
                 ]);
+            }
+
+            candidate_ticking_scheme[1] = function () {
+                var year_min = self.date_display(axis_min, true, false, false, false, false);
+                var year_max = self.date_display(axis_max, true, false, false, false, false);
+
+                if (year_max !== year_min) {
+                    return year_min + " – " + year_max;
+                } else {
+                    return year_min;
+                }
             }
         } else {
             var interval = tick_scheme['tick_interval'];

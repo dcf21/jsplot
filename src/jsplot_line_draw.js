@@ -106,41 +106,45 @@ JSPlot_LineDraw.prototype.findCrossingPoints = function (x1, y1, z1, xap1, yap1,
     /**
      * do_clip - Perform clipping along the x axis only. Call repeatedly with different permutations of x, y, z to
      * clip along all three axes.
-     * @param xap1 {number} - The fractional position along the x axis of the start point (in range 0 to 1)
-     * @param xap2 {number} - The fractional position along the x axis of the end point (in range 0 to 1)
-     * @param yap1 {number} - The fractional position along the y axis of the start point (in range 0 to 1)
-     * @param yap2 {number} - The fractional position along the y axis of the end point (in range 0 to 1)
-     * @param zap1 {number} - The fractional position along the z axis of the start point (in range 0 to 1)
-     * @param zap2 {number} - The fractional position along the z axis of the end point (in range 0 to 1)
-     * @param pos {number} - The position along the x axis to perform clipping. Either 0 or 1.
-     * @param sign {number} - Is this a minimum value of x (1), or a maximum value of x (-1)?
+     * @param ap1 {Array<number>} - The fractional position along each axis of the start point (in range 0 to 1)
+     * @param ap2 {Array<number>} - The fractional position along each axis of the end point (in range 0 to 1)
+     * @param xyz_index {number} - The axis we are clipping along (x=0, y=1, z=2)
+     * @param pos {number} - The position along the axis to perform clipping. Either 0 or 1.
      */
-    var do_clip = function (xap1, xap2, yap1, yap2, zap1, zap2, pos, sign) {
+    var do_clip = function (ap1, ap2, xyz_index, pos) {
         // Don't attempt clipping if no movement along x axis, to avoid numerical fail
-        if (xap2 !== xap1) {
+        if (ap2[xyz_index] !== ap1[xyz_index]) {
             // Fractional position in range 0 (start), 1 (end) where this line segment crosses clipping limit
-            var fraction = (pos - xap1) / (xap2 - xap1);
+            var fraction = (pos - ap1[xyz_index]) / (ap2[xyz_index] - ap1[xyz_index]);
 
             // Proceed if clipping limit is within the line segment
             if ((fraction >= 0) && (fraction <= 1)) {
-                // Work out the fractional positions along the y and z axes where axis crossing occurs
-                var y_left = yap1 + (yap2 - yap1) * fraction;
-                var z_left = zap1 + (zap2 - zap1) * fraction;
+                // Work out the fractional positions along other axes where axis crossing occurs
+                var crossing_point = [0,0,0];
+                var crossing_point_on_screen = true;
+                for (var xyz_scan=0; xyz_scan<3; xyz_scan++) {
+                    var axis_position = ap1[xyz_scan] + (ap2[xyz_scan] - ap1[xyz_scan]) * fraction;
+                    var canvas_p1 = [x1, y1, z1][xyz_scan];
+                    var canvas_p2= [x2, y2, z2][xyz_scan];
+                    crossing_point[xyz_scan] = canvas_p1 + (canvas_p2 - canvas_p1) * fraction;
+                    if (xyz_scan === xyz_index) continue;
+                    if ((axis_position < 0) || (axis_position > 1)) crossing_point_on_screen = false;
+                }
+
                 // If axis crossing occurs within visible area, perform clipping
-                if ((y_left >= 0.0) && (y_left <= 1.0) && (z_left >= 0.0) && (z_left <= 1.0)) {
+                if (crossing_point_on_screen) {
                     // Work out canvas coordinates of point at the clipping limit
-                    var cx = x1 + (x2 - x1) * fraction;
-                    var cy = y1 + (y2 - y1) * fraction;
-                    var cz = z1 + (z2 - z1) * fraction;
-                    if ((xap1 * sign) < (xap2 * sign)) {
-                        output['cx1'] = cx;
-                        output['cy1'] = cy;
-                        output['cz1'] = cz;
+                    if (((pos < 0.5) && (ap1[xyz_index] < 0)) || ((pos > 0.5) && (ap1[xyz_index] > 1))) {
+                        output['cx1'] = crossing_point[0];
+                        output['cy1'] = crossing_point[1];
+                        output['cz1'] = crossing_point[2];
                         output['inside1_final'] = true;
-                    } else {
-                        output['cx2'] = cx;
-                        output['cy2'] = cy;
-                        output['cz2'] = cz;
+                    }
+
+                    if (((pos < 0.5) && (ap2[xyz_index] < 0)) || ((pos > 0.5) && (ap2[xyz_index] > 1))) {
+                        output['cx2'] = crossing_point[0];
+                        output['cy2'] = crossing_point[1];
+                        output['cz2'] = crossing_point[2];
                         output['inside2_final'] = true;
                     }
                 }
@@ -149,12 +153,10 @@ JSPlot_LineDraw.prototype.findCrossingPoints = function (x1, y1, z1, xap1, yap1,
     };
 
     // Clip at each end of each axis
-    do_clip(zap1, zap2, xap1, xap2, yap1, yap2, 0.0, 1.0); // front
-    do_clip(zap1, zap2, xap1, xap2, yap1, yap2, 1.0, -1.0); // back
-    do_clip(xap1, xap2, yap1, yap2, zap1, zap2, 0.0, 1.0); // left
-    do_clip(xap1, xap2, yap1, yap2, zap1, zap2, 1.0, -1.0); // right
-    do_clip(yap1, yap2, xap1, xap2, zap1, zap2, 0.0, 1.0); // bottom
-    do_clip(yap1, yap2, xap1, xap2, zap1, zap2, 1.0, -1.0); // top
+    for (var xyz_index=0; xyz_index<3; xyz_index++) {
+        do_clip([xap1, yap1, zap1], [xap2, yap2, zap2], xyz_index, 0);
+        do_clip([xap1, yap1, zap1], [xap2, yap2, zap2], xyz_index, 1);
+    }
 
     return output;
 };
@@ -176,7 +178,7 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
                                             x_perp_offset, y_perp_offset, z_perp_offset) {
     var self = this;
 
-    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, false);
+    var position = this.graph.projectPoint(x, y, z, this.axis_x, this.axis_y, this.axis_z, true);
 
     if ((!isFinite(position['xpos'])) || (!isFinite(position['ypos'])) || (!isFinite(position['depth']))) {
         this.penUp();
@@ -202,16 +204,16 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
 
     // Add point to list of points along line
     var add_point = function (pt, cx_clipped, cy_clipped, cz_clipped) {
-        var cx = cx_clipped +
-            (pt.x_offset * Math.cos(position['theta_x']) +
+        var cx = cx_clipped + (
+                pt.x_offset * Math.cos(position['theta_x']) +
                 pt.y_offset * Math.cos(position['theta_y']) +
                 pt.z_offset * Math.cos(position['theta_z']) +
                 pt.x_perp_offset * Math.cos(position['theta_x'] + Math.PI / 2) +
                 pt.y_perp_offset * Math.cos(position['theta_y'] + Math.PI / 2) +
                 pt.z_perp_offset * Math.cos(position['theta_z'] + Math.PI / 2)
             );
-        var cy = cy_clipped +
-            (pt.x_offset * Math.sin(position['theta_x']) +
+        var cy = cy_clipped + (
+                pt.x_offset * Math.sin(position['theta_x']) +
                 pt.y_offset * Math.sin(position['theta_y']) +
                 pt.z_offset * Math.sin(position['theta_z']) +
                 pt.x_perp_offset * Math.sin(position['theta_x'] + Math.PI / 2) +
@@ -222,11 +224,13 @@ JSPlot_LineDraw.prototype.point = function (x, y, z,
         self.point_list_in_progress.push([cx, cy, cz_clipped])
     };
 
-    if (this.point_list_in_progress.length === 0) {
-        add_point(this.pt_old, clipped_line_segment.cx1, clipped_line_segment.cy1, clipped_line_segment.cz1);
-    }
+    if (clipped_line_segment.inside1_final && clipped_line_segment.inside2_final) {
+        if (this.point_list_in_progress.length === 0) {
+            add_point(this.pt_old, clipped_line_segment.cx1, clipped_line_segment.cy1, clipped_line_segment.cz1);
+        }
 
-    add_point(pt_this, clipped_line_segment.cx2, clipped_line_segment.cy2, clipped_line_segment.cz2);
+        add_point(pt_this, clipped_line_segment.cx2, clipped_line_segment.cy2, clipped_line_segment.cz2);
+    }
 
     this.pt_old = pt_this;
 };

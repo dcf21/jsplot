@@ -60,6 +60,14 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
+                <a href="demo_linespoints.php">Lines-points plot style demo</a>
+            </td>
+            <td>
+                A chart with the linespoints plot style
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_linked_axes.php">Linked axes demo</a>
             </td>
             <td>

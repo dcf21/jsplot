@@ -436,6 +436,8 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
  * @param a3_name {string} - The name of the axis we are going to use as an z axis
  */
 JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, a2_name, a3_name) {
+    /** @type {JSPlot_Plotter} */
+    var self = this;
     /** @type {JSPlot_Axis} */
     var a1 = graph.axes[a1_name];
     /** @type {JSPlot_Axis} */
@@ -457,6 +459,24 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
         // Finish up
         line_draw.penUp();
         line_draw.renderLine();
+    }
+
+    if ((style === "points") || (style === "linespoints")) {
+        var point_type = (data.workspace.styleFinal.pointType % this.page.styling.pointTypes.length);
+        var point_render = self.page.styling.pointTypes[point_type];
+
+        // Cycle through data table, plotting each point in turn
+        $.each(data.data, function (index, dataPoint) {
+            var position = graph.projectPoint(dataPoint[0], dataPoint[1], graph.threeDimensional ? dataPoint[2] : 0,
+                a1, a2, a3, false);
+            if ((!isNaN(position['xpos'])) && (!isNaN(position['ypos']))) {
+                point_render(
+                    position['xpos'], position['ypos'],
+                    data.workspace.styleFinal.pointSize, data.workspace.styleFinal.pointLineWidth,
+                    data.workspace.styleFinal.color.toHTML());
+            }
+        });
+
     }
 
 };
