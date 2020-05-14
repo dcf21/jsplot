@@ -39,6 +39,8 @@ class HTMLtemplate
             array_unshift($items, ["documentation.php", "Documentation"]);
         } else if ($area == "about") {
             array_unshift($items, ["about.php", "About"]);
+        } else if ($area == "download") {
+            array_unshift($items, ["download.php", "Download"]);
         }
         array_unshift($items, ["", "Home"]);
         ?>
@@ -193,6 +195,11 @@ __HTML__;
                         <li class="nav-item <?php if ($pageInfo["activeTab"] == "documentation") echo "active "; ?>">
                             <a class="nav-link" href="<?php echo $server; ?>documentation.php">
                                 Documentation
+                            </a>
+                        </li>
+                        <li class="nav-item <?php if ($pageInfo["activeTab"] == "download") echo "active "; ?>">
+                            <a class="nav-link" href="<?php echo $server; ?>download.php">
+                                Download
                             </a>
                         </li>
                         <li class="nav-item <?php if ($pageInfo["activeTab"] == "about") echo "active "; ?>">
