@@ -133,14 +133,14 @@ JSPlot_Canvas.prototype._render = function (renderer) {
         return (a.z_index > b.z_index) ? 1 : -1;
     });
 
-    // Work out bounding box of all elements
-    $.each(sorted_item_list, function (index, item) {
-        boundingBox.includeBox(item.calculateBoundingBox(self));
-    });
-
     // Work out axis ranges of all graphs
     $.each(sorted_item_list, function (index, item) {
-        item.calculateDataRanges();
+        item.calculateDataRanges(self);
+    });
+
+    // Work out bounding box of all elements
+    $.each(sorted_item_list, function (index, item) {
+        boundingBox.includeBox(item.calculateBoundingBox());
     });
 
     // Instantiate plotting canvas

@@ -91,15 +91,20 @@ JSPlot_Circle.prototype.cleanWorkspace = function () {
 };
 
 /**
- * calculateBoundingBox - Step 1 of rendering process: return the bounding box of this circle
+ * calculateDataRanges - Step 1 of the rendering process
  * @param page {JSPlot_Canvas} - The canvas that this circle will be rendered onto
- * @returns {JSPlot_BoundingBox}
  */
-JSPlot_Circle.prototype.calculateBoundingBox = function (page) {
+JSPlot_Circle.prototype.calculateDataRanges = function (page) {
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
+};
 
+/**
+ * calculateBoundingBox - Step 2 of rendering process: return the bounding box of this circle
+ * @returns {JSPlot_BoundingBox}
+ */
+JSPlot_Circle.prototype.calculateBoundingBox = function () {
     // Start constructing a bounding box
     var bounding_box = new JSPlot_BoundingBox();
 
@@ -111,12 +116,6 @@ JSPlot_Circle.prototype.calculateBoundingBox = function (page) {
 
     // Return bounding box
     return bounding_box;
-};
-
-/**
- * calculateDataRanges - Step 2 of the rendering process
- */
-JSPlot_Circle.prototype.calculateDataRanges = function () {
 };
 
 /**

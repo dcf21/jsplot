@@ -401,20 +401,18 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin,
 };
 
 /**
- * calculateBoundingBox - Step 1 of rendering process: return the bounding box of this graph
+ * calculateDataRanges - Step 1 of the rendering process: calculate the range of the data plotted against each axis.
+ * Then finalise the ranges of all the axes and decide on their ticking schemes.
  * @param page {JSPlot_Canvas} - The canvas that this graph will be rendered onto
- * @returns {JSPlot_BoundingBox}
  */
-JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
-    var i, j, axis_name;
+JSPlot_Graph.prototype.calculateDataRanges = function (page) {
+    var self = this;
+    var i, j, axisName;
 
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
     this.workspace.plotter = new JSPlot_Plotter(page, this);
-
-    // Start constructing a bounding box
-    var bounding_box = new JSPlot_BoundingBox();
 
     // Work out projected lengths and directions of (x,y,z) axes on screen
     this.workspace.axis_length = [
@@ -433,77 +431,24 @@ JSPlot_Graph.prototype.calculateBoundingBox = function (page) {
             var ptB = this.project3d((j === 0) ? 1 : 0.5, (j === 1) ? 1 : 0.5, (j === 2) ? 1 : 0.5);
             this.workspace.axis_length [j] = Math.hypot(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
             this.workspace.axis_bearing[j] = Math.atan2(ptB['xpos'] - ptA['xpos'], ptB['ypos'] - ptA['ypos']);
-            if (!isFinite(this.workspace.axis_length   [j])) this.workspace.axis_length   [j] = 0.0;
+            if (!isFinite(this.workspace.axis_length [j])) this.workspace.axis_length [j] = 0.0;
             if (!isFinite(this.workspace.axis_bearing[j])) this.workspace.axis_bearing[j] = 0.0;
         }
     }
 
-    // Populate the bounding box of the plot
-    var margin = [90, 48];
-    var pt = null;
-
-    for (var xap = 0; xap <= 1; xap += 1)
-        for (var yap = 0; yap <= 1; yap += 1)
-            for (var zap = 0; zap <= 1; zap += 1) {
-                if (!this.threeDimensional) {
-                    pt = {
-                        'xpos': this.origin[0] + xap * this.workspace.width_pixels,
-                        'ypos': this.origin[1] + yap * this.workspace.width_pixels * this.workspace.aspect
-                    };
-                } else {
-                    pt = this.project3d(xap, yap, zap);
-                }
-                bounding_box.includePoint(
-                    pt['xpos'] - margin[0],
-                    pt['ypos'] - margin[1]);
-                bounding_box.includePoint(
-                    pt['xpos'] + margin[0],
-                    pt['ypos'] + margin[1]);
-            }
-
-    // For 3D interactive plots, we increase the bounding box to cover the whole area the plot might cover when rotated
-    if (this.threeDimensional && (this.interactiveMode === 'rotate')) {
-        // Interior diagonal of a cube has length sqrt(3)
-        var maximum_half_size = Math.max(
-            this.workspace.width_pixels,
-            Math.abs(this.workspace.width_pixels * this.workspace.aspect),
-            Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
-        ) * Math.sqrt(3) / 2;
-
-        bounding_box.includePoint(
-            this.origin[0] - maximum_half_size - margin[0],
-            this.origin[1] - maximum_half_size - margin[1]);
-        bounding_box.includePoint(
-            this.origin[0] + maximum_half_size + margin[0],
-            this.origin[1] + maximum_half_size + margin[1]);
-    }
-
     // Clear all range information from all axes.
-    // Also, transfer range information from [Min,Max] to [HardMin,HardMax].
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
         var target_number_major_ticks = this.workspace.axis_length[j] / (60 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
         var target_number_minor_ticks = this.workspace.axis_length[j] / 20;
 
         for (i = 0; i < 2; i++) {
-            axis_name = ['x', 'y', 'z'][j] + (i + 1);
+            var axis_name = ['x', 'y', 'z'][j] + (i + 1);
             this.axes[axis_name].cleanWorkspace();
             this.axes[axis_name].workspace.target_number_major_ticks = target_number_major_ticks;
             this.axes[axis_name].workspace.target_number_minor_ticks = target_number_minor_ticks;
         }
     }
-
-    // Return bounding box
-    return bounding_box;
-};
-
-/**
- * calculateDataRanges - Step 2 of the rendering process: calculate the range of the data plotted against each axis.
- * Then finalise the ranges of all the axes and decide on their ticking schemes.
- */
-JSPlot_Graph.prototype.calculateDataRanges = function () {
-    var self = this;
-    var i, j, axisName;
 
     // Propagate range information to linked axes
     for (j = 0; j < 3; j++) {
@@ -548,6 +493,58 @@ JSPlot_Graph.prototype.calculateDataRanges = function () {
         }
 
     });
+};
+
+/**
+ * calculateBoundingBox - Step 2 of rendering process: return the bounding box of this graph
+ * @returns {JSPlot_BoundingBox}
+ */
+JSPlot_Graph.prototype.calculateBoundingBox = function () {
+    // Start constructing a bounding box
+    var bounding_box = new JSPlot_BoundingBox();
+
+    // Populate the bounding box of the plot
+    var margin = [90, 48];
+    var pt = null;
+
+    for (var xap = 0; xap <= 1; xap += 1)
+        for (var yap = 0; yap <= 1; yap += 1)
+            for (var zap = 0; zap <= 1; zap += 1) {
+                if (!this.threeDimensional) {
+                    pt = {
+                        'xpos': this.origin[0] + xap * this.workspace.width_pixels,
+                        'ypos': this.origin[1] + yap * this.workspace.width_pixels * this.workspace.aspect
+                    };
+                } else {
+                    pt = this.project3d(xap, yap, zap);
+                }
+                bounding_box.includePoint(
+                    pt['xpos'] - margin[0],
+                    pt['ypos'] - margin[1]);
+                bounding_box.includePoint(
+                    pt['xpos'] + margin[0],
+                    pt['ypos'] + margin[1]);
+            }
+
+    // For 3D interactive plots, we increase the bounding box to cover the whole area the plot might cover when rotated
+    if (this.threeDimensional && (this.interactiveMode === 'rotate')) {
+        // Interior diagonal of a cube has length sqrt(3)
+        var maximum_half_size = Math.max(
+            this.workspace.width_pixels,
+            Math.abs(this.workspace.width_pixels * this.workspace.aspect),
+            Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
+        ) * Math.sqrt(3) / 2;
+
+        bounding_box.includePoint(
+            this.origin[0] - maximum_half_size - margin[0],
+            this.origin[1] - maximum_half_size - margin[1]);
+        bounding_box.includePoint(
+            this.origin[0] + maximum_half_size + margin[0],
+            this.origin[1] + maximum_half_size + margin[1]);
+    }
+
+    // Return bounding box
+    return bounding_box;
 };
 
 /**
