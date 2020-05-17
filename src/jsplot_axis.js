@@ -22,13 +22,16 @@
 /**
  * JSPlot_Axis - A class representing a graph axis
  * @param graph {JSPlot_Graph} - The graph this axis belongs to
+ * @param axis_name {string} - The name of this axis, e.g. 'x1'
  * @param enabled {boolean} - If false, then this axis is not rendered
  * @param settings {Object} - Settings for this axis
  * @constructor
  */
-function JSPlot_Axis(graph, enabled, settings) {
+function JSPlot_Axis(graph, axis_name, enabled, settings) {
     /** @type {JSPlot_Graph} */
     this.graph = graph;
+    /** @type {string} */
+    this.axis_name = axis_name;
     /** @type {boolean} */
     this.atZero = false;
     /** @type {boolean} */
@@ -199,6 +202,7 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     /** @type {?boolean} */
     this.workspace.mode0BackPropagated = false;
     this.workspace.tickListFinal = null;
+    this.workspace.max_tick_label_width = 0;
 
     this.ticking_allocator = null;
 }
@@ -207,6 +211,9 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
  * allocate_axis_ticks - Place ticks along this axis
  */
 JSPlot_Axis.prototype.allocate_axis_ticks = function () {
+    /** @type {JSPlot_Axis} */
+    var self = this;
+
     // Class used for deciding ticking logic along this axis
     if (this.data_type === 'timestamp') {
         this.ticking_allocator = new JSPlot_TickingTimestamp(this);
@@ -221,6 +228,35 @@ JSPlot_Axis.prototype.allocate_axis_ticks = function () {
 
     // Assign axis ticks
     this.ticking_allocator.process();
+
+    // Measure the physical size of each axis tick label to work out how much space is needed
+    var measuring_canvas = document.createElement('canvas');
+    var measuring_context = measuring_canvas.getContext("2d");
+    measuring_context.font = "15px Arial,Helvetica,sans-serif";
+    this.workspace.max_tick_label_width = 0;
+
+    // Work out xyz index
+    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[this.axis_name.substr(0, 1)];
+
+    // Work out rotation angle of tick labels
+    var theta = -this.tickLabelRotation * Math.PI / 180;
+    var theta_axis = this.graph.workspace.axis_bearing[xyz_index];
+    var theta_pinpoint = theta + Math.PI / 2 + theta_axis;
+
+    // Only major ticks have labels
+    var tick_list = this.workspace.tickListFinal['major'];
+
+    // Render each tick in turn
+    $.each(tick_list, function (index2, tick_item) {
+        if (tick_item[1] !== '') {
+            var dimensions = measuring_context.measureText(tick_item[1]);
+            var text_width = dimensions.width;
+            var text_height = 15;
+            var width = Math.abs(text_width * Math.sin(theta_pinpoint)) +
+                Math.abs(text_height * Math.cos(theta_pinpoint));
+            self.workspace.max_tick_label_width = Math.max(self.workspace.max_tick_label_width, width);
+        }
+    });
 };
 
 /**
@@ -475,8 +511,6 @@ JSPlot_Axis.prototype.axis_tick_text_alignment = function (theta) {
 /**
  * render - Draw an axis onto the canvas
  * @param page {JSPlot_Canvas} - The canvas page we are drawing this graph onto
- * @param graph {JSPlot_Graph} - The graph this axis belongs to
- * @param axis_name {string} - The name of this axis, e.g. 'x1'
  * @param right_side {boolean} - Should this axis be labelled on left side or right side
  * @param x0 {number} - The coordinates of the start point of the axis, in canvas pixels.
  * @param y0 {number} - The coordinates of the start point of the axis, in canvas pixels.
@@ -487,7 +521,7 @@ JSPlot_Axis.prototype.axis_tick_text_alignment = function (theta) {
  * @param tick_thetas {Array<number>} - The list of angles to the vertical at which we draw tick marks
  * @param label {boolean} - Should we label this axis?
  */
-JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0, y0, z0, x1, y1, z1, tick_thetas, label) {
+JSPlot_Axis.prototype.render = function (page, right_side, x0, y0, z0, x1, y1, z1, tick_thetas, label) {
     /** @type {JSPlot_Axis} */
     var self = this;
     var left_side = !right_side;
@@ -502,14 +536,14 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
     var arrow_renderer = new JSPlot_DrawArrow();
     arrow_renderer.primitive_arrow(page, this.arrowType,
         x0, y0, z0, x1, y1, z1,
-        graph.axesColor, page.constants.AXES_LINEWIDTH, 0);
+        this.graph.axesColor, page.constants.AXES_LINEWIDTH, 0);
 
     // Work out xyz index
-    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[axis_name.substr(0, 1)];
+    var xyz_index = {'x': 0, 'y': 1, 'z': 2}[this.axis_name.substr(0, 1)];
 
     // Work out rotation angle of tick labels
     var theta = -this.tickLabelRotation * Math.PI / 180;
-    var theta_axis = graph.workspace.axis_bearing[xyz_index];
+    var theta_axis = this.graph.workspace.axis_bearing[xyz_index];
     var theta_pinpoint = theta + Math.PI / 2 + theta_axis + Math.PI * left_side;
     var label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
 
@@ -549,7 +583,7 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
                 // Do not draw grid lines close to ends of axes
                 if ((axis_position > 0.001) && (axis_position < 0.999)) {
                     // Stroke tick mark
-                    page.canvas._strokeStyle(graph.axesColor.toHTML(), page.constants.AXES_LINEWIDTH);
+                    page.canvas._strokeStyle(self.graph.axesColor.toHTML(), page.constants.AXES_LINEWIDTH);
                     page.canvas._beginPath();
                     page.canvas._moveTo(tic_x1, tic_y1);
                     page.canvas._lineTo(tic_x2, tic_y2);
@@ -562,8 +596,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
                     var ylab = tic_y1 + (left_side ? -1.0 : 1.0) * Math.cos(theta_axis + Math.PI / 2) * page.constants.AXES_TEXTGAP;
 
                     page.canvas._translate(xlab, ylab, self.tickLabelRotation);
-                    page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
-                    page.canvas._fillStyle(graph.axesColor.toHTML());
+                    page.canvas._textStyle("Arial,Helvetica,sans-serif", 15, "", "");
+                    page.canvas._fillStyle(self.graph.axesColor.toHTML());
                     page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true, tick_item[1], false, true);
                     page.canvas._unsetTranslate();
                 }
@@ -577,8 +611,14 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
         theta_pinpoint = theta + Math.PI * left_side; // Angle around textbox where it is anchored
         label_alignment = this.axis_tick_text_alignment(theta_pinpoint);
 
-        var xlab = (x0 + x1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.constants.AXES_LABELGAP) * Math.sin(theta_axis + Math.PI / 2) * 1.75;
-        var ylab = (y0 + y1) / 2 + (left_side ? -1.0 : 1.0) * (2 * page.constants.AXES_LABELGAP) * Math.cos(theta_axis + Math.PI / 2);
+        var xlab = (x0 + x1) / 2 + ((left_side ? -1.0 : 1.0) *
+            (this.workspace.max_tick_label_width + page.constants.AXES_LABELGAP) *
+            Math.sin(theta_axis + Math.PI / 2)
+        );
+        var ylab = (y0 + y1) / 2 + ((left_side ? -1.0 : 1.0) *
+            (this.workspace.max_tick_label_width + page.constants.AXES_LABELGAP) *
+            Math.cos(theta_axis + Math.PI / 2)
+        );
 
         var theta_text = theta + Math.PI / 2 - theta_axis;
         theta_text = theta_text % (2 * Math.PI);
@@ -588,8 +628,8 @@ JSPlot_Axis.prototype.render = function (page, graph, axis_name, right_side, x0,
         if (theta_text < -Math.PI / 2) theta_text += Math.PI;
 
         page.canvas._translate(xlab, ylab, theta_text);
-        page.canvas._textStyle("Arial,Helvetica,sans-serif", 14, "", "");
-        page.canvas._fillStyle(graph.axesColor.toHTML());
+        page.canvas._textStyle("Arial,Helvetica,sans-serif", 15, "", "");
+        page.canvas._fillStyle(self.graph.axesColor.toHTML());
         page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true,
             self.workspace.labelFinal, false, true);
         page.canvas._unsetTranslate();

@@ -88,12 +88,12 @@ function JSPlot_Graph(dataSets, settings) {
     // Axes
     /** @type {Object.<string, JSPlot_Axis>} */
     this.axes = {
-        'x1': new JSPlot_Axis(this, true, {}),
-        'x2': new JSPlot_Axis(this, false, {}),
-        'y1': new JSPlot_Axis(this, true, {}),
-        'y2': new JSPlot_Axis(this, false, {}),
-        'z1': new JSPlot_Axis(this, true, {}),
-        'z2': new JSPlot_Axis(this, false, {}),
+        'x1': new JSPlot_Axis(this, 'x1', true, {}),
+        'x2': new JSPlot_Axis(this, 'x2', false, {}),
+        'y1': new JSPlot_Axis(this, 'y1', true, {}),
+        'y2': new JSPlot_Axis(this, 'y2', false, {}),
+        'z1': new JSPlot_Axis(this, 'z1', true, {}),
+        'z2': new JSPlot_Axis(this, 'z2', false, {})
     };
 
     // Data sets
@@ -244,11 +244,11 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
 
     if (this.page !== null) {
         if (this.width === null) {
-            // Case 1: width is null. We use a default, which is 90% for 2D graphs, and 60% for 3D graphs
+            // Case 1: width is null. We use a default, which is larger for 2D graphs than for 3D graphs
             if (!this.threeDimensional) {
-                this.workspace.width_pixels = 0.9 * this.page.page_width;
+                this.workspace.width_pixels = Math.min(0.85 * this.page.page_width, this.page.page_width - 120);
             } else {
-                this.workspace.width_pixels = 0.5 * this.page.page_width;
+                this.workspace.width_pixels = Math.min(0.5 * this.page.page_width, this.page.page_width - 160);
             }
         } else if (!isNaN(this.width)) {
             // Case 2: width is specified as a numerical number of pixels
@@ -504,7 +504,10 @@ JSPlot_Graph.prototype.calculateBoundingBox = function () {
     var bounding_box = new JSPlot_BoundingBox();
 
     // Populate the bounding box of the plot
-    var margin = [90, 48];
+    var margin_left = Math.max(60, this.axes['y1'].workspace.max_tick_label_width + 20 + ((this.axes['y1'].label !== null) ? 20 : 0));
+    var margin_right = Math.max(20, this.axes['y2'].workspace.max_tick_label_width + 20 + ((this.axes['y2'].label !== null) ? 20 : 0));
+    var margin_bottom = Math.max(60, this.axes['x1'].workspace.max_tick_label_width + 20 + ((this.axes['x1'].label !== null) ? 20 : 0));
+    var margin_top = Math.max(20, this.axes['x2'].workspace.max_tick_label_width + 20 + ((this.axes['x2'].label !== null) ? 20 : 0));
     var pt = null;
 
     for (var xap = 0; xap <= 1; xap += 1)
@@ -519,11 +522,11 @@ JSPlot_Graph.prototype.calculateBoundingBox = function () {
                     pt = this.project3d(xap, yap, zap);
                 }
                 bounding_box.includePoint(
-                    pt['xpos'] - margin[0],
-                    pt['ypos'] - margin[1]);
+                    pt['xpos'] - margin_left,
+                    pt['ypos'] - margin_top);
                 bounding_box.includePoint(
-                    pt['xpos'] + margin[0],
-                    pt['ypos'] + margin[1]);
+                    pt['xpos'] + margin_right,
+                    pt['ypos'] + margin_bottom);
             }
 
     // For 3D interactive plots, we increase the bounding box to cover the whole area the plot might cover when rotated
@@ -726,7 +729,7 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
             }
 
             // Render this axis
-            axis.render(self.page, self, axis_name, right_side,
+            axis.render(self.page, right_side,
                 axis_pos_0['xpos'], axis_pos_0['ypos'], axis_pos_0['depth'],
                 axis_pos_1['xpos'], axis_pos_1['ypos'], axis_pos_1['depth'],
                 theta_ticks, label && (index_side === 0));

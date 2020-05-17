@@ -50,7 +50,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.constants.AXES_MINTICKLEN = 4;
     this.constants.AXES_SEPARATION = 0.008;
     this.constants.AXES_TEXTGAP = 6;
-    this.constants.AXES_LABELGAP = 24;
+    this.constants.AXES_LABELGAP = 34;
     this.constants.COLORSCALE_MARG = 3e-3;
     this.constants.COLORSCALE_WIDTH = 4e-3;
     this.constants.GRID_MAJLINEWIDTH = 0.8;
