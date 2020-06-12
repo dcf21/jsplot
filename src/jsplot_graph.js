@@ -439,7 +439,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function (page) {
     // Clear all range information from all axes.
     for (j = 0; j < 3; j++) {
         // Estimate how many axis ticks we want to put along this axis
-        var target_number_major_ticks = this.workspace.axis_length[j] / (60 + 40 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
+        var target_number_major_ticks = this.workspace.axis_length[j] / (50 + 50 * Math.abs(Math.sin(this.workspace.axis_bearing[j])));
         var target_number_minor_ticks = this.workspace.axis_length[j] / 20;
 
         for (i = 0; i < 2; i++) {

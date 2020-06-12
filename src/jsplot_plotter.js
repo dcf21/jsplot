@@ -167,13 +167,13 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
 
                 // Factor this box into the ranges of each axis
                 if (!a1.logarithmic) {
-                    a1.includePoint(dataPoint[0] - margin_left);
-                    a1.includePoint(dataPoint[0] + margin_right);
+                    a1.includePoint(data.data[i][0] - margin_left);
+                    a1.includePoint(data.data[i][0] + margin_right);
                 } else {
-                    a1.includePoint(dataPoint[0] / margin_left);
-                    a1.includePoint(dataPoint[0] * margin_right);
+                    a1.includePoint(data.data[i][0] / margin_left);
+                    a1.includePoint(data.data[i][0] * margin_right);
                 }
-                a2.includePoint(dataPoint[1]);
+                a2.includePoint(data.data[i][1]);
             }
         }
     }
@@ -477,6 +477,118 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
             }
         });
 
+    }
+
+    // Bar charts
+    else if ((style === "boxes") || (style === "steps") || (style === "fsteps") || (style === "histeps")) {
+
+        if ((style === "boxes") && (this.graph.boxWidth !== null)) {
+            // We are rendering a series of boxes with a constant defined width
+            $.each(data.data, function (index, dataPoint) {
+                var x0, x1, p0, p1, p2, p3;
+                if (!a1.logarithmic) {
+                    x0 = dataPoint[0] - self.graph.boxWidth / 2;
+                    x1 = dataPoint[0] + self.graph.boxWidth / 2;
+                } else {
+                    x0 = dataPoint[0] / Math.sqrt(self.graph.boxWidth);
+                    x1 = dataPoint[0] * Math.sqrt(self.graph.boxWidth);
+                }
+                p0 = graph.projectPoint(x0, dataPoint[1], 0, a1, a2, a3, true);
+                p1 = graph.projectPoint(x1, dataPoint[1], 0, a1, a2, a3, true);
+                p2 = graph.projectPoint(x1, self.graph.boxFrom, 0, a1, a2, a3, true);
+                p3 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
+
+                self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
+                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML());
+                self.page.canvas._beginPath();
+                self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
+                self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+                self.page.canvas._lineTo(p2['xpos'], p2['ypos']);
+                self.page.canvas._lineTo(p3['xpos'], p3['ypos']);
+                self.page.canvas._fill();
+                self.page.canvas._stroke();
+            });
+        } else {
+            // We are rendering a series of boxes, with interfaces at the horizontal midpoints between boxes
+            for (var i = 0; i < data.data.length; i++) {
+                /** @type {?number} */
+                var margin_left = null, margin_right = null;
+
+                // Work out margin to leave on left side of box
+                if (i > 0) {
+                    if ((style === "boxes") || (style === "histeps")) {
+                        if (!a1.logarithmic) {
+                            margin_left = (data.data[i][0] - data.data[i - 1][0]) / 2;
+                        } else {
+                            margin_left = Math.sqrt(data.data[i][0] / data.data[i - 1][0]);
+                        }
+                    } else if (style === "steps") {
+                        if (!a1.logarithmic) {
+                            margin_left = data.data[i][0] - data.data[i - 1][0];
+                        } else {
+                            margin_left = data.data[i][0] / data.data[i - 1][0];
+                        }
+                    } else {
+                        margin_left = a1.logarithmic ? 1 : 0;
+                    }
+                }
+
+                // Work out margin to leave on right side of box
+                if (i < data.data.length - 1) {
+                    if ((style === "boxes") || (style === "histeps")) {
+                        if (!a1.logarithmic) {
+                            margin_right = (data.data[i + 1][0] - data.data[i][0]) / 2;
+                        } else {
+                            margin_right = Math.sqrt(data.data[i + 1][0] / data.data[i][0])
+                        }
+                    } else if (style === "steps") {
+                        margin_right = a1.logarithmic ? 1 : 0;
+                    } else {
+                        if (!a1.logarithmic) {
+                            margin_right = data.data[i + 1][0] - data.data[i][0];
+                        } else {
+                            margin_right = data.data[i + 1][0] / data.data[i][0];
+                        }
+                    }
+                }
+
+                // For the first and last boxes, we make width symmetrical on both sides
+                if ((margin_left === null) && (margin_right === null)) {
+                    // ... unless we only have one box, in which case we make up an arbitrary width
+                    margin_left = margin_right = 0.5;
+                } else if (margin_left === null) {
+                    margin_left = margin_right
+                } else if (margin_right === null) {
+                    margin_right = margin_left;
+                }
+
+                // Draw this box
+                var x0, x1, p0, p1, p2, p3;
+
+                if (!a1.logarithmic) {
+                    x0 = data.data[i][0] - margin_left;
+                    x1 = data.data[i][0] + margin_right;
+                } else {
+                    x0 = data.data[i][0] / margin_left;
+                    x1 = data.data[i][0] * margin_right;
+                }
+
+                p0 = graph.projectPoint(x0, data.data[i][1], 0, a1, a2, a3, true);
+                p1 = graph.projectPoint(x1, data.data[i][1], 0, a1, a2, a3, true);
+                p2 = graph.projectPoint(x1, self.graph.boxFrom, 0, a1, a2, a3, true);
+                p3 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
+
+                self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
+                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML());
+                self.page.canvas._beginPath();
+                self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
+                self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+                self.page.canvas._lineTo(p2['xpos'], p2['ypos']);
+                self.page.canvas._lineTo(p3['xpos'], p3['ypos']);
+                self.page.canvas._fill();
+                self.page.canvas._stroke();
+            }
+        }
     }
 
 };
