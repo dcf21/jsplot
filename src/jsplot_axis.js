@@ -708,6 +708,8 @@ JSPlot_Axis.prototype.interactive_scroll = function (page, offset, force) {
 JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
     /** @type {number} */
     var zoom_factor = 0.9;
+    /** @type {number} */
+    var scroll_span_old = this.scrollSpan;
 
     // Make sure scroll span is populated
     this.interactive_scroll(page, 0, this.zoomEnabled);
@@ -744,5 +746,5 @@ JSPlot_Axis.prototype.interactive_zoom = function (page, delta) {
         page.needs_refresh = true;
     }
 
-    return this.zoomEnabled;
+    return (this.zoomEnabled && (this.scrollSpan !== scroll_span_old));
 };

@@ -376,7 +376,7 @@ JSPlot_Canvas.prototype.displayWheel = function (evt, explicit_delta) {
 
     // Throttle events so that zooming isn't uncontrollably fast
     var time_now = Date.now();
-    if ((typeof this._lastZoomEventTime !== 'undefined') && (time_now < this._lastZoomEventTime + 100)) {
+    if ((typeof this._lastZoomEventTime !== 'undefined') && (time_now < this._lastZoomEventTime + 120)) {
         // Prevent default event handler
         if (evt.preventDefault) evt.preventDefault();
         evt.returnValue = false;
