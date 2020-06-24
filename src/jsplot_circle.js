@@ -124,7 +124,7 @@ JSPlot_Circle.prototype.calculateBoundingBox = function () {
 JSPlot_Circle.prototype.render = function () {
     // Fill path
     if (this.fillColor !== null) {
-        this.page.canvas._fillStyle(this.fillColor);
+        this.page.canvas._fillStyle(this.fillColor.toHTML());
         this.page.canvas._beginPath();
         this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 360, false);
         this.page.canvas._fill();
@@ -132,7 +132,7 @@ JSPlot_Circle.prototype.render = function () {
 
     // Stroke path
     if (this.strokeColor !== null) {
-        this.page.canvas._strokeStyle(this.strokeColor, this.strokeLineWidth);
+        this.page.canvas._strokeStyle(this.strokeColor.toHTML(), this.strokeLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 360, false);
         this.page.canvas._stroke();

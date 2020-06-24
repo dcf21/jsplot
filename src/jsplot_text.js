@@ -20,7 +20,7 @@
 // -------------------------------------------------
 
 /**
- * JSPlot_Text - A class representing a text, to be rendered onto a <JSPlot_Canvas>
+ * JSPlot_Text - A class representing a text item, to be rendered onto a <JSPlot_Canvas>
  * @param settings {Object} - An object containing settings
  * @constructor
  */
@@ -69,9 +69,6 @@ JSPlot_Text.prototype.configure = function (settings) {
             case "color":
                 self.color = value;
                 break;
-            case "text":
-                self.text = value;
-                break;
             case "fontSize":
                 self.fontSize = value;
                 break;
@@ -84,11 +81,14 @@ JSPlot_Text.prototype.configure = function (settings) {
             case "fontWeight":
                 self.fontWeight = value;
                 break;
+            case "h_align":
+                self.h_align = value;
+                break;
             case "origin":
                 self.origin = value;
                 break;
-            case "h_align":
-                self.h_align = value;
+            case "text":
+                self.text = value;
                 break;
             case "v_align":
                 self.v_align = value;
@@ -97,7 +97,7 @@ JSPlot_Text.prototype.configure = function (settings) {
                 self.z_index = value;
                 break;
             default:
-                throw "Unrecognised graph setting " + key;
+                throw "Unrecognised text item setting " + key;
         }
     });
 };
@@ -149,6 +149,7 @@ JSPlot_Text.prototype.render = function () {
         if (this.v_align === "bottom") v_align = -1;
 
         this.page.canvas._textStyle(this.fontFamily, this.fontSize, this.fontWeight, this.fontStyle);
+        this.page.canvas._fillStyle(this.color.toHTML());
         this.page.canvas._text(this.origin[0], this.origin[1], h_align, v_align,
             true, this.text, false, false);
     }

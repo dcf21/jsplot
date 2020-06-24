@@ -127,7 +127,7 @@ JSPlot_Rectangle.prototype.calculateBoundingBox = function (page) {
 JSPlot_Rectangle.prototype.render = function () {
     // Fill path
     if (this.fillColor !== null) {
-        this.page.canvas._fillStyle(this.fillColor);
+        this.page.canvas._fillStyle(this.fillColor.toHTML());
         this.page.canvas._beginPath();
         this.page.canvas._rect(this.origin[0], this.origin[1], this.width, this.height);
         this.page.canvas._fill();
@@ -135,7 +135,7 @@ JSPlot_Rectangle.prototype.render = function () {
 
     // Stroke path
     if (this.strokeColor !== null) {
-        this.page.canvas._strokeStyle(this.strokeColor, this.strokeLineWidth);
+        this.page.canvas._strokeStyle(this.strokeColor.toHTML(), this.strokeLineWidth);
         this.page.canvas._beginPath();
         this.page.canvas._rect(this.origin[0], this.origin[1], this.width, this.height);
         this.page.canvas._stroke();

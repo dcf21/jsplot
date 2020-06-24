@@ -101,8 +101,8 @@ function JSPlot_Graph(dataSets, settings) {
     this.dataSets = dataSets;  // This should be a list of JSPlot_DataSet instances
 
     // Annotations
-    this.arrows = [];
-    this.labels = [];
+    /** @type {Array<JSPlot_Label_Arrow|JSPlot_Label_Text>} */
+    this.annotations = [];
 
     // Read user supplied settings
     this.configure(settings);
@@ -119,6 +119,9 @@ JSPlot_Graph.prototype.configure = function (settings) {
 
     $.each(settings, function (key, value) {
         switch (key) {
+            case "annotations":
+                self.annotations = value;
+                break;
             case "aspect":
                 self.aspect = value;
                 break;
@@ -631,7 +634,7 @@ JSPlot_Graph.prototype.render = function () {
     });
 
     // Render text labels and arrows
-    // !!! TODO JSPlot_LabelsArrows(self);
+    self.render_annotations()
 
     // Deactivate three-dimensional buffer
     self.page.threeDimensionalBuffer.deactivate();
@@ -655,6 +658,30 @@ JSPlot_Graph.prototype.render = function () {
             self.origin[0] + size[0] / 2,
             axes_bounding_box.top, 0, 1, 1, self.title, 0, 0);
     }
+};
+
+/**
+ * render_annotations - Draw all the text labels and arrows which go on this graph
+ */
+JSPlot_Graph.prototype.render_annotations = function () {
+    /** @type JSPlot_Graph */
+    var self = this;
+
+    // Look up the z-index of each annotation
+    var sorted_item_list = [];
+    $.each(this.annotations, function (index, item) {
+        sorted_item_list.push([item.fetch_z_index(self), item]);
+    });
+
+    // Sort list of annotations into order of depth
+    sorted_item_list.sort(function (a, b) {
+        return (a[0] > b[0]) ? -1 : 1;
+    });
+
+    // Render each annotation in turn
+    $.each(sorted_item_list, function (index, item) {
+        item[1].render(self);
+    });
 };
 
 /**
