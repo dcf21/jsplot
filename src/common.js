@@ -31,11 +31,13 @@ function padStr(i) {
  * @param data - The blob of text to offer for download
  */
 function saveBlob(filename, data) {
-    var blob = new Blob([data], {type: 'image/svg+xml'});
+    var mime_type = "text/plain";
+    if (filename.endsWith(".svg")) mime_type = "image/svg+xml";
+    if (filename.endsWith(".csv")) mime_type = "text/csv";
+    var blob = new Blob([data], {type: mime_type});
     if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, filename);
-    }
-    else {
+    } else {
         var elem = window.document.createElement('a');
         elem.href = window.URL.createObjectURL(blob);
         elem.download = filename;

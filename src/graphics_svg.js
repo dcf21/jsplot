@@ -243,10 +243,10 @@ GraphicsSVG.prototype._arc = function (x, y, r, start, end, counterclockwise) {
                 y: centerY + (radius * Math.sin(angleInRadians))
             };
         };
-        start = start % (2*Math.PI);
-        end = end % (2*Math.PI);
+        start = start % (2 * Math.PI);
+        end = end % (2 * Math.PI);
         var diff = end - start;
-        if (diff < 0) diff += 2*Math.PI;
+        if (diff < 0) diff += 2 * Math.PI;
 
         var startPos = polarToCartesian(x, y, r, start);
         var endPos = polarToCartesian(x, y, r, end);
@@ -380,22 +380,19 @@ GraphicsSVG.prototype._unsetClip = function () {
  * @private
  */
 GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mustnt_collide, add_to_collision_map) {
+    var width = this._co.measureText(text).width;
+    var height = this._text_style[1];
 
     if (mustnt_collide || add_to_collision_map) {
-        var width = this._co.measureText(text).width;
-        var height = this._text_style[1];
-
         var x_min, x_max, y_min, y_max;
 
         if (h_align < 0) {
             x_min = x;
             x_max = x + width;
-        }
-        else if (h_align > 0) {
+        } else if (h_align > 0) {
             x_min = x - width;
             x_max = x;
-        }
-        else {
+        } else {
             x_min = x - width / 2;
             x_max = x + width / 2;
         }
@@ -403,12 +400,10 @@ GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mu
         if (v_align < 0) {
             y_min = y - height;
             y_max = y;
-        }
-        else if (v_align > 0) {
+        } else if (v_align > 0) {
             y_min = y;
             y_max = y + height;
-        }
-        else {
+        } else {
             y_min = y - height / 2;
             y_max = y + height / 2;
         }
@@ -418,11 +413,14 @@ GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mu
         if (collides) return 1; //failure
     }
 
-    // Convert vertical alignment into a value for the SVG dominant-baseline attribute
-    var v_align_text;
-    if (v_align < 0) v_align_text = null;
-    else if (v_align > 0) v_align_text = "hanging";
-    else v_align_text = "middle";
+    // Adjust position of label to account for vertical alignment
+    // The SVG dominant-baseline attribute is poorly supported, so tweak position of label instead
+    if (v_align < 0) {
+    } else if (v_align > 0) {
+        y += height
+    } else {
+        y += height / 2;
+    }
 
     // Convert horizontal alignment into a value for the SVG text-anchor attribute
     var h_align_text;
@@ -441,8 +439,6 @@ GraphicsSVG.prototype._text = function (x, y, h_align, v_align, filled, text, mu
     if (this._text_style[3])
         element += 'font-style="' + this._text_style[3] + '" ';
     element += 'text-anchor="' + h_align_text + '" ';
-    if (v_align_text)
-        element += 'alignment-baseline="' + v_align_text + '" ';
 
     if (filled) element += 'stroke="none" fill="' + this._fill_style + '" ';
     else element += 'fill="none" stroke="' + this._stroke_style + '" stroke-width="' + this._line_width + '" ';

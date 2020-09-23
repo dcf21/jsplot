@@ -37,6 +37,7 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.settings = {};
     this.settings.allow_export_png = true;
     this.settings.allow_export_svg = true;
+    this.settings.allow_export_csv = false;
 
     // Constants which affect rendering
     this.constants = {};
@@ -107,6 +108,9 @@ JSPlot_Canvas.prototype.configure = function (settings) {
             case "allow_export_svg":
                 self.settings.allow_export_svg = value;
                 break;
+            case "allow_export_csv":
+                self.settings.allow_export_csv = value;
+                break;
             default:
                 throw "Unrecognised canvas setting " + key;
         }
@@ -176,6 +180,36 @@ JSPlot_Canvas.prototype.renderToPNG = function (page_width) {
 };
 
 /**
+ * renderToCSV - Render this page to CSV data file, which is returned as a string
+ * @returns {void|string}
+ */
+JSPlot_Canvas.prototype.renderToCSV = function () {
+    var self = this;
+    var doc = "";
+
+    // Loop over elements on canvas
+    $.each(self.itemList, function (key, item) {
+        if (item.itemType === "graph") {
+            if (item.title) doc += item.title + "\n";
+            $.each(item.dataSets, function (key2, dataset) {
+                if (dataset.title) doc += dataset.title + "\n";
+                $.each(dataset.data, function (key3, row) {
+                    $.each(row, function (key4, col) {
+                        doc += col + ",";
+                    });
+                    doc += "\n";
+                });
+                doc += "\n";
+            });
+        }
+        doc += "\n";
+    });
+
+    // Return CSV data
+    return doc;
+};
+
+/**
  * renderToSVG - Render this page to SVG, which is returned as a string
  * @param page_width - The width of the canvas we should render onto (used for scaling elements with sizes as %)
  * @returns {void|string}
@@ -213,6 +247,10 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
                 html += "<input class='btn btn-sm btn-success jsplot_export_svg' type='button' value='Export SVG' />";
             }
 
+            if (self.settings.allow_export_csv) {
+                html += "<input class='btn btn-sm btn-success jsplot_export_csv' type='button' value='Export CSV' />";
+            }
+
             // Ensure that if the canvas over-fills the target, it doesn't break page
             target_element.css('overflow', 'hidden');
 
@@ -224,10 +262,14 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
                 self.renderToPNG();
             });
 
-
             $(".jsplot_export_svg").click(function () {
                 var doc = self.renderToSVG();
                 saveBlob("plot.svg", doc);
+            });
+
+            $(".jsplot_export_csv").click(function () {
+                var doc = self.renderToCSV();
+                saveBlob("plot_data.csv", doc);
             });
 
             // Bind mouse events
@@ -392,7 +434,7 @@ JSPlot_Canvas.prototype.displayWheel = function (evt, explicit_delta) {
     }
 
     // Pass scroll event to all graphs
-    var event_handled = false
+    var event_handled = false;
     $.each(this.itemList, function (index, item) {
         event_handled |= item.interactive_zoom(delta < 0);
     });

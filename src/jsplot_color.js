@@ -58,6 +58,10 @@ JSPlot_Color.prototype.toHTML = function () {
         return int_val;
     };
 
-    return "rgba(" + component(this.red) + "," + component(this.green) + "," + component(this.blue) + "," +
-        (component(this.alpha) / 255) + ")";
+    if (this.alpha < 0.999) {
+        return "rgba(" + component(this.red) + "," + component(this.green) + "," + component(this.blue) + "," +
+            (component(this.alpha) / 255) + ")";
+    } else {
+        return "rgb(" + component(this.red) + "," + component(this.green) + "," + component(this.blue) + ")";
+    }
 };

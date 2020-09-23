@@ -112,7 +112,7 @@ JSPlot_Styling.prototype.getPointTypes = function () {
             var size = pointSize * self.page.constants.DEFAULT_PS;
             self.page.canvas._fillStyle(color);
             self.page.canvas._beginPath();
-            self.page.canvas._arc(x, y, size, 0, 360, 0);
+            self.page.canvas._arc(x, y, size, 0, 2 * Math.PI, 0);
             self.page.canvas._fill();
         },
         function (x, y, pointSize, pointLineWidth, color) {
@@ -216,7 +216,7 @@ JSPlot_Styling.prototype.getPointTypes = function () {
             var size = pointSize * self.page.constants.DEFAULT_PS;
             self.page.canvas._strokeStyle(color, pointLineWidth);
             self.page.canvas._beginPath();
-            self.page.canvas._arc(x, y, size, 0, 360, 0);
+            self.page.canvas._arc(x, y, size, 0, 2 * Math.PI, 0);
             self.page.canvas._stroke();
         },
         function (x, y, pointSize, pointLineWidth, color) {
