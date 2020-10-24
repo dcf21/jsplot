@@ -542,11 +542,11 @@ JSPlot_Graph.prototype.calculateBoundingBox = function () {
         ) * Math.sqrt(3) / 2;
 
         bounding_box.includePoint(
-            this.origin[0] - maximum_half_size - margin[0],
-            this.origin[1] - maximum_half_size - margin[1]);
+            this.origin[0] - maximum_half_size - margin_left,
+            this.origin[1] - maximum_half_size - margin_top);
         bounding_box.includePoint(
-            this.origin[0] + maximum_half_size + margin[0],
-            this.origin[1] + maximum_half_size + margin[1]);
+            this.origin[0] + maximum_half_size + margin_right,
+            this.origin[1] + maximum_half_size + margin_bottom);
     }
 
     // Return bounding box

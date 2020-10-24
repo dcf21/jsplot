@@ -42,7 +42,7 @@ h3 a { color: @dark_purple; font-weight: bold; }
 
 p.purple-heading { font-size:22px; font-weight:bold; color: @dark_purple;  a { color: @dark_purple } }
 p.purple-text { font-size: 16px; font-weight:bold; color: @dark_purple;  a { color: @dark_purple } }
-div.smallcaps { font-size: 13px; font-weight:bold; color: @dark_purple; text-transform: uppercase; padding-bottom:4px; a { color: @dark_purple } }
+div.smallcaps { font-size: 14px; font-weight:bold; color: @dark_purple; text-transform: uppercase; padding-bottom:4px; a { color: @dark_purple } }
 
 table.padded-table { margin: 16px 0; border: 1px solid #000; }
 table.padded-table thead { border-bottom: 1px solid #000; }
@@ -70,7 +70,6 @@ select.slt { box-shadow: 3px 3px 2px #e0e0e0; padding:2px; border: 1px solid #aa
 // Basic styling
 div.contentwrapper p { max-width:500px; }
 div.contentwrapper p.centred { margin: 14px auto }
-div.contentwrapper p.smtext { margin: 0; }
 
 /* Float right images */
 .rightimg { clear:both;float:right;margin:12px;text-align: center; width:400px; color: @dark_purple; font-weight:bold; box-sizing: content-box; }
@@ -113,9 +112,9 @@ table.centred { margin-left: auto; margin-right: auto; }
 .toptitleC { margin:0; font-size: 20px; font-weight: normal; text-shadow: 2px 2px rgba(0,0,0,0.3); }
 
 /* Site footer */
-div.footer  { clear: both; width: 100%; margin: 10px 0 0 0; border: 0; padding: 20px 0; padding-top: 15px; background-color: #303030; color: #f0f0f0; text-align: left; font-size: 13px; }
+div.footer  { clear: both; width: 100%; margin: 10px 0 0 0; border: 0; padding: 20px 0; padding-top: 15px; background-color: #303030; color: #f0f0f0; text-align: left; font-size: 14px; }
 div.footer a { color: #f5f570; }
-p.copyright { margin-top: 4px; margin-bottom: 4px; font-size: 12px; line-height: 18px; }
+p.copyright { margin-top: 4px; margin-bottom: 4px; font-size: 14px; }
 p.copyright img     { vertical-align: middle; }
 p.copyright a       { color: #f5f570; }
 p.copyright a:hover { color: #ffffff; }
@@ -127,11 +126,12 @@ div.caption { font-weight:bold; max-width:320px; margin: 0 auto; padding: 3px 0 
 
 // Chevron system
 @banner_shadow: rgba(0,0,0,0.3);
-.chevron_holder { font-size:13px; .chevron { color: #fff !important; } }
+.chevron_holder { font-size: 14px; .chevron { color: #fff !important; } }
 .chevron_holder:hover { a.chevron { color: #fff !important; } }
-a.chevron       { line-height: 18px; font-weight: bold; padding: 5px 20px 5px 9px; background-image: url(../img/chevron.png); background-repeat: no-repeat; background-position: right center; }
-span.chevronsep { margin-left: -14px; padding: 5px 6px; background-image: url(../img/chevron2.png); background-repeat: no-repeat; background-position: right center; }
-span.postchevron{ font-size: 12px; font-weight: bold; text-shadow: 2px 2px @banner_shadow; }
+a.chevron       { font-weight: bold; padding: 8px 20px 5px 8px; background-image: url(../img/chevron.png); background-repeat: no-repeat; background-position: right center; }
+span.chevronsep { margin-left: -14px; padding: 8px 5px 5px 6px; background-image: url(../img/chevron2.png); background-repeat: no-repeat; background-position: right center; }
+span.postchevron{ font-size: 13px; font-weight: bold; text-shadow: 2px 2px @banner_shadow; }
+p.smtext { margin-top: 4px; margin-bottom: 4px; text-align: left; font-size: 14px; }
 
 // Large text areas
 .large_text {

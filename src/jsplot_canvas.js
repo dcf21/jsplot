@@ -240,15 +240,15 @@ JSPlot_Canvas.prototype.renderToCanvas = function (target_element) {
             var html = "<div><canvas width='1' height='1'></canvas></div>";
 
             if (self.settings.allow_export_png) {
-                html += "<input class='btn btn-sm btn-success jsplot_export_png' type='button' value='Export PNG' />";
+                html += "<input class='btn btn-success jsplot_export_png' type='button' value='Export PNG' />";
             }
 
             if (self.settings.allow_export_svg) {
-                html += "<input class='btn btn-sm btn-success jsplot_export_svg' type='button' value='Export SVG' />";
+                html += "<input class='btn btn-success jsplot_export_svg' type='button' value='Export SVG' />";
             }
 
             if (self.settings.allow_export_csv) {
-                html += "<input class='btn btn-sm btn-success jsplot_export_csv' type='button' value='Export CSV' />";
+                html += "<input class='btn btn-success jsplot_export_csv' type='button' value='Export CSV' />";
             }
 
             // Ensure that if the canvas over-fills the target, it doesn't break page
