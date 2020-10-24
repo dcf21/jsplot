@@ -81,6 +81,55 @@ foreach ($postbreadcrumb as $c) {
         <?php
     }
 
+    public static function likebar()
+    {
+        ?>
+        <div style="margin-top:35px;"><h4 style="margin-bottom:4px;">Share</h4></div>
+
+        <!-- Facebook -->
+        <div style="display: inline-block; margin: 16px 10px; vertical-align: top;">
+            <div id="fb-root"></div>
+            <script async defer crossorigin="anonymous"
+                    src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v8.0&appId=1696319717348254&autoLogAppEvents=1"
+                    nonce="pRr7NcbB"></script>
+            <div class="fb-like" data-href="https://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" data-width=""
+                 data-layout="button_count" data-action="like" data-size="large" data-share="true"></div>
+        </div>
+
+        <!-- Pocket -->
+        <div style="display: inline-block; margin: 16px 10px; vertical-align: top;">
+            <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+            <script type="text/javascript">!function (d, i) {
+                    if (!d.getElementById(i)) {
+                        var j = d.createElement("script");
+                        j.id = i;
+                        j.src = "https://widgets.getpocket.com/v1/j/btn.js?v=1";
+                        var w = d.getElementById(i);
+                        d.body.appendChild(j);
+                    }
+                }(document, "pocket-btn-js");</script>
+        </div>
+
+        <h4 style="margin-bottom:4px;">Follow</h4>
+
+        <!-- Icons -->
+        <div style="display: inline-block; margin: 16px 10px; vertical-align: top;">
+            <a href="https://facebook.com/intheskyorg">
+                <div class="its-img its-img-fb" style="vertical-align:middle; margin: 0 8px;"></div>
+            </a>
+        </div>
+
+        <!-- Twitter follow-->
+        <div style="display: inline-block; margin: 16px 10px; vertical-align: top;">
+            <a href="https://twitter.com/intheskyorg" class="twitter-follow-button" data-size="large" data-show-count="true">
+                Follow @intheskyorg
+            </a>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+
+        <?php
+    }
+
     public static function header($pageInfo)
     {
         global $const, $user;
@@ -255,6 +304,8 @@ __HTML__;
     public function footer($pageInfo)
     {
         global $const;
+
+        $this->likebar();
 
         print "<div style='clear:both;'></div></div></div>"; // mainpane and col-xl-10
         ?>
