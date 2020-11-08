@@ -3,7 +3,7 @@
 // demo_vector_graphics.php
 
 // -------------------------------------------------
-// Copyright 2020 Dominic Ford.
+// Copyright 2020-2021 Dominic Ford.
 
 // This file is part of JSPlot.
 
