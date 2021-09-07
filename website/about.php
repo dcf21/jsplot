@@ -67,23 +67,26 @@ $pageTemplate->header($pageInfo);
         </div>
 
         <p>
-            I work on the Exoplanet Analysis System for the European Space Agency's forthcoming
-            <a href="http://sci.esa.int/plato/">PLATO</a> mission, which is scheduled for launch
+            By day, I am a software developer working on the exoplanet search pipeline for the European Space Agency's
+            <a href="http://sci.esa.int/plato/">PLATO</a> mission, which is scheduled to launch
             in 2026. I am based at the <a href="http://www.ast.cam.ac.uk">Institute of Astronomy</a> in
-            Cambridge, UK, where I work with Nicholas Walton.
+            Cambridge, UK.
         </p>
 
         <p>
-            From 2017 until 2019, I worked at
-            <a href="http://www.astro.lu.se/">Lund Observatory</a>, Sweden, leading the development of the
-            <a href="https://www.4most.eu">4MOST</a> consortium's
-            data analysis pipeline for spectroscopic surveys of the Milky Way.
-            In particular, I studied the strengths and limitations of machine-learning
-            techniques for analysing astronomical spectra, since such methods may be the only feasible way to process
-            the tens of thousands of spectra that 4MOST will observe every night.
+            I previously led the development of the data analysis pipeline for
+            <a href="https://www.4most.eu">4MOST</a>'s spectroscopic surveys of the Milky Way,
+            working in Sofia Feltzing's group at <a href="http://www.astro.lu.se/">Lund Observatory</a>,
+            Sweden (2017&ndash;2019). This is an interesting challenge, since machine-learning
+            techniques are likely to be the only feasible way to analyse the tens of thousands of spectra that
+            4MOST will produce every night, but the interpretation of their output can be difficult.
         </p>
 
         <h5>Projects I work on in my spare time</h5>
+
+        <p>
+            In my spare time, I work on many science communication and amateur astronomy projects:
+        </p>
 
         <ul style="margin:30px 20px">
             <li>
@@ -93,8 +96,36 @@ $pageTemplate->header($pageInfo);
                     </a>
                 </b>
                 &ndash;
-                a guide to what's visible in the night sky, which automatically tailors information
-                to wherever you happen to live on Earth.
+                A guide to what's visible in the night sky which I have been developing since 2012. It includes an
+                extensive list of astronomical events spanning the years from 1950 to 2300, and automatically tailors
+                the information it provides to wherever you happen to live on Earth.
+            </li>
+            <li>
+                <p>
+                    <b>
+                        <a href="https://britastro.org/observations">
+                            Amateur astrophotography archive
+                        </a>
+                    </b>
+                    &ndash;
+                    In 2020, I worked with the British Astronomical Association to produce a searchable online
+                    database of amateur astronomical images.
+                </p>
+                <p>
+                    The archive went live in December 2020 with just over 40,000 images, searchable by object, object
+                    type, date, etc. We hope the archive should grow rapidly from here, as all BAA members can now
+                    upload a few images per day directly into the database, and the BAA also hopes to start uploading
+                    some of its extensive collection of historical images.
+                </p>
+                <p>
+                    The BAA's archives go back many decades, and should soon start to provide a really nice view of
+                    how amateur astronomy has changed over time. Until now there's been very limited public access
+                    to these images, so it's great to open up access to these images.
+                </p>
+                <p>
+                    In addition to the BAA's archive, I also keep my own
+                    <a href="https://images.dcford.org.uk">personal archive</a> of astrophotography.
+                </p>
             </li>
             <li>
                 <b>
@@ -103,18 +134,7 @@ $pageTemplate->header($pageInfo);
                     </a>
                 </b>
                 &ndash;
-                a collection of fun interactive online science demos.
-            </li>
-            <li>
-                <b>
-                    <a href="https://hilltopviews.org.uk">
-                        HillTopViews.org.uk
-                    </a>
-                </b>
-                &ndash;
-                a three-dimensional terrain map of the world, based on altitude data collected by NASA's
-                Shuttle Radar Topography Mission (SRTM) in 2000, combined with additional open-source data from
-                Open Street Map.
+                A collection of fun interactive online science demos, implemented in Javascript.
             </li>
             <li>
                 <b>
@@ -123,8 +143,57 @@ $pageTemplate->header($pageInfo);
                     </a>
                 </b>
                 &ndash;
-                an open-source Javascript graph-plotting and vector-graphics library, designed for
-                embedding scientific charts in websites.
+                An open-source Javascript graph-plotting and vector-graphics library, designed for
+                embedding scientific charts in websites. I use this library extensively throughout the websites
+                I maintain.
+            </li>
+            <li>
+                <p>
+                    <b>
+                        <a href="https://hilltopviews.org.uk">
+                            HillTopViews.org.uk
+                        </a>
+                    </b>
+                    &ndash;
+                    A three-dimensional interactive terrain map of the
+                    <a href="https://hilltopviews.org.uk">Earth</a>
+                    and
+                    <a href="https://moon.in-the-sky.org/">Moon</a>.
+                    The Earth maps are based on altitude data collected by NASA's
+                    Shuttle Radar Topography Mission (SRTM) in 2000, combined with additional open-source data from
+                    Open Street Map. The Moon maps are based on a
+                    <a href="https://astrogeology.usgs.gov/search/details/Moon/LRO/LOLA/Lunar_LRO_LOLA_Global_LDEM_118m_Mar2014/cub">
+                        digital elevation model
+                    </a>
+                    (DEM) from the Lunar Orbiter Laser Altimeter (LOLA; Smith et al., 2010), an
+                    instrument on the NASA Lunar Reconnaissance Orbiter (LRO) spacecraft (Tooley et al., 2010).
+                </p>
+                <p>
+                    In both cases, the data is displayed using a custom-built three-dimensional Javascript
+                    rendering engine.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <b>
+                        <a href="https://pigazing.dcford.org.uk">
+                            Pi Gazing
+                        </a>
+                    </b>
+                    &ndash;
+                    A fun project to set up a network of motion-sensitive security cameras which are pointed upwards at
+                    the sky, and can triangulate the three-dimensional trajectories of shooting stars, satellites and
+                    aircraft. I use Raspberry Pi computers housed in the same enclosures as the cameras to do
+                    real-time analysis on the images. Each camera is highly autonomous, running
+                    <a href="http://astrometry.net">astrometry.net</a> to precisely determine the sky area the camera
+                    is pointing at, and using a GPS receiver to determine the camera's location.
+                </p>
+                <p>
+                    This project ran from 2014&ndash;2016 in collaboration with Cambridge Science Centre under its
+                    former name of MeteorPi. In March 2020, the project started observing again under its new name
+                    of Pi Gazing. The code is all freely available on
+                    <a href="https://github.com/dcf21/pi-gazing">GitHub</a>.
+                </p>
             </li>
             <li>
                 <b>
@@ -138,35 +207,101 @@ $pageTemplate->header($pageInfo);
             </li>
         </ul>
 
-        <h5>Experimental projects</h5>
+        <h5>Older projects</h5>
 
         <ul style="margin:30px 20px">
             <li>
                 <b>
-                    <a href="https://images.dcford.org.uk">
-                        An astrophoto archive
+                    <a href="http://www.amazon.co.uk/Observers-Guide-Planetary-Motion-Explaining/dp/1493906283/">
+                        The Observer's Guide to Planetary Motion
                     </a>
                 </b>
                 &ndash;
-                A highly experimental tool for publishing galleries of astrophotos online, searchable by object
-                name or celestial coordinates.
+                My book, which describes much of the science behind how In-The-Sky.org does its calculations.
             </li>
             <li>
                 <b>
-                    <a href="https://pigazing.dcford.org.uk">
-                        Pi Gazing
+                    <a href="http://www.pyxplot.org.uk">
+                        Pyxplot
                     </a>
                 </b>
                 &ndash;
-                a fun project to set up a network of motion-sensitive security cameras which triangulate
-                the three-dimensional trajectories of shooting stars, satellites and aircraft. We use Raspberry
-                Pis to do the real-time image analysis, running <a href="http://astrometry.net">astrometry.net</a>
-                to precisely determine the direction each camera was pointing, and a GPS receiver to determine their
-                positions.
+                A graphing and vector graphics package which I wrote in 2008&ndash;2012.
+            </li>
+            <li>
+                <b>
+                    <a href="https://in-the-sky.org/software.php">
+                        GrepNova
+                    </a>
+                </b>
+                &ndash;
+                An automated image-comparison tool which I wrote in 2005 for amateur astronomers who hunt for supernova.
+                This tool was used by Tom Boles, who currently holds the world record for the largest number of
+                supernovae discovered by any single individual.
+            </li>
+            <li>
+                <b>
+                    Naked Astronomy
+                </b>
+                &ndash;
+                Between 2012 and 2014 I worked for the Naked Scientists in Cambridge, where I produced the
+                monthly STFC-funded podcast <i>Naked Astronomy</i>. I also spent one day a week in the newsroom of
+                BBC Radio Cambridgeshire, acting as a science advisor.
+            </li>
+            <li>
+                <b>
+                    Square Kilometre Array
+                </b>
+                &ndash;
+                Between 2007 and 2012, I worked at the Cavendish Laboratory, Cambridge, on feasibility studies for the
+                use of Graphics Processing Units (GPUs) to build a correlator for the SKA.
+            </li>
+            <li>
+                <b>
+                    PhD Thesis
+                </b>
+                &ndash;
+                I was awarded my PhD from the University of Cambridge in 2008, where my supervisor was Prof Paul
+                Alexander. I built a model of the infrared spectra of dusty star-forming galaxies,
+                which were being observed in large numbers at that time by
+                <a href="https://en.wikipedia.org/wiki/Spitzer_Space_Telescope">Spitzer</a>.
+            </li>
+        </ul>
 
-                This project ran from 2014&ndash;2016 in collaboration with Cambridge Science Centre under its former
-                name of MeteorPi. I doing some work in my spare time to try to restart. The code needs a lot of
-                cleaning up, but is all available on <a href="https://github.com/dcf21/pi-gazing">GitHub</a>.
+        <h5>Ancient projects</h5>
+
+        <p>
+            In the 1990s I was the kind of geeky teenager who sat in my bedroom writing
+            computer games for my Acorn Electron. I even got a couple of them published. Though the reviewers spotted,
+            quite correctly, that I wasn't very good at making up story lines.
+        </p>
+
+        <ul>
+            <li>
+                <b>Shipwrecked</b>
+                &ndash;
+                Published
+                <a href="http://www.acornelectron.co.uk/eug/cats/eug30.html">here</a> (1996)
+                and reviewed in detail
+                <a href="http://8bs.com/elecgame/shipwrecked.htm">here</a>.
+                In the unlikely event you want to try and complete it, you may find this
+                <a href="http://www.acornelectron.co.uk/eug/sols/eug/Shipwrecked_000.html">solution</a>
+                useful. It even got ported to the
+                <a href="http://www.gamebase64.com/game.php?id=16601&amp;d=45">Commodore 64</a> and
+                some YouTubers have recently made some
+                <a href="https://www.youtube.com/watch?v=SvJDpdhnZpQ">videos</a> about it (!!).
+            </li>
+            <li>
+                <b>Jupiter III</b>
+                &ndash;
+                The sequel to Shipwrecked, published
+                <a href="http://www.acornelectron.co.uk/eug/cats/eug35.html">here</a> (1996)
+                and reviewed in detail
+                <a href="http://8bs.com/elecgame/shipwrecked_2.htm">here</a>.
+                This was my first attempt at high-speed scrolling graphics.
+                In the unlikely event you want to try and complete it, you may find this
+                <a href="http://acornelectron.co.uk/eug/sols/eug/Shipwrecked_2_Jupiter_3_000.html">solution</a>
+                useful.
             </li>
         </ul>
     </div>
