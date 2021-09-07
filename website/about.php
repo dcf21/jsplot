@@ -67,19 +67,23 @@ $pageTemplate->header($pageInfo);
         </div>
 
         <p>
-            By day, I am a software developer working on the exoplanet search pipeline for the European Space Agency's
-            <a href="http://sci.esa.int/plato/">PLATO</a> mission, which is scheduled to launch
-            in 2026. I am based at the <a href="http://www.ast.cam.ac.uk">Institute of Astronomy</a> in
-            Cambridge, UK.
-        </p>
 
+            By day, I am a software developer working on the exoplanet search pipeline for the European Space Agency's
+            <a href="https://sci.esa.int/web/plato/">PLATO</a> mission, which is scheduled to launch
+            in 2026. I am based at the <a href="https://www.ast.cam.ac.uk">Institute of Astronomy</a> in
+            Cambridge, UK.
+
+        </p>
         <p>
-            I previously led the development of the data analysis pipeline for
+
+            I previously led the development of the data-analysis pipeline for
             <a href="https://www.4most.eu">4MOST</a>'s spectroscopic surveys of the Milky Way,
-            working in Sofia Feltzing's group at <a href="http://www.astro.lu.se/">Lund Observatory</a>,
-            Sweden (2017&ndash;2019). This is an interesting challenge, since machine-learning
-            techniques are likely to be the only feasible way to analyse the tens of thousands of spectra that
-            4MOST will produce every night, but the interpretation of their output can be difficult.
+            working in Sofia Feltzing's group at <a href="https://www.astro.lu.se/">Lund Observatory</a>,
+            Sweden (2017&ndash;2019). The volume of data 4MOST will collect poses some interesting challenges, since
+            it will observe tens of thousands of spectra every night. In practice, machine-learning
+            techniques are likely to offer the only affordable way to analyse such a large dataset, but the
+            interpretation of their output can be challenging.
+
         </p>
 
         <h5>Projects I work on in my spare time</h5>
