@@ -52,6 +52,14 @@ $pageTemplate->header($pageInfo);
         <tbody>
         <tr>
             <td>
+                <a href="demo_annotations.php">Annotated graph demo</a>
+            </td>
+            <td>
+                A chart with labels
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_helix.php">Helix demo</a>
             </td>
             <td>

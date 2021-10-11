@@ -53,11 +53,25 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_DataSet(
-                            "arrows", {
+                            "arrows_head demo", {
                                 'plotStyle': 'arrows_head'
                             },
                             [
-                                [-4, -4, 2, 4], [-2, -4, 1, 4]
+                                [-4, -4, -2, 4], [-2, -4, -1, 4]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "arrows_nohead demo", {
+                                'plotStyle': 'arrows_nohead'
+                            },
+                            [
+                                [-1, -4, 0.5, 4], [1, -4, 0.5, 4]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "arrows_twohead demo", {
+                                'plotStyle': 'arrows_twohead'
+                            },
+                            [
+                                [4, -4, 2, 4], [2, -4, 1, 4]
                             ], null)
                     ], {
                         'interactiveMode': 'pan',

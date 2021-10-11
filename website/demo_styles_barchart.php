@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_sin_x" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">

@@ -49,30 +49,37 @@ $pageTemplate->header($pageInfo);
                 // Display source code for this page
                 $("#source_code").text($("#demo_graph").html());
 
+                // Create some random data
+                var lower_limits = [
+                    [-2, -1],
+                    [-1, -0.6],
+                    [2, -0.4]
+                ];
+
+                var upper_limits = [
+                    [-1.5, 1.2],
+                    [0, 0.6]
+                ];
+
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "sin(x)", {
-                                'plotStyle': 'linespoints'
+                        new JSPlot_DataSet(
+                            "upper_limits", {
+                                'plotStyle': 'upperlimits'
                             },
-                            [
-                                Math.sin
-                            ]).evaluate_linear_raster(-10, 10, 100, true),
-                        new JSPlot_FunctionEvaluator(
-                            "cos(x)", {
-                                'plotStyle': 'linespoints'
+                            upper_limits, null),
+                        new JSPlot_DataSet(
+                            "lower_limits", {
+                                'plotStyle': 'lowerlimits'
                             },
-                            [
-                                Math.cos
-                            ]).evaluate_linear_raster(-10, 10, 100, true)
+                            lower_limits, null)
                     ], {
-                        'interactiveMode': 'pan',
                         'x1_axis': {
-                            'scrollMin': null,
-                            'scrollMax': null,
-                            'scrollEnabled': true,
-                            'zoomEnabled': true
+                            'min': -3, 'max': 3
+                        },
+                        'y1_axis': {
+                            'min': -2, 'max': 2
                         }
                     })
                 }, {});
