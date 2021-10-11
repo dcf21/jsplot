@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_pow" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_log_axis" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -77,7 +77,7 @@ $pageTemplate->header($pageInfo);
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_pow")[0]
+                    $("#graph_log_axis")[0]
                 );
             });
         </script>

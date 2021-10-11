@@ -1,6 +1,6 @@
 <?php
 
-// demo_linked_axes.php
+// demo_styles_barchart_fixed.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A panel of charts with linked x axes",
-    "pageDescription" => "JSPlot - A panel of charts with linked x axes",
+    "pageTitle" => "A fixed-width bar chart demonstration",
+    "pageDescription" => "JSPlot - A bar chart demonstration with fixed-width bars",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_panels" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -49,64 +49,41 @@ $pageTemplate->header($pageInfo);
                 // Display source code for this page
                 $("#source_code").text($("#demo_graph").html());
 
+                // Function which returns a normal (Gaussian) distribution
+                var gaussian = function (x) {
+                    return Math.exp(-Math.pow(x, 2))
+                }
+                var box_width = function (x) {
+                    return 0.1;
+                }
+
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "sin(x)", {},
+                            "Normal distribution", {
+                                'plotStyle': 'wboxes',
+                                'color': new JSPlot_Color(0, 0, 0, 1),
+                                'fillColor': new JSPlot_Color(1, 0, 0, 1)
+                            },
                             [
-                                Math.sin
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
+                                gaussian,
+                                box_width
+                            ]).evaluate_linear_raster(-3, 3, 20, true)
                     ], {
                         'interactiveMode': 'pan',
-                        'width': 800,
-                        'aspect': 0.2,
                         'x1_axis': {
                             'scrollMin': null,
                             'scrollMax': null,
                             'scrollEnabled': true,
                             'zoomEnabled': true
                         }
-                    }),
-                    "graph_2": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "cos(x)", {},
-                            [
-                                Math.cos
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
-                    ], {
-                        'width': 800,
-                        'origin': [0, -180],
-                        'aspect': 0.2,
-                        'x1_axis': {
-                            'linkTo': ['graph_1','x1'],
-                            'showLabels': false
-                        }
-                    }),
-                    "graph_3": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "tan(x)", {},
-                            [
-                                Math.tan
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
-                    ], {
-                        'width': 800,
-                        'origin': [0, -360],
-                        'aspect': 0.2,
-                        'x1_axis': {
-                            'linkTo': ['graph_1','x1'],
-                            'showLabels': false
-                        },
-                        'y1_axis': {
-                            'min': -10,
-                            'max': 10
-                        }
                     })
                 }, {});
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_panels")[0]
+                    $("#graph_barchart")[0]
                 );
             });
         </script>

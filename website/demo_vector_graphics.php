@@ -56,29 +56,29 @@ $pageTemplate->header($pageInfo);
                         'width': 400,
                         'height': 400,
                         'fillColor': null,
-                        'strokeColor': "#888888"
+                        'strokeColor': new JSPlot_Color(0.5, 0.5, 0.5, 1)
                     }),
                     "box_1": new JSPlot_Rectangle({
-                        'origin': [0, 0],
+                        'origin': [10, 10],
                         'z_index': -1,
-                        'fillColor': "rgba(255,0,0,0.8)"
+                        'fillColor': new JSPlot_Color(1, 0, 0, 0.4)
                     }),
                     "box_2": new JSPlot_Rectangle({
-                        'origin': [150, 0],
+                        'origin': [140, 10],
                         'z_index': 5,
-                        'fillColor': "rgba(0,255,0,0.8)"
+                        'fillColor': new JSPlot_Color(0, 1, 0, 0.4)
                     }),
                     "box_3": new JSPlot_Rectangle({
-                        'origin': [0, 150],
+                        'origin': [10, 140],
                         'z_index': 5,
-                        'fillColor': "rgba(0,0,255,0.8)"
+                        'fillColor': new JSPlot_Color(0, 0, 1, 0.4)
                     }),
                     "circle": new JSPlot_Circle({
-                        'origin': [125, 125],
+                        'origin': [100, 100],
                         'z_index': 5,
                         'radius': 25,
-                        'fillColor': "rgba(255,255,0,0.8)",
-                        'strokeColor': "#000",
+                        'fillColor': new JSPlot_Color(1, 1, 0, 0.4),
+                        'strokeColor': new JSPlot_Color(0, 0, 0, 1),
                         'strokeLineWidth': 4
                     }),
                 }, {});
@@ -86,18 +86,20 @@ $pageTemplate->header($pageInfo);
                 // Add a grid
                 for (var j = 0; j <= 10; j++) {
                     canvas.addItem("h_arrow_" + j, new JSPlot_Arrow({
-                        "origin": [0, j * 25],
-                        "target": [200, j * 25]
+                        'origin': [0, j * 25],
+                        'target': [200, j * 25],
+                        'color': new JSPlot_Color(0.4, 0.4, 0.4, 1)
                     }));
                     canvas.addItem("h_text_" + j, new JSPlot_Text({
-                        "origin": [0, j * 25],
-                        "h_align": "right",
-                        "v_align": "bottom",
-                        "text": j * 25
+                        'origin': [-5, j * 25],
+                        'h_align': "right",
+                        'v_align': "middle",
+                        'text': j * 25
                     }));
                     canvas.addItem("v_arrow_" + j, new JSPlot_Arrow({
-                        "origin": [j * 25, 0],
-                        "target": [j * 25, 200]
+                        'origin': [j * 25, 0],
+                        'target': [j * 25, 200],
+                        'color': new JSPlot_Color(0.4, 0.4, 0.4, 1)
                     }));
                 }
 

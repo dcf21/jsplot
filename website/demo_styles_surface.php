@@ -1,6 +1,6 @@
 <?php
 
-// demo_linked_axes.php
+// demo_styles_surface.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A panel of charts with linked x axes",
-    "pageDescription" => "JSPlot - A panel of charts with linked x axes",
+    "pageTitle" => "A surface plot",
+    "pageDescription" => "JSPlot - A surface plot",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_panels" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_surface" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -53,60 +53,33 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "sin(x)", {},
+                            "sin(x)", {
+                                'plotStyle': 'linespoints'
+                            },
                             [
                                 Math.sin
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
+                            ]).evaluate_linear_raster(-10, 10, 100, true),
+                        new JSPlot_FunctionEvaluator(
+                            "cos(x)", {
+                                'plotStyle': 'linespoints'
+                            },
+                            [
+                                Math.cos
+                            ]).evaluate_linear_raster(-10, 10, 100, true)
                     ], {
                         'interactiveMode': 'pan',
-                        'width': 800,
-                        'aspect': 0.2,
                         'x1_axis': {
                             'scrollMin': null,
                             'scrollMax': null,
                             'scrollEnabled': true,
                             'zoomEnabled': true
                         }
-                    }),
-                    "graph_2": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "cos(x)", {},
-                            [
-                                Math.cos
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
-                    ], {
-                        'width': 800,
-                        'origin': [0, -180],
-                        'aspect': 0.2,
-                        'x1_axis': {
-                            'linkTo': ['graph_1','x1'],
-                            'showLabels': false
-                        }
-                    }),
-                    "graph_3": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "tan(x)", {},
-                            [
-                                Math.tan
-                            ]).evaluate_linear_raster(-10, 10, 1000, true)
-                    ], {
-                        'width': 800,
-                        'origin': [0, -360],
-                        'aspect': 0.2,
-                        'x1_axis': {
-                            'linkTo': ['graph_1','x1'],
-                            'showLabels': false
-                        },
-                        'y1_axis': {
-                            'min': -10,
-                            'max': 10
-                        }
                     })
                 }, {});
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_panels")[0]
+                    $("#graph_surface")[0]
                 );
             });
         </script>

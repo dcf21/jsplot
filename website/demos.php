@@ -60,14 +60,6 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
-                <a href="demo_linespoints.php">Lines-points plot style demo</a>
-            </td>
-            <td>
-                A chart with the linespoints plot style
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <a href="demo_linked_axes.php">Linked axes demo</a>
             </td>
             <td>
@@ -88,6 +80,95 @@ $pageTemplate->header($pageInfo);
             </td>
             <td>
                 The script which produces the JSPlot logo
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_arrows.php">Plot styles: Arrows demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">arrows</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_barchart.php">Plot styles: Bar charts demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">boxes</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_barchart_fixed.php">Plot styles: Bar charts demo (fixed width)</a>
+            </td>
+            <td>
+                A chart with the <span class="code">wboxes</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_dots.php">Plot styles: Dots demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">dots</span> plot style
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_error_bars_2d.php">Plot styles: 2D error bars demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">errorbars</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_error_bars_3d.php">Plot styles: 3D error bars demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">errorbars</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_impulses.php">Plot styles: Impulses demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">impulses</span> plot style
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_limits.php">Plot styles: Limits demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">lowerlimits</span> and <span class="code">upperlimits</span> plot
+                styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_linespoints.php">Plot styles: Lines-points demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">linespoints</span> plot style
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_steps.php">Plot styles: Steps demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">steps</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_surface.php">Plot styles: Surface demo</a>
+            </td>
+            <td>
+                A chart with the <span class="code">surface</span> plot style
             </td>
         </tr>
         <tr>
