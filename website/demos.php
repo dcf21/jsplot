@@ -60,6 +60,22 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
+                <a href="demo_axes_dual.php">Multiple axes demo</a>
+            </td>
+            <td>
+                A demo with two different vertical axes on the same graph
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_axes_inverted.php">Inverted axes demo</a>
+            </td>
+            <td>
+                A demo with a bar chart plotted along the vertical axis
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_helix.php">Helix demo</a>
             </td>
             <td>
@@ -104,6 +120,14 @@ $pageTemplate->header($pageInfo);
             </td>
             <td>
                 A chart with the <span class="code">boxes</span> plot styles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_barchart_dynamic.php">Plot styles: Bar charts demo (dynamic box widths)</a>
+            </td>
+            <td>
+                A chart with the <span class="code">boxes</span> plot style and the <span class="code">boxWidth</span> setting
             </td>
         </tr>
         <tr>

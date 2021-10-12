@@ -53,24 +53,21 @@ $pageTemplate->header($pageInfo);
                 var gaussian = function (x) {
                     return Math.exp(-Math.pow(x, 2))
                 }
-                var box_width = function (x) {
-                    return 0.1;
-                }
 
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
                             "Normal distribution", {
-                                'plotStyle': 'wboxes',
+                                'plotStyle': 'boxes',
                                 'color': new JSPlot_Color(0, 0, 0, 1),
                                 'fillColor': new JSPlot_Color(1, 0, 0, 1)
                             },
                             [
-                                gaussian,
-                                box_width
+                                gaussian
                             ]).evaluate_linear_raster(-3, 3, 20, true)
                     ], {
+                        'boxWidth': 0.1,
                         'interactiveMode': 'pan',
                         'x1_axis': {
                             'scrollMin': null,

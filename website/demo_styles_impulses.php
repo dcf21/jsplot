@@ -60,8 +60,7 @@ $pageTemplate->header($pageInfo);
                         new JSPlot_FunctionEvaluator(
                             "Normal distribution", {
                                 'plotStyle': 'impulses',
-                                'color': new JSPlot_Color(0, 0, 0, 1),
-                                'fillColor': new JSPlot_Color(1, 0, 0, 1)
+                                'color': new JSPlot_Color(0, 0, 1, 1)
                             },
                             [
                                 gaussian

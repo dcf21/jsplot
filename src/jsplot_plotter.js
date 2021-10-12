@@ -90,6 +90,10 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
     /** @type {boolean} */
     var is_3d = this.graph.threeDimensional;
 
+    // Make sure the axes we use are enabled
+    a1.enabled = a2.enabled = a3.enabled = true;
+
+    // Bar charts need to include the horizontal level that the bars emerge from
     if (((style === "boxes") || (style === "impulses")) && (this.graph.boxFrom !== null)) {
         a2.includePoint(this.graph.boxFrom);
     }
@@ -476,7 +480,6 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                     data.workspace.styleFinal.color.toHTML());
             }
         });
-
     }
 
     // Bar charts
@@ -499,7 +502,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                 p3 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
 
                 self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
-                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML());
+                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth);
                 self.page.canvas._beginPath();
                 self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
                 self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
@@ -509,6 +512,11 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                 self.page.canvas._stroke();
             });
         } else {
+            if (style !== "boxes") {
+                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth);
+                self.page.canvas._beginPath();
+            }
+
             // We are rendering a series of boxes, with interfaces at the horizontal midpoints between boxes
             for (var i = 0; i < data.data.length; i++) {
                 /** @type {?number} */
@@ -578,17 +586,173 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                 p2 = graph.projectPoint(x1, self.graph.boxFrom, 0, a1, a2, a3, true);
                 p3 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
 
-                self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
-                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML());
-                self.page.canvas._beginPath();
-                self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
-                self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
-                self.page.canvas._lineTo(p2['xpos'], p2['ypos']);
-                self.page.canvas._lineTo(p3['xpos'], p3['ypos']);
-                self.page.canvas._fill();
+                if (style === "boxes") {
+                    self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
+                    self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth / 2);
+                    self.page.canvas._beginPath();
+                    self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
+                    self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+                    self.page.canvas._lineTo(p2['xpos'], p2['ypos']);
+                    self.page.canvas._lineTo(p3['xpos'], p3['ypos']);
+                    self.page.canvas._fill();
+                    self.page.canvas._stroke();
+                } else {
+                    self.page.canvas._lineTo(p0['xpos'], p0['ypos']);
+                    self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+                }
+            }
+
+            if (style !== "boxes") {
                 self.page.canvas._stroke();
             }
         }
+    }
+
+    // Variable width boxes
+    else if (style === "wboxes") {
+        // We are rendering a series of boxes with a variable width
+        $.each(data.data, function (index, dataPoint) {
+            var x0, x1, p0, p1, p2, p3;
+            var box_width = dataPoint[2];
+            if (!a1.logarithmic) {
+                x0 = dataPoint[0] - box_width / 2;
+                x1 = dataPoint[0] + box_width / 2;
+            } else {
+                x0 = dataPoint[0] / Math.sqrt(box_width);
+                x1 = dataPoint[0] * Math.sqrt(box_width);
+            }
+            p0 = graph.projectPoint(x0, dataPoint[1], 0, a1, a2, a3, true);
+            p1 = graph.projectPoint(x1, dataPoint[1], 0, a1, a2, a3, true);
+            p2 = graph.projectPoint(x1, self.graph.boxFrom, 0, a1, a2, a3, true);
+            p3 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
+
+            self.page.canvas._fillStyle(data.workspace.styleFinal.fillColor.toHTML());
+            self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth / 2);
+            self.page.canvas._beginPath();
+            self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
+            self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+            self.page.canvas._lineTo(p2['xpos'], p2['ypos']);
+            self.page.canvas._lineTo(p3['xpos'], p3['ypos']);
+            self.page.canvas._fill();
+            self.page.canvas._stroke();
+        });
+    }
+
+    // Impulses
+    else if (style === "impulses") {
+        // We are rendering a series of boxes with a variable width
+        $.each(data.data, function (index, dataPoint) {
+            var x0, p0, p1;
+            x0 = dataPoint[0];
+            p0 = graph.projectPoint(x0, dataPoint[1], 0, a1, a2, a3, true);
+            p1 = graph.projectPoint(x0, self.graph.boxFrom, 0, a1, a2, a3, true);
+
+            self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth);
+            self.page.canvas._beginPath();
+            self.page.canvas._moveTo(p0['xpos'], p0['ypos']);
+            self.page.canvas._lineTo(p1['xpos'], p1['ypos']);
+            self.page.canvas._stroke();
+        });
+    }
+
+    // Dots
+    else if (style === "dots") {
+        // Cycle through data table, plotting each point in turn
+        $.each(data.data, function (index, dataPoint) {
+            var position = graph.projectPoint(dataPoint[0], dataPoint[1], graph.threeDimensional ? dataPoint[2] : 0,
+                a1, a2, a3, false);
+            if ((!isNaN(position['xpos'])) && (!isNaN(position['ypos']))) {
+                var size = data.workspace.styleFinal.pointSize * self.page.constants.DEFAULT_PS * 0.25;
+                self.page.canvas._fillStyle(data.workspace.styleFinal.color.toHTML());
+                self.page.canvas._beginPath();
+                self.page.canvas._arc(position['xpos'], position['ypos'], size, 0, 2 * Math.PI, 0);
+                self.page.canvas._fill();
+            }
+        });
+    }
+
+    // Limits
+    else if ((style === "upperlimits") || (style === "lowerlimits")) {
+        var renderer = new JSPlot_DrawArrow();
+
+        // Cycle through data table, plotting each point in turn
+        $.each(data.data, function (index, dataPoint) {
+            var position = graph.projectPoint(dataPoint[0], dataPoint[1], graph.threeDimensional ? dataPoint[2] : 0,
+                a1, a2, a3, false);
+            var bar_length = data.workspace.styleFinal.pointSize * self.page.constants.DEFAULT_PS * 3;
+            var arrow_length = 2 * bar_length;
+            if (style === "upperlimits") {
+                arrow_length *= -1;
+            }
+
+            var barX_x = Math.sin(position['theta_x']);
+            var barX_y = Math.cos(position['theta_x']);
+            var barY_x = Math.sin(position['theta_y']);
+            var barY_y = Math.cos(position['theta_y']);
+            var barZ_x = Math.sin(position['theta_z']);
+            var barZ_y = Math.cos(position['theta_z']);
+
+            if ((!isNaN(position['xpos'])) && (!isNaN(position['ypos']))) {
+                self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth);
+                self.page.canvas._beginPath();
+
+                // Bar along x-axis
+                self.page.canvas._moveTo(position['xpos'] - bar_length * barX_x, position['ypos'] - bar_length * barX_y);
+                self.page.canvas._lineTo(position['xpos'] + bar_length * barX_x, position['ypos'] + bar_length * barX_y);
+
+                // Bar along z-axis
+                if (graph.threeDimensional) {
+                    self.page.canvas._moveTo(position['xpos'] - bar_length * barZ_x, position['ypos'] - bar_length * barZ_y);
+                    self.page.canvas._lineTo(position['xpos'] + bar_length * barZ_x, position['ypos'] + bar_length * barZ_y);
+                }
+                self.page.canvas._stroke();
+
+                // Limit arrow
+                renderer.primitive_arrow(self.page, 'single',
+                    position['xpos'], position['ypos'], position['zpos'],
+                    position['xpos'] + arrow_length * barY_x,
+                    position['ypos'] + arrow_length * barY_y,
+                    position['zpos'],
+                    data.workspace.styleFinal.color, data.workspace.styleFinal.lineWidth, 1);
+            }
+        });
+    }
+
+    // Arrows
+    else if ((style === "arrows_head") || (style === "arrows_twohead") || (style === "arrows_nohead")) {
+        var renderer = new JSPlot_DrawArrow();
+
+        var arrowType;
+        if (style === "arrows_head") {
+            arrowType = "single"
+        } else if (style === "arrows_twohead") {
+            arrowType = "double"
+        } else {
+            arrowType = "none"
+        }
+
+        // Cycle through data table, plotting each arrow in turn
+        $.each(data.data, function (index, dataPoint) {
+            var position;
+            if (graph.threeDimensional) {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    graph.projectPoint(dataPoint[3], dataPoint[4], dataPoint[5], a1, a2, a3, false)
+                ];
+            } else {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                    graph.projectPoint(dataPoint[2], dataPoint[3], 0, a1, a2, a3, false)
+                ];
+            }
+
+            if ((!isNaN(position[0]['xpos'])) && (!isNaN(position[0]['ypos'])) && (!isNaN(position[1]['xpos'])) && (!isNaN(position[1]['ypos']))) {
+                renderer.primitive_arrow(self.page, arrowType,
+                    position[0]['xpos'], position[0]['ypos'], position[0]['zpos'],
+                    position[1]['xpos'], position[1]['ypos'], position[1]['zpos'],
+                    data.workspace.styleFinal.color, data.workspace.styleFinal.lineWidth, 1);
+            }
+        });
     }
 
 };

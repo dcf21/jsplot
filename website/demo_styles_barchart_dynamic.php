@@ -1,6 +1,6 @@
 <?php
 
-// demo_styles_arrows.php
+// demo_styles_barchart_dynamic.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A plot with arrows",
-    "pageDescription" => "JSPlot - A plot with arrows",
+    "pageTitle" => "A demonstration of a bar chart with manually-set box widths",
+    "pageDescription" => "JSPlot - A demonstration of a bar chart with manually-set box widths",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_arrows" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -49,34 +49,29 @@ $pageTemplate->header($pageInfo);
                 // Display source code for this page
                 $("#source_code").text($("#demo_graph").html());
 
+                // Function which returns a normal (Gaussian) distribution
+                var gaussian = function (x) {
+                    return Math.exp(-Math.pow(x, 2))
+                }
+                var box_width = function (x) {
+                    return Math.max(0, (x + 4) * 0.05);
+                }
+
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
-                        new JSPlot_DataSet(
-                            "arrows_head demo", {
-                                'plotStyle': 'arrows_head',
-                                'lineWidth': 3
+                        new JSPlot_FunctionEvaluator(
+                            "Normal distribution", {
+                                'plotStyle': 'wboxes',
+                                'color': new JSPlot_Color(0, 0, 0, 1),
+                                'fillColor': new JSPlot_Color(1, 0, 0, 1)
                             },
                             [
-                                [-4, -4, -2, 4], [-2, -4, -1, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_nohead demo", {
-                                'plotStyle': 'arrows_nohead',
-                                'lineWidth': 2
-                            },
-                            [
-                                [-1, -4, -0.5, 4], [1, -4, 0.5, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_twohead demo", {
-                                'plotStyle': 'arrows_twohead',
-                                'lineWidth': 5
-                            },
-                            [
-                                [4, -4, 2, 4], [2, -4, 1, 4]
-                            ], null)
+                                gaussian,
+                                box_width
+                            ]).evaluate_linear_raster(-3, 3, 20, true)
                     ], {
+                        'boxFrom': 0.2,
                         'interactiveMode': 'pan',
                         'x1_axis': {
                             'scrollMin': null,
@@ -89,7 +84,7 @@ $pageTemplate->header($pageInfo);
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_arrows")[0]
+                    $("#graph_barchart")[0]
                 );
             });
         </script>

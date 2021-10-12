@@ -1,6 +1,6 @@
 <?php
 
-// demo_styles_arrows.php
+// demo_axes_dual.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A plot with arrows",
-    "pageDescription" => "JSPlot - A plot with arrows",
+    "pageTitle" => "A demonstration of a bar chart with two different vertical axes",
+    "pageDescription" => "JSPlot - A demonstration of a bar chart with two different vertical axes",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_arrows" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -52,44 +52,24 @@ $pageTemplate->header($pageInfo);
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
-                        new JSPlot_DataSet(
-                            "arrows_head demo", {
-                                'plotStyle': 'arrows_head',
-                                'lineWidth': 3
-                            },
+                        new JSPlot_FunctionEvaluator(
+                            "sin(x)", {},
                             [
-                                [-4, -4, -2, 4], [-2, -4, -1, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_nohead demo", {
-                                'plotStyle': 'arrows_nohead',
-                                'lineWidth': 2
-                            },
+                                Math.sin
+                            ]).evaluate_linear_raster(-10, 10, 100, true),
+                        new JSPlot_FunctionEvaluator(
+                            "x^2", {'axis2': 'y2'},
                             [
-                                [-1, -4, -0.5, 4], [1, -4, 0.5, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_twohead demo", {
-                                'plotStyle': 'arrows_twohead',
-                                'lineWidth': 5
-                            },
-                            [
-                                [4, -4, 2, 4], [2, -4, 1, 4]
-                            ], null)
-                    ], {
-                        'interactiveMode': 'pan',
-                        'x1_axis': {
-                            'scrollMin': null,
-                            'scrollMax': null,
-                            'scrollEnabled': true,
-                            'zoomEnabled': true
-                        }
-                    })
+                                function (x) {
+                                    return x * x;
+                                }
+                            ]).evaluate_linear_raster(-10, 10, 100, true)
+                    ], {})
                 }, {});
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_arrows")[0]
+                    $("#graph_barchart")[0]
                 );
             });
         </script>

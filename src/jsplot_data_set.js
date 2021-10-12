@@ -28,16 +28,35 @@
  * @constructor
  */
 function JSPlot_DataSet(title, styling, data, update_callback) {
+    var self = this;
+
     /** @type {string} */
     this.title = title; // Title for this data set to put into the graph legend
     /** @type {JSPlot_PlotStyle} */
-    this.style = new JSPlot_PlotStyle(styling); // Styling for this data set
+    this.style = new JSPlot_PlotStyle({}); // Styling for this data set
     /** @type {Object.<number, string>} */
     this.axes = {1: 'x1', 2: 'y1', 3: 'z1'}; // Which axes do we plot this data set against?
     /** @type {Array<Array<number>>} */
     this.data = data;
     /** @type {?function} */
     this.update_callback = update_callback;
+
+    // Parse settings
+    $.each(styling, function (keyword, value) {
+        if (keyword === 'axis1') {
+            self.axes[1] = value;
+        } else if (keyword === 'axis2') {
+            self.axes[2] = value;
+        } else if (keyword === 'axis3') {
+            self.axes[3] = value;
+        } else {
+            passed_object = {};
+            passed_object[keyword] = value;
+            self.style.configure(passed_object);
+        }
+    });
+
+    // Initialise computed elements
     this.cleanWorkspace();
 }
 

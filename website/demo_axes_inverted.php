@@ -1,6 +1,6 @@
 <?php
 
-// demo_styles_arrows.php
+// demo_axes_inverted.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A plot with arrows",
-    "pageDescription" => "JSPlot - A plot with arrows",
+    "pageTitle" => "A demonstration of a bar chart plotted along the vertical axis",
+    "pageDescription" => "JSPlot - A demonstration of a bar chart plotted along the vertical axis",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_arrows" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -49,47 +49,43 @@ $pageTemplate->header($pageInfo);
                 // Display source code for this page
                 $("#source_code").text($("#demo_graph").html());
 
+                // Function which returns a normal (Gaussian) distribution
+                var gaussian = function(offset) {
+                    return function (x) {
+                        return Math.exp(-Math.pow(x, 2)) + offset
+                    }
+                }
+
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
-                        new JSPlot_DataSet(
-                            "arrows_head demo", {
-                                'plotStyle': 'arrows_head',
-                                'lineWidth': 3
+                        new JSPlot_FunctionEvaluator(
+                            "Normal distribution", {
+                                'plotStyle': 'boxes',
+                                'axis1': 'y1',
+                                'axis2': 'x1',
+                                'color': new JSPlot_Color(0, 0, 0, 1),
+                                'fillColor': new JSPlot_Color(1, 0, 0, 1)
                             },
                             [
-                                [-4, -4, -2, 4], [-2, -4, -1, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_nohead demo", {
-                                'plotStyle': 'arrows_nohead',
-                                'lineWidth': 2
+                                gaussian(0)
+                            ]).evaluate_linear_raster(-3, 3, 40, true),
+                        new JSPlot_FunctionEvaluator(
+                            "Upper limit signs", {
+                                'plotStyle': 'upperlimits',
+                                'axis1': 'y1',
+                                'axis2': 'x1',
+                                'color': new JSPlot_Color(0, 0, 0, 1)
                             },
                             [
-                                [-1, -4, -0.5, 4], [1, -4, 0.5, 4]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "arrows_twohead demo", {
-                                'plotStyle': 'arrows_twohead',
-                                'lineWidth': 5
-                            },
-                            [
-                                [4, -4, 2, 4], [2, -4, 1, 4]
-                            ], null)
-                    ], {
-                        'interactiveMode': 'pan',
-                        'x1_axis': {
-                            'scrollMin': null,
-                            'scrollMax': null,
-                            'scrollEnabled': true,
-                            'zoomEnabled': true
-                        }
-                    })
+                                gaussian(0.05)
+                            ]).evaluate_linear_raster(-3, 3, 40, true)
+                    ], {})
                 }, {});
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_arrows")[0]
+                    $("#graph_barchart")[0]
                 );
             });
         </script>

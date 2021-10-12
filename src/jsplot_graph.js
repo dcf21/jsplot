@@ -131,6 +131,12 @@ JSPlot_Graph.prototype.configure = function (settings) {
             case "axesColor":
                 self.axesColor = value;
                 break;
+            case "boxFrom":
+                self.boxFrom = value;
+                break;
+            case "boxWidth":
+                self.boxWidth = value;
+                break;
             case "clip":
                 self.clip = value;
                 break;
@@ -349,56 +355,76 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin,
     var height = this.workspace.width_pixels * this.workspace.aspect;
 
     // Convert (xin,yin,zin) to axis positions on the range of 0-1
-    var xap = axis_x.getPosition(xin, true);
-    var yap = axis_y.getPosition(yin, true);
-    var zap = 0.5;
-    var output = {'xap': xap, 'yap': yap, 'zap': zap};
+    // This are in the (x,y,z) axes used for this data set, which may be permuted relative to physical axes
+    var axis_positions = {
+        'xap': axis_x.getPosition(xin, true),
+        'yap': axis_y.getPosition(yin, true),
+        'zap': 0.5
+    };
+    if (this.threeDimensional) axis_positions['zap'] = axis_z.getPosition(zin, true);
 
-    if (this.threeDimensional) zap = axis_z.getPosition(zin, true);
+    // Start building output data structure
+    var output = {'xap': 0.5, 'yap': 0.5, 'zap': 0.5, 'theta_x': 0, 'theta_y': 0, 'theta_z': 0};
 
-    if ((!isFinite(xap)) || (!isFinite(yap)) || (!isFinite(zap))) {
+    // Convert from the axes the data set sees to physical axes
+    $.each({'x': axis_x, 'y': axis_y, 'z': axis_z}, function (dataset_letter, axis) {
+        var physical_letter = axis.axis_name[0];
+        output[physical_letter + 'ap'] = axis_positions[dataset_letter + 'ap']
+    });
+
+    // Return NaNs if the data point doesn't map to screen
+    if ((!isFinite(output['xap'])) || (!isFinite(output['yap'])) || (!isFinite(output['zap']))) {
         return {'xpos': NaN, 'ypos': NaN, 'xap': NaN, 'yap': NaN, 'zap': NaN};
     }
-    // Crop axis positions to range 0-1
-    if ((!allowOffBounds) && ((xap < 0) || (xap > 1) || (yap < 0) || (yap > 1) || (zap < 0) || (zap > 1))) {
+
+    // Crop axis positions to range 0-1, if requested
+    if ((!allowOffBounds) &&
+        (
+            (output['xap'] < 0) || (output['xap'] > 1) ||
+            (output['yap'] < 0) || (output['yap'] > 1) ||
+            (output['zap'] < 0) || (output['zap'] > 1)
+        )) {
         return {'xpos': NaN, 'ypos': NaN, 'xap': NaN, 'yap': NaN, 'zap': NaN};
     }
 
     // 3D plots
+    var theta = {'x':0, 'y':0, 'z':0};
     if (this.threeDimensional) {
-        var position = this.project3d(xap, yap, zap);
+        var position = this.project3d(output['xap'], output['yap'], output['zap']);
 
         output['xpos'] = position.xpos;
         output['ypos'] = position.ypos;
         output['depth'] = position.depth;
 
-        var theta_x = Math.atan2(
+        // Directions of physical axes
+        theta['x'] = Math.atan2(
             Math.cos(this.viewAngleXY * Math.PI / 180),
             -Math.sin(this.viewAngleXY * Math.PI / 180) * Math.sin(this.viewAngleYZ * Math.PI / 180));
-        var theta_y = Math.atan2(
+        theta['y'] = Math.atan2(
             Math.sin(this.viewAngleXY * Math.PI / 180),
             Math.cos(this.viewAngleXY * Math.PI / 180) * Math.sin(this.viewAngleYZ * Math.PI / 180));
-        var theta_z = Math.atan2(
+        theta['z'] = Math.atan2(
             0,
             Math.cos(this.viewAngleYZ * Math.PI / 180));
-
-        if (!isFinite(theta_x)) theta_x = 0.0;
-        if (!isFinite(theta_y)) theta_y = 0.0;
-        if (!isFinite(theta_z)) theta_z = 0.0;
-
-        output['theta_x'] = theta_x;
-        output['theta_y'] = theta_y;
-        output['theta_z'] = theta_z;
     } else // 2D plots
     {
-        output['xpos'] = this.origin[0] + width * xap;
-        output['ypos'] = this.origin[1] + height * yap;
+        output['xpos'] = this.origin[0] + width * output['xap'];
+        output['ypos'] = this.origin[1] + height * output['yap'];
         output['depth'] = 0.0;
 
-        output['theta_x'] = Math.PI / 2;
-        output['theta_y'] = 0.0;
-        output['theta_z'] = 0.0;
+        // Directions of physical axes
+        theta['x'] = Math.PI / 2;
+        theta['y'] = Math.PI;
+        theta['z'] = 0.0;
     }
+
+    // Convert directions of physical axes into the direction of the data set's axes
+    $.each({'x': axis_x, 'y': axis_y, 'z': axis_z}, function (dataset_letter, axis) {
+        var physical_letter = axis.axis_name[0];
+        if (isFinite(theta[physical_letter])) {
+            output['theta_' + dataset_letter] = theta[physical_letter];
+        }
+    });
 
     return output;
 };
@@ -736,8 +762,8 @@ JSPlot_Graph.prototype.axes_paint = function (front_axes, bounding_box) {
 
             // Work out whether to put axis labels on left side, or right side
             var b = Math.atan2(
-                (axis_pos_0['xpos'] + axis_pos_1['xpos']) / 2 - x_centre,
-                (axis_pos_0['ypos'] + axis_pos_1['ypos']) / 2 - y_centre) -
+                    (axis_pos_0['xpos'] + axis_pos_1['xpos']) / 2 - x_centre,
+                    (axis_pos_0['ypos'] + axis_pos_1['ypos']) / 2 - y_centre) -
                 self.workspace.axis_bearing[index_xyz];
             var right_side = Math.sin(b) > 0;
 
