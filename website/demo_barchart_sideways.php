@@ -1,6 +1,6 @@
 <?php
 
-// demo_styles_error_bars_2d.php
+// demo_styles_barchart.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A 2D plot demonstrating the use of error bars",
-    "pageDescription" => "JSPlot - A 2D plot demonstrating the use of error bars",
+    "pageTitle" => "A sideways bar chart demonstration",
+    "pageDescription" => "JSPlot - A sideways bar chart demonstration",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -41,7 +41,7 @@ $pageTemplate->header($pageInfo);
 
     <div id="demo_graph">
         <!-- HTML code -->
-        <div id="graph_errorbars" style="max-width:1024px; border: 1px solid #888;"></div>
+        <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
@@ -53,32 +53,43 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_DataSet(
-                            "xerrorbars", {
-                                'plotStyle': 'xerrorbars'
+                            "votes", {
+                                'plotStyle': 'boxes',
+                                'axis1': 'y1',
+                                'axis2': 'x1',
+                                'color': new JSPlot_Color(0, 0, 0, 1),
+                                'fillColor': new JSPlot_Color(1, 0, 0, 1)
                             },
                             [
-                                [-1, -1, 0.49], [0, 0, 0.4], [1, 1, 0.29]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "yerrorbars", {
-                                'plotStyle': 'yerrorbars'
-                            },
-                            [
-                                [-1, 0, 0.49], [0, 1, 0.39], [1, -1, 0.29]
-                            ], null),
-                        new JSPlot_DataSet(
-                            "xyerrorbars", {
-                                'plotStyle': 'xyerrorbars'
-                            },
-                            [
-                                [-1, 1, 0.49, 0.1], [0, -1, 0.4, 0.2], [1, 0, 0.29, 0.3]
-                            ], null),
-                    ], {})
+                                [3, 1190], [2, 870], [1, 620], [0, 205]
+                            ], null)
+                    ], {
+                        'aspect': 0.15,
+                        'x1_axis': {
+                            'label': 'Number of votes',
+                            'min': 0,
+                            'ticks': {
+                                'tickMin': 0,
+                                'tickStep': 100
+                            }
+                        },
+                        'y1_axis': {
+                            'label': 'Party',
+                            'ticks': {
+                                'tickList': [
+                                    [3, "A"],
+                                    [2, "B"],
+                                    [1, "C"],
+                                    [0, "D"]
+                                ]
+                            }
+                        }
+                    })
                 }, {});
 
                 // Render plot
                 canvas.renderToCanvas(
-                    $("#graph_errorbars")[0]
+                    $("#graph_barchart")[0]
                 );
             });
         </script>

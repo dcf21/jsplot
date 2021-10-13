@@ -76,6 +76,14 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
+                <a href="demo_barchart_sideways.php">Sideways barchart</a>
+            </td>
+            <td>
+                A demo with a horizontal bar chart
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_helix.php">Helix demo</a>
             </td>
             <td>

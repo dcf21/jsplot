@@ -168,26 +168,7 @@ __HTML__;
 
             <script src="<?php echo $server; ?>vendor/jquery/dist/jquery.min.js" type="text/javascript"></script>
             <script src="<?php echo $server; ?>vendor/tether/dist/js/tether.min.js"></script>
-            <script src="<?php echo $server; ?>vendor/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-            <link rel="stylesheet" type="text/css"
-                  href="<?php echo $server; ?>vendor/jquery-ui/themes/ui-darkness/jquery-ui.min.css"/>
-            <style type="text/css">
-                .ui-slider-horizontal .ui-state-default {
-                    background: url(<?php echo $server; ?>/images/sliderarrow.png) no-repeat;
-                    width: 9px;
-                    height: 20px;
-                    border: 0 none;
-                    margin-left: -4px;
-                }
 
-                .ui-slider-vertical .ui-state-default {
-                    background: url(<?php echo $server; ?>/images/slidervarrow.png) no-repeat;
-                    width: 20px;
-                    height: 9px;
-                    border: 0 none;
-                    margin-left: -4px;
-                }
-            </style>
             <link rel="stylesheet" href="<?php echo $server; ?>vendor/bootstrap/dist/css/bootstrap.min.css">
             <script src="<?php echo $server; ?>vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 

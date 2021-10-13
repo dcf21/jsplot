@@ -449,6 +449,8 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
     /** @type {JSPlot_Axis} */
     var a3 = graph.axes[a3_name];
 
+    var renderer;
+
     if ((style === "lines") || (style === "linespoints")) {
         var line_draw = new JSPlot_LineDraw(graph.page, graph, a1, a2, a3,
             data.workspace.styleFinal.color.toHTML(),
@@ -673,7 +675,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
 
     // Limits
     else if ((style === "upperlimits") || (style === "lowerlimits")) {
-        var renderer = new JSPlot_DrawArrow();
+        renderer = new JSPlot_DrawArrow();
 
         // Cycle through data table, plotting each point in turn
         $.each(data.data, function (index, dataPoint) {
@@ -720,7 +722,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
 
     // Arrows
     else if ((style === "arrows_head") || (style === "arrows_twohead") || (style === "arrows_nohead")) {
-        var renderer = new JSPlot_DrawArrow();
+        renderer = new JSPlot_DrawArrow();
 
         var arrowType;
         if (style === "arrows_head") {
@@ -753,6 +755,302 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                     data.workspace.styleFinal.color, data.workspace.styleFinal.lineWidth, 1);
             }
         });
+    }
+
+    // Error bars
+    else if (
+        (style === "xerrorbars") || (style === "yerrorbars") || (style === "zerrorbars") ||
+        (style === "xerrorrange") || (style === "yerrorrange") || (style === "zerrorrange") ||
+        (style === "xyerrorbars") || (style === "xzerrorbars") || (style === "yzerrorbars") ||
+        (style === "xyerrorrange") || (style === "xzerrorrange") || (style === "yzerrorrange") ||
+        (style === "xyzerrorbars") || (style === "xyzerrorrange")
+    ) {
+        var theta_list;
+
+        self.page.canvas._strokeStyle(data.workspace.styleFinal.color.toHTML(), data.workspace.styleFinal.lineWidth);
+        self.page.canvas._beginPath();
+
+        // Cycle through data table, plotting each error bar in turn
+        $.each(data.data, function (index, dataPoint) {
+            var position;
+
+            // Look up position of the bottom, middle and top of the error bar
+            if (style === "xerrorbars") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0] - dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0] + dataPoint[2], dataPoint[1], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['x','y','z'];
+            } else if (style === "xerrorrange") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[3], dataPoint[1], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['x','y','z'];
+            } else if (style === "yerrorbars") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[3], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[3], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[2], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[2], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['y','x','z'];
+            } else if (style === "yerrorrange") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0], dataPoint[3], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[4], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0], dataPoint[2], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[3], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['y','x','z'];
+            } else if (style === "zerrorbars") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[3], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[3], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['z','x','y'];
+            } else if (style === "zerrorrange") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[3], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[4], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['z','x','y'];
+            } else if (style === "xyerrorbars") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                        ],[
+                            graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[4], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[4], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[0] - dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0] + dataPoint[2], dataPoint[1], 0, a1, a2, a3, true)
+                        ],[
+                            graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[3], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[3], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['x','y','z'];
+            } else if (style === "xyerrorrange") {
+                if (graph.threeDimensional) {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                        ],[
+                            graph.projectPoint(dataPoint[0], dataPoint[5], dataPoint[2], a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[6], dataPoint[2], a1, a2, a3, true)
+                        ]
+                    ];
+                } else {
+                    position = [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], 0, a1, a2, a3, false),
+                        [
+                            graph.projectPoint(dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[3], dataPoint[1], 0, a1, a2, a3, true)
+                        ],[
+                            graph.projectPoint(dataPoint[0], dataPoint[4], 0, a1, a2, a3, true),
+                            graph.projectPoint(dataPoint[0], dataPoint[5], 0, a1, a2, a3, true)
+                        ]
+                    ];
+                }
+                theta_list = ['x','y','z'];
+            } else if (style === "xzerrorbars") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[4], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[4], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['x','z','y'];
+            } else if (style === "xzerrorrange") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[5], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[6], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['x','z','y'];
+            } else if (style === "yzerrorbars") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[3], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[3], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[4], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[4], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['y','z','x'];
+            } else if (style === "yzerrorrange") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0], dataPoint[3], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[4], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[5], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[6], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['y','z','x'];
+            } else if (style === "xyzerrorbars") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[4], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[4], dataPoint[2], a1, a2, a3, true)
+                    ],[
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[5], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[5], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['x','y','z'];
+        } else if (style === "xyzerrorrange") {
+            position = [
+                graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                [
+                    graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                    graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                ],[
+                    graph.projectPoint(dataPoint[0], dataPoint[5], dataPoint[2], a1, a2, a3, true),
+                    graph.projectPoint(dataPoint[0], dataPoint[6], dataPoint[2], a1, a2, a3, true)
+                ],[
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[7], a1, a2, a3, true),
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[8], a1, a2, a3, true)
+                ]
+            ];
+                theta_list = ['x','y','z'];
+        }
+
+            // Convert theta_list from list of directions into a list of vectors in screen coordinates
+            var i, j, k, bar_vectors = [];
+            for (i = 0; i < theta_list.length; i++) {
+                var theta = position[0]['theta_'+theta_list[i]];
+                bar_vectors.push([
+                    Math.sin(theta), Math.cos(theta)
+                ])
+            }
+
+            // Only draw this data point if it is within the visible axis range
+            if ((!isNaN(position[0]['xpos'])) && (!isNaN(position[0]['ypos']))) {
+                // Draw the body of the error bar
+                for (i=1; i<position.length; i++) {
+                    self.page.canvas._moveTo(position[i][0]['xpos'], position[i][0]['ypos']);
+                    self.page.canvas._lineTo(position[i][1]['xpos'], position[i][1]['ypos']);
+                }
+
+                // Draw bars on ends of the error bar
+                var bar_length;
+                for (i=1; i<position.length; i++)
+                    for (j=0; j<=1; j++)
+                        for (k=0; k<=(graph.threeDimensional ? 2 : 1); k++)
+                            if (k !== i-1) {
+                                bar_length = 4 * data.workspace.styleFinal.lineWidth;
+
+                                self.page.canvas._moveTo(
+                                    position[i][j]['xpos'] - bar_vectors[k][0] * bar_length,
+                                    position[i][j]['ypos'] - bar_vectors[k][1] * bar_length
+                                );
+                                self.page.canvas._lineTo(
+                                    position[i][j]['xpos'] + bar_vectors[k][0] * bar_length,
+                                    position[i][j]['ypos'] + bar_vectors[k][1] * bar_length
+                                );
+                            }
+
+                // Draw bar on the middle of the error bar
+                for (k=position.length - 1; k<=(graph.threeDimensional ? 2 : 1); k++) {
+                    bar_length = 3 * data.workspace.styleFinal.lineWidth;
+
+                    self.page.canvas._moveTo(
+                        position[0]['xpos'] - bar_vectors[k][0] * bar_length,
+                        position[0]['ypos'] - bar_vectors[k][1] * bar_length
+                    );
+                    self.page.canvas._lineTo(
+                        position[0]['xpos'] + bar_vectors[k][0] * bar_length,
+                        position[0]['ypos'] + bar_vectors[k][1] * bar_length
+                    );
+                }
+            }
+        });
+
+        self.page.canvas._stroke();
     }
 
 };

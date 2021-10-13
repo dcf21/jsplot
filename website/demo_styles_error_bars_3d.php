@@ -52,27 +52,60 @@ $pageTemplate->header($pageInfo);
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
-                        new JSPlot_FunctionEvaluator(
-                            "sin(x)", {
-                                'plotStyle': 'linespoints'
+                        new JSPlot_DataSet(
+                            "xerrorbars", {
+                                'plotStyle': 'xerrorbars'
                             },
                             [
-                                Math.sin
-                            ]).evaluate_linear_raster(-10, 10, 100, true),
-                        new JSPlot_FunctionEvaluator(
-                            "cos(x)", {
-                                'plotStyle': 'linespoints'
+                                [-1, -1, 0, 0.49], [0, 0, 0, 0.4]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "yerrorbars", {
+                                'plotStyle': 'yerrorbars'
                             },
                             [
-                                Math.cos
-                            ]).evaluate_linear_raster(-10, 10, 100, true)
+                                [-1, 0, 0, 0.49], [0, 1, 0, 0.39]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "yerrorbars", {
+                                'plotStyle': 'zerrorbars'
+                            },
+                            [
+                                [-1, 0, -0.59, 0.49], [0, 1, -0.59, 0.39]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "xyerrorbars", {
+                                'plotStyle': 'xyerrorbars'
+                            },
+                            [
+                                [-1, 1, 0.49, 0.49, 0.1], [0, -1, 0.4, 0.39, 0.2]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "xyerrorbars", {
+                                'plotStyle': 'yzerrorbars'
+                            },
+                            [
+                                [-1, 1, 0.79, 0.49, 0.1], [0, -1, 0.79, 0.39, 0.2]
+                            ], null),
+                        new JSPlot_DataSet(
+                            "xyzerrorbars", {
+                                'plotStyle': 'xyzerrorbars'
+                            },
+                            [
+                                [0, 0, 1.2, 0.15, 0.15, 0.15]
+                            ], null)
                     ], {
-                        'interactiveMode': 'pan',
+                        'threeDimensional': true,
+                        'interactiveMode': 'rotate',
+                        'aspect': 1,
                         'x1_axis': {
-                            'scrollMin': null,
-                            'scrollMax': null,
-                            'scrollEnabled': true,
-                            'zoomEnabled': true
+                            'label':'x', 'min': -2, 'max': 2
+                        },
+                        'y1_axis': {
+                            'label':'y', 'min': -2, 'max': 2
+                        },
+                        'z1_axis': {
+                            'label':'z', 'min': -2, 'max': 2
                         }
                     })
                 }, {});
