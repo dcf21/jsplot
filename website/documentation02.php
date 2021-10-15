@@ -1,6 +1,6 @@
 <?php
 
-// documentation.php
+// documentation02.php
 
 // -------------------------------------------------
 // Copyright 2020-2021 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "JSPlot Documentation: The plotting canvas",
-    "pageDescription" => "JSPlot - Documentation: The plotting canvas",
+    "pageTitle" => "JSPlot Documentation: Plotting data",
+    "pageDescription" => "JSPlot - Documentation: Plotting data",
     "activeTab" => "documentation",
     "teaserImg" => null,
     "cssextra" => null,
@@ -39,8 +39,8 @@ $pageTemplate->header($pageInfo);
 ?>
 
     <ol>
-        <li><b>The plotting canvas</b></li>
-        <li><a href="documentation02.php">Plotting data</a></li>
+        <li><a href="documentation.php">The plotting canvas</a></li>
+        <li><b>Plotting data</b></li>
         <li><a href="documentation03.php">Plotting functions</a></li>
         <li><a href="documentation04.php">Vector graphics</a></li>
         <li><a href="documentation05.php">Graph plotting styles</a></li>
