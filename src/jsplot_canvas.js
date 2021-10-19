@@ -56,6 +56,16 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.constants.COLORSCALE_WIDTH = 4e-3;
     this.constants.GRID_MAJLINEWIDTH = 0.8;
     this.constants.GRID_MINLINEWIDTH = 0.5;
+    this.constants.LEGEND_fontFamily = "Arial,Helvetica,sans-serif";
+    this.constants.LEGEND_fontSize = 14;
+    this.constants.LEGEND_fontWeight = "";  // options "", "bold"
+    this.constants.LEGEND_fontStyle = "";  // options "", "italic"
+    this.constants.LEGEND_color = new JSPlot_Color(0, 0, 0, 1);
+    this.constants.LEGEND_margin = 30;
+    this.constants.LEGEND_horizontal_spacing = 20;
+    this.constants.LEGEND_vertical_spacing = 6;
+    this.constants.LEGEND_MAX_HGAP = 25;
+    this.constants.LEGEND_MAX_VGAP = 25;
 
     // Read user supplied settings
     this.configure(settings);
@@ -142,6 +152,9 @@ JSPlot_Canvas.prototype._render = function (renderer) {
         item.calculateDataRanges(self);
     });
 
+    // Create null canvas, so items can measure themselves
+    this.canvas = renderer(0, 0)
+
     // Work out bounding box of all elements
     $.each(sorted_item_list, function (index, item) {
         boundingBox.includeBox(item.calculateBoundingBox());
@@ -149,7 +162,7 @@ JSPlot_Canvas.prototype._render = function (renderer) {
 
     // Instantiate plotting canvas
     /** @type GraphicsCanvas */
-    this.canvas = renderer(boundingBox.right - boundingBox.left, boundingBox.bottom - boundingBox.top);
+    this.canvas._resize(boundingBox.right - boundingBox.left, boundingBox.bottom - boundingBox.top);
     this.canvas._translate(-boundingBox.left, -boundingBox.top, 0);
 
     // Create a 3D rendering buffer

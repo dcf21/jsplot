@@ -575,6 +575,16 @@ JSPlot_Graph.prototype.calculateBoundingBox = function () {
             this.origin[1] + maximum_half_size + margin_bottom);
     }
 
+    // Set graph bounding box
+    this.graph_bounding_box = bounding_box.copy();
+
+    // Now lay out the legend
+    this.legend_renderer = new JSPlot_Plot_Legend(this.page, this);
+    this.legend_renderer.calculateLayout();
+
+    // Factor legend into graph bounding box
+    bounding_box.includeBox(this.legend_renderer.boundingBox());
+
     // Return bounding box
     return bounding_box;
 };
@@ -675,7 +685,7 @@ JSPlot_Graph.prototype.render = function () {
     this.axes_paint(true, axes_bounding_box);
 
     // Render legend
-    // !!! TODO JSPlot_GraphLegendRender(self);
+    self.legend_renderer.render();
 
     // Put the title on the top of the graph
     if ((self.title !== null) && (self.title !== "") && self.textColor.isVisible()) {

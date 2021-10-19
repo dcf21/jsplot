@@ -35,6 +35,18 @@ JSPlot_BoundingBox = function () {
 };
 
 /**
+ * copy - Create a duplicate of this bounding box
+ */
+JSPlot_BoundingBox.prototype.copy = function() {
+    var duplicate = new JSPlot_BoundingBox();
+    duplicate.left = this.left;
+    duplicate.right = this.right;
+    duplicate.top = this.top;
+    duplicate.bottom = this.bottom;
+    return duplicate;
+};
+
+/**
  * includePoint - Expand the bounding box to include the specified point
  * @param x {number} - The x coordinate of the point
  * @param y {number} - The y coordinate of the point
