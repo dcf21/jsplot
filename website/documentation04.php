@@ -3,7 +3,7 @@
 // documentation04.php
 
 // -------------------------------------------------
-// Copyright 2020-2021 Dominic Ford.
+// Copyright 2020-2022 Dominic Ford.
 
 // This file is part of JSPlot.
 

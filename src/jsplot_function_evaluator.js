@@ -1,7 +1,7 @@
 // jsplot_function_evaluator.js
 
 // -------------------------------------------------
-// Copyright 2020-2021 Dominic Ford.
+// Copyright 2020-2022 Dominic Ford.
 
 // This file is part of JSPlot.
 
