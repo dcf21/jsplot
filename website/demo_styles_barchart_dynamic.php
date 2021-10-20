@@ -73,6 +73,8 @@ $pageTemplate->header($pageInfo);
                     ], {
                         'boxFrom': 0.2,
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'tr',
                         'x1_axis': {
                             'scrollMin': null,
                             'scrollMax': null,

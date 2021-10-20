@@ -97,6 +97,8 @@ $pageTemplate->header($pageInfo);
                     ], {
                         'threeDimensional': true,
                         'interactiveMode': 'rotate',
+                        'key': true,
+                        'keyPosition': 'below',
                         'aspect': 1,
                         'x1_axis': {
                             'label':'x', 'min': -2, 'max': 2

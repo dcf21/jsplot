@@ -63,6 +63,7 @@ JSPlot_BoundingBox.prototype.includePoint = function (x, y) {
  * @param box {JSPlot_BoundingBox} - The other bounding box to include
  */
 JSPlot_BoundingBox.prototype.includeBox = function (box) {
+    if (box === null) return;
     if ((this.left === null) || (this.left > box.left)) this.left = box.left;
     if ((this.right === null) || (this.right < box.right)) this.right = box.right;
     if ((this.top === null) || (this.top > box.top)) this.top = box.top;

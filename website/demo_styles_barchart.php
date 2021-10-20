@@ -68,6 +68,8 @@ $pageTemplate->header($pageInfo);
                             ]).evaluate_linear_raster(-3, 3, 50, true)
                     ], {
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'tr',
                         'x1_axis': {
                             'scrollMin': null,
                             'scrollMax': null,

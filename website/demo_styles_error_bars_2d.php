@@ -73,7 +73,10 @@ $pageTemplate->header($pageInfo);
                             [
                                 [-1, 1, 0.49, 0.1], [0, -1, 0.4, 0.2], [1, 0, 0.29, 0.3]
                             ], null),
-                    ], {})
+                    ], {
+                        'key': true,
+                        'keyPosition': 'below'
+                    })
                 }, {});
 
                 // Render plot

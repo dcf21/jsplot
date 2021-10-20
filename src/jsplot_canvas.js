@@ -62,8 +62,8 @@ function JSPlot_Canvas(initialItemList, settings) {
     this.constants.LEGEND_fontStyle = "";  // options "", "italic"
     this.constants.LEGEND_color = new JSPlot_Color(0, 0, 0, 1);
     this.constants.LEGEND_margin = 30;
-    this.constants.LEGEND_horizontal_spacing = 20;
-    this.constants.LEGEND_vertical_spacing = 6;
+    this.constants.LEGEND_horizontal_spacing = 48;
+    this.constants.LEGEND_vertical_spacing = 9;
     this.constants.LEGEND_MAX_HGAP = 25;
     this.constants.LEGEND_MAX_VGAP = 25;
 

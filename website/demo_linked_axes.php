@@ -59,6 +59,8 @@ $pageTemplate->header($pageInfo);
                             ]).evaluate_linear_raster(-10, 10, 1000, true)
                     ], {
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'tr',
                         'width': 800,
                         'aspect': 0.2,
                         'x1_axis': {
@@ -75,6 +77,8 @@ $pageTemplate->header($pageInfo);
                                 Math.cos
                             ]).evaluate_linear_raster(-10, 10, 1000, true)
                     ], {
+                        'key': true,
+                        'keyPosition': 'tr',
                         'width': 800,
                         'origin': [0, -180],
                         'aspect': 0.2,
@@ -90,6 +94,8 @@ $pageTemplate->header($pageInfo);
                                 Math.tan
                             ]).evaluate_linear_raster(-10, 10, 1000, true)
                     ], {
+                        'key': true,
+                        'keyPosition': 'tr',
                         'width': 800,
                         'origin': [0, -360],
                         'aspect': 0.2,

@@ -65,11 +65,13 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_DataSet(
-                            "random_data", {
+                            "Random dots", {
                                 'plotStyle': 'dots'
                             },
                             random_data_set, null)
                     ], {
+                        'key': true,
+                        'keyPosition': 'tl',
                         'aspect': 1,
                         'x1_axis': {
                             'min': -2, 'max': 2

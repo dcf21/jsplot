@@ -75,6 +75,8 @@ $pageTemplate->header($pageInfo);
                             },
                             lower_limits, null)
                     ], {
+                        'key': true,
+                        'keyPosition': 'below',
                         'x1_axis': {
                             'min': -3, 'max': 3
                         },

@@ -64,7 +64,10 @@ $pageTemplate->header($pageInfo);
                                     return x * x;
                                 }
                             ]).evaluate_linear_raster(-10, 10, 100, true)
-                    ], {})
+                    ], {
+                        'key': true,
+                        'keyPosition': 'below'
+                    })
                 }, {});
 
                 // Render plot

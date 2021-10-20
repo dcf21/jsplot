@@ -26,7 +26,7 @@ require "php/imports.php";
 $pageInfo = [
     "pageTitle" => "JSPlot Examples",
     "pageDescription" => "JSPlot - Examples",
-    "activeTab" => "about",
+    "activeTab" => "demos",
     "teaserImg" => null,
     "cssextra" => null,
     "includes" => [],

@@ -59,6 +59,8 @@ $pageTemplate->header($pageInfo);
                             ]).evaluate_linear_raster(946684800, 947548800, 1000, true)
                     ], {
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'tl',
                         'x1_axis': {
                             'label': 'Unix time',
                             'scrollMin': null,

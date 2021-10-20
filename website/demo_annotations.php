@@ -66,6 +66,8 @@ $pageTemplate->header($pageInfo);
                             gaussian
                         ]).evaluate_linear_raster(-3, 3, 50, true)
                 ], {
+                    'key': true,
+                    'keyPosition': 'below',
                     'x1_axis': {
                         'min': -4, 'max': 4
                     }

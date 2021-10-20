@@ -152,6 +152,7 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
             // Add this item to the legend
             self.legend_items.push({
                 'key_name': key_name,
+                'dataset': dataset,
                 'text': title,
                 'height': item_height,
                 'width': item_width
@@ -254,8 +255,8 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
         if (gap_per_item <= self.page.constants.LEGEND_MAX_HGAP) {
             // Apply offsets to items in this column
             $.each(self.graph.dataSets, function (key_name, dataset) {
-                    dataset['x_offset'] += gap_per_item * dataset['column'];
-                });
+                dataset['x_offset'] += gap_per_item * dataset['column'];
+            });
 
             // Record new width of legend
             column_arrangement['width'] = available_width;
@@ -282,15 +283,15 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
                 break;
             case "mr":
                 x_offset = self.page.constants.LEGEND_margin + available_width - column_arrangement['width'];
-                y_offset = -(self.page.constants.LEGEND_margin + available_height/2 + column_arrangement['height']/2);
+                y_offset = -(self.page.constants.LEGEND_margin + available_height / 2 + column_arrangement['height'] / 2);
                 break;
             case "mm":
                 x_offset = self.page.constants.LEGEND_margin + available_width / 2 - column_arrangement['width'] / 2;
-                y_offset = -(self.page.constants.LEGEND_margin + available_height/2 + column_arrangement['height']/2);
+                y_offset = -(self.page.constants.LEGEND_margin + available_height / 2 + column_arrangement['height'] / 2);
                 break;
             case "ml":
                 x_offset = self.page.constants.LEGEND_margin;
-                y_offset = -(self.page.constants.LEGEND_margin + available_height/2 + column_arrangement['height']/2);
+                y_offset = -(self.page.constants.LEGEND_margin + available_height / 2 + column_arrangement['height'] / 2);
                 break;
             case "br":
                 x_offset = self.page.constants.LEGEND_margin + available_width - column_arrangement['width'];
@@ -306,19 +307,19 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
                 break;
             case "below":
                 x_offset = self.page.constants.LEGEND_margin + available_width / 2 - column_arrangement['width'] / 2;
-                y_offset = -(-self.page.constants.LEGEND_margin - 80);
+                y_offset = -(-self.page.constants.LEGEND_margin - 60);
                 break;
             case "above":
                 x_offset = self.page.constants.LEGEND_margin + available_width / 2 - column_arrangement['width'] / 2;
-                y_offset = -(2*self.page.constants.LEGEND_margin + available_height + 80 + column_arrangement['height']);
+                y_offset = -(2 * self.page.constants.LEGEND_margin + available_height + 60 + column_arrangement['height']);
                 break;
             case "right":
-                x_offset = 2*self.page.constants.LEGEND_margin + available_width + 80;
-                y_offset = -(self.page.constants.LEGEND_margin + available_height/2 + column_arrangement['height']/2);
+                x_offset = 2 * self.page.constants.LEGEND_margin + available_width + 60;
+                y_offset = -(self.page.constants.LEGEND_margin + available_height / 2 + column_arrangement['height'] / 2);
                 break;
             case "left":
-                x_offset = -self.page.constants.LEGEND_margin - 80 - column_arrangement['width'];
-                y_offset = -(self.page.constants.LEGEND_margin + available_height/2 + column_arrangement['height']/2);
+                x_offset = -self.page.constants.LEGEND_margin - 60 - column_arrangement['width'];
+                y_offset = -(self.page.constants.LEGEND_margin + available_height / 2 + column_arrangement['height'] / 2);
                 break;
         }
 
@@ -333,7 +334,7 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
                 y_offset = self.graph.graph_bounding_box.top + self.page.constants.LEGEND_margin;
                 break;
             case "tm":
-                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right)/2 - column_arrangement['width'] / 2;
+                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right) / 2 - column_arrangement['width'] / 2;
                 y_offset = self.graph.graph_bounding_box.top + self.page.constants.LEGEND_margin;
                 break;
             case "tl":
@@ -342,22 +343,22 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
                 break;
             case "mr":
                 x_offset = self.graph.graph_bounding_box.right - self.page.constants.LEGEND_margin - column_arrangement['width'];
-                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom)/2 - column_arrangement['height'] / 2;
+                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom) / 2 - column_arrangement['height'] / 2;
                 break;
             case "mm":
-                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right)/2 - column_arrangement['width'] / 2;
-                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom)/2 - column_arrangement['height'] / 2;
+                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right) / 2 - column_arrangement['width'] / 2;
+                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom) / 2 - column_arrangement['height'] / 2;
                 break;
             case "ml":
                 x_offset = self.graph.graph_bounding_box.left + self.page.constants.LEGEND_margin;
-                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom)/2 - column_arrangement['height'] / 2;
+                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom) / 2 - column_arrangement['height'] / 2;
                 break;
             case "br":
                 x_offset = self.graph.graph_bounding_box.right - self.page.constants.LEGEND_margin - column_arrangement['width'];
                 y_offset = self.graph.graph_bounding_box.bottom - self.page.constants.LEGEND_margin - column_arrangement['height'];
                 break;
             case "bm":
-                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right)/2 - column_arrangement['width'] / 2;
+                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right) / 2 - column_arrangement['width'] / 2;
                 y_offset = self.graph.graph_bounding_box.bottom - self.page.constants.LEGEND_margin - column_arrangement['height'];
                 break;
             case "bl":
@@ -365,20 +366,20 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
                 y_offset = self.graph.graph_bounding_box.bottom - self.page.constants.LEGEND_margin - column_arrangement['height'];
                 break;
             case "below":
-                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right)/2 - column_arrangement['width'] / 2;
-                y_offset = self.graph.graph_bounding_box.bottom + self.page.constants.LEGEND_margin + 80;
+                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right) / 2 - column_arrangement['width'] / 2;
+                y_offset = self.graph.graph_bounding_box.bottom + self.page.constants.LEGEND_margin + 60;
                 break;
             case "above":
-                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right)/2 - column_arrangement['width'] / 2;
-                y_offset = self.graph.graph_bounding_box.top - 2 * self.page.constants.LEGEND_margin - 80 - column_arrangement['height'];
+                x_offset = (self.graph.graph_bounding_box.left + self.graph.graph_bounding_box.right) / 2 - column_arrangement['width'] / 2;
+                y_offset = self.graph.graph_bounding_box.top - 2 * self.page.constants.LEGEND_margin - 60 - column_arrangement['height'];
                 break;
             case "right":
-                x_offset = 2 * self.page.constants.LEGEND_margin + available_width + 80;
-                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom)/2 - column_arrangement['height'] / 2;
+                x_offset = 2 * self.page.constants.LEGEND_margin + available_width + 60;
+                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom) / 2 - column_arrangement['height'] / 2;
                 break;
             case "left":
-                x_offset = -self.page.constants.LEGEND_margin - 80 - column_arrangement['width'];
-                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom)/2 - column_arrangement['height'] / 2;
+                x_offset = -self.page.constants.LEGEND_margin - 60 - column_arrangement['width'];
+                y_offset = (self.graph.graph_bounding_box.top + self.graph.graph_bounding_box.bottom) / 2 - column_arrangement['height'] / 2;
                 break;
         }
     }
@@ -389,7 +390,7 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
     self.column_arrangement = column_arrangement;
 
     self.bounding_box = new JSPlot_BoundingBox();
-    self.bounding_box.includePoint(x_offset, y_offset);
+    self.bounding_box.includePoint(x_offset - 5, y_offset - 12);
     self.bounding_box.includePoint(x_offset + column_arrangement['width'], y_offset + column_arrangement['height']);
 };
 
@@ -397,7 +398,7 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
  * boundingBox - Return the bounding box of this graph legend
  */
 JSPlot_Plot_Legend.prototype.boundingBox = function () {
-  return this.bounding_box;
+    return this.bounding_box;
 };
 
 /**
@@ -413,15 +414,116 @@ JSPlot_Plot_Legend.prototype.render = function () {
     // Ensure that legend has been laid out
     if (this.x_offset === null) this.calculateLayout();
 
-    // Set up styling for legend
-    this.page.canvas._textStyle(this.page.constants.LEGEND_fontFamily, this.page.constants.LEGEND_fontSize,
-        this.page.constants.LEGEND_fontWeight, this.page.constants.LEGEND_fontStyle);
-    this.page.canvas._fillStyle(this.page.constants.LEGEND_color.toHTML());
-
     // Loop over all datasets
     $.each(self.legend_items, function (index, legend_item) {
+        var plot_style = legend_item['dataset'].workspace.styleFinal;
+        var style = plot_style.plotStyle;
         var x = self.x_offset + legend_item['x_offset'];
         var y = self.y_offset + legend_item['y_offset'];
-        self.page.canvas._text(x, y, -1, -1, true, legend_item['text'], false, false);
+
+        // Set up styling for legend
+        self.page.canvas._textStyle(self.page.constants.LEGEND_fontFamily, self.page.constants.LEGEND_fontSize,
+            self.page.constants.LEGEND_fontWeight, self.page.constants.LEGEND_fontStyle);
+        self.page.canvas._fillStyle(self.page.constants.LEGEND_color.toHTML());
+
+        // Write text label for this legend item
+        self.page.canvas._text(x + 24, y, -1, 0, true, legend_item['text'], false, false);
+
+        // Draw icon next to legend item
+        if (
+            (style === 'lines') || (style === 'linespoints') || (style === 'impulses') ||
+            (style === 'steps') || (style === 'fsteps') || (style === 'histeps')
+        ) {
+            self.page.canvas._strokeStyle(plot_style.color.toHTML(), 1);
+            self.page.canvas._beginPath();
+            self.page.canvas._moveTo(x, y);
+            self.page.canvas._lineTo(x + 18, y);
+            self.page.canvas._stroke();
+        }
+
+        // Legend for bar charts
+        if (
+            (style === 'boxes') || (style === 'wboxes') || (style === 'surface')
+        ) {
+            self.page.canvas._strokeStyle(plot_style.color.toHTML(), 1);
+            self.page.canvas._fillStyle(plot_style.fillColor.toHTML());
+            self.page.canvas._beginPath();
+            self.page.canvas._rect(x + 2, y - 7, 14, 14);
+            self.page.canvas._fill();
+            self.page.canvas._stroke();
+        }
+
+        // Legend for data points
+        if ((style === 'points') || (style === 'linespoints') || (style === 'dots')) {
+            var point_type = (plot_style.pointType % self.page.styling.pointTypes.length);
+            var point_size = plot_style.pointSize;
+            var point_size_multiplier = 1;
+            if (style === 'dots') {
+                point_type = 1;
+                point_size_multiplier = 0.25;
+            }
+            var point_render = self.page.styling.pointTypes[point_type];
+            point_render(x + 9, y, point_size * point_size_multiplier, 1, plot_style.color.toHTML());
+        }
+
+        // Draw legend icons for lower limits and upper limits
+        else if ((style === 'lowerlimits') || (style === 'upperlimits')) {
+            var renderer = new JSPlot_DrawArrow();
+            self.page.canvas._strokeStyle(plot_style.color.toHTML(), 1);
+            if (style === 'upperlimits') {
+                self.page.canvas._beginPath();
+                self.page.canvas._moveTo(x, y - 6);
+                self.page.canvas._lineTo(x + 18, y - 6);
+                self.page.canvas._stroke();
+                renderer.primitive_arrow(self.page, 'single',
+                    x + 9, y - 6, 0, x + 9, y + 6, 0, plot_style.color, 1.4, 1);
+            } else {
+                self.page.canvas._beginPath();
+                self.page.canvas._moveTo(x, y + 6);
+                self.page.canvas._lineTo(x + 18, y + 6);
+                self.page.canvas._stroke();
+                renderer.primitive_arrow(self.page, 'single',
+                    x + 9, y + 6, 0, x + 9, y - 6, 0, plot_style.color, 1.4, 1);
+
+            }
+
+        }
+
+        // Draw legend icons for arrows
+        else if ((style === "arrows_head") || (style === "arrows_twohead") || (style === "arrows_nohead")) {
+            renderer = new JSPlot_DrawArrow();
+
+            var arrowType;
+            if (style === "arrows_head") {
+                arrowType = "single"
+            } else if (style === "arrows_twohead") {
+                arrowType = "double"
+            } else {
+                arrowType = "none"
+            }
+            renderer.primitive_arrow(self.page, arrowType, x, y, 0, x + 18, y, 0,
+                plot_style.color, 1.4, 1);
+        }
+
+        // Draw legend icons for error bars
+        else if (
+            (style === "xerrorbars") || (style === "yerrorbars") || (style === "zerrorbars") ||
+            (style === "xerrorrange") || (style === "yerrorrange") || (style === "zerrorrange") ||
+            (style === "xyerrorbars") || (style === "xzerrorbars") || (style === "yzerrorbars") ||
+            (style === "xyerrorrange") || (style === "xzerrorrange") || (style === "yzerrorrange") ||
+            (style === "xyzerrorbars") || (style === "xyzerrorrange")
+        ) {
+            self.page.canvas._strokeStyle(plot_style.color.toHTML(), 1);
+            self.page.canvas._beginPath();
+            self.page.canvas._moveTo(x, y);
+            self.page.canvas._lineTo(x + 18, y);
+            self.page.canvas._moveTo(x, y - 5);
+            self.page.canvas._lineTo(x, y + 5);
+            self.page.canvas._moveTo(x + 9, y - 3);
+            self.page.canvas._lineTo(x + 9, y + 3);
+            self.page.canvas._moveTo(x + 18, y - 5);
+            self.page.canvas._lineTo(x + 18, y + 5);
+            self.page.canvas._stroke();
+        }
     });
 }

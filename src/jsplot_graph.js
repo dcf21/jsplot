@@ -47,7 +47,7 @@ function JSPlot_Graph(dataSets, settings) {
     /** @type {boolean} */
     this.clip = true;
     /** @type {boolean} */
-    this.key = true;
+    this.key = false;
     /** @type {?number} */
     this.keyColumns = null;
     /** @type {string} */

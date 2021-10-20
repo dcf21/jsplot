@@ -78,6 +78,8 @@ $pageTemplate->header($pageInfo);
                             ], null)
                     ], {
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'below',
                         'x1_axis': {
                             'scrollMin': null,
                             'scrollMax': null,

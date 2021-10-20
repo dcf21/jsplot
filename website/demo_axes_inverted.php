@@ -80,7 +80,10 @@ $pageTemplate->header($pageInfo);
                             [
                                 gaussian(0.05)
                             ]).evaluate_linear_raster(-3, 3, 40, true)
-                    ], {})
+                    ], {
+                        'key': true,
+                        'keyPosition': 'br'
+                    })
                 }, {});
 
                 // Render plot

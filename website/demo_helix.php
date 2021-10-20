@@ -70,6 +70,8 @@ $pageTemplate->header($pageInfo);
                     ], {
                         'threeDimensional': true,
                         'interactiveMode': 'rotate',
+                        'key': true,
+                        'keyPosition': 'tl',
                         'x1_axis': {
                             'zoomEnabled': true
                         }

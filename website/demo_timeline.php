@@ -53,7 +53,7 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "Timeline", {},
+                            "The function (unix_time / 86400) % 1", {},
                             [
                                 function (x) {
                                     return (x / 86400) % 1;
@@ -61,6 +61,8 @@ $pageTemplate->header($pageInfo);
                             ]).evaluate_linear_raster(946684800, 947548800, 1000, true)
                     ], {
                         'interactiveMode': 'pan',
+                        'key': true,
+                        'keyPosition': 'below',
                         'x1_axis': {
                             'label': 'Time and date',
                             'dataType': 'timestamp',
