@@ -114,8 +114,8 @@ JSPlot_Rectangle.prototype.calculateBoundingBox = function (page) {
     var bounding_box = new JSPlot_BoundingBox();
 
     // Populate the bounding box of the plot
-    bounding_box.includePoint(this.origin[0], this.origin[1]);
-    bounding_box.includePoint(this.origin[0] + this.width, this.origin[1] + this.height);
+    bounding_box.includePoint(this.origin[0] - 3, this.origin[1] - 3);
+    bounding_box.includePoint(this.origin[0] + this.width + 3, this.origin[1] + this.height + 3);
 
     // Return bounding box
     return bounding_box;

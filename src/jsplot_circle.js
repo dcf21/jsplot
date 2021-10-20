@@ -109,10 +109,10 @@ JSPlot_Circle.prototype.calculateBoundingBox = function () {
     var bounding_box = new JSPlot_BoundingBox();
 
     // Populate the bounding box of the plot
-    bounding_box.includePoint(this.origin[0]-this.radius, this.origin[1]);
-    bounding_box.includePoint(this.origin[0]+this.radius, this.origin[1]);
-    bounding_box.includePoint(this.origin[0], this.origin[1]-this.radius);
-    bounding_box.includePoint(this.origin[0], this.origin[1]+this.radius);
+    bounding_box.includePoint(this.origin[0]-this.radius-3, this.origin[1]);
+    bounding_box.includePoint(this.origin[0]+this.radius+3, this.origin[1]);
+    bounding_box.includePoint(this.origin[0], this.origin[1]-this.radius-3);
+    bounding_box.includePoint(this.origin[0], this.origin[1]+this.radius+3);
 
     // Return bounding box
     return bounding_box;

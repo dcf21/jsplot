@@ -128,8 +128,33 @@ JSPlot_Text.prototype.calculateBoundingBox = function () {
     // Start constructing a bounding box
     var bounding_box = new JSPlot_BoundingBox();
 
+    // Measure text item
+    this.page.canvas._textStyle(this.fontFamily, this.fontSize, this.fontWeight, this.fontStyle);
+    var item_width = this.page.canvas._textWidth(this.text) + 10;
+    var item_height = this.fontSize + 4;
+
     // Populate the bounding box of the plot
     bounding_box.includePoint(this.origin[0], this.origin[1]);
+
+    // Populate bounding box with horizontal extent of the text
+    if (this.h_align === "left") {
+        bounding_box.includePoint(this.origin[0] + item_width, this.origin[1]);
+    } else if (this.h_align === "center") {
+        bounding_box.includePoint(this.origin[0] - item_width / 2, this.origin[1]);
+        bounding_box.includePoint(this.origin[0] + item_width / 2, this.origin[1]);
+    } else if (this.h_align === "right") {
+        bounding_box.includePoint(this.origin[0] - item_width, this.origin[1]);
+    }
+
+    // Populate bounding box with vertical extent of the text
+    if (this.v_align === "top") {
+        bounding_box.includePoint(this.origin[0], this.origin[1] + item_height);
+    } else if (this.v_align === "center") {
+        bounding_box.includePoint(this.origin[0], this.origin[1] + item_height / 2);
+        bounding_box.includePoint(this.origin[0], this.origin[1] - item_height / 2);
+    } else if (this.v_align === "bottom") {
+        bounding_box.includePoint(this.origin[0], this.origin[1] - item_height);
+    }
 
     // Return bounding box
     return bounding_box;
