@@ -205,7 +205,15 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
-                <a href="demo_styles_surface.php">Plot styles: Surface demo</a>
+                <a href="demo_styles_surface.php">Plot styles: Surface demo 1</a>
+            </td>
+            <td>
+                A chart with the <span class="code">surface</span> plot style
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="demo_styles_surface_sinc.php">Plot styles: Surface demo 2 &ndash; A sinc function</a>
             </td>
             <td>
                 A chart with the <span class="code">surface</span> plot style

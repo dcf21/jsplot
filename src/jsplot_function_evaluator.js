@@ -117,3 +117,38 @@ JSPlot_FunctionEvaluator.prototype.evaluate_log_raster = function (x_min, x_max,
 
     return new JSPlot_DataSet(this.title, this.styling, compute_data(x_min, x_max), auto_update_range);
 };
+
+/**
+ * evaluate_over_grid - Evaluate the functions on a linearly-spaced grid raster of <point_count> points.
+ * @param x_min {number} - The lower limit of the values of x to evaluate
+ * @param x_max {number} - The upper limit of the values of x to evaluate
+ * @param point_count_x {number} - The number of rows that the output data set should contain along x axis
+ * @param y_min {number} - The lower limit of the values of y to evaluate
+ * @param y_max {number} - The upper limit of the values of y to evaluate
+ * @param point_count_y {number} - The number of rows that the output data set should contain along y axis
+ */
+JSPlot_FunctionEvaluator.prototype.evaluate_over_grid = function (x_min, x_max, point_count_x,
+                                                                  y_min, y_max, point_count_y) {
+    /** @type {JSPlot_FunctionEvaluator} */
+    var self = this;
+
+    // Loop over grid of data points evaluating the supplied functions
+    var data = [];
+    for (var i = 0; i < point_count_x; i++) {
+        for (var j = 0; j < point_count_y; j++) {
+            var x = x_min + (x_max - x_min) / (point_count_x - 1) * i;
+            var y = y_min + (y_max - y_min) / (point_count_y - 1) * j;
+            var point = [x, y];
+            for (var k = 0; k < self.functions.length; k++) {
+                point.push(self.functions[k](x, y));
+            }
+            data.push(point);
+        }
+    }
+
+    var data_set = new JSPlot_DataSet(this.title, this.styling, data, null);
+    data_set.grid = true;
+    data_set.grid_dimensions = [point_count_x, point_count_y];
+
+    return data_set;
+};

@@ -1,6 +1,6 @@
 <?php
 
-// demo_styles_surface.php
+// demo_styles_surface_sinc.php
 
 // -------------------------------------------------
 // Copyright 2020-2022 Dominic Ford.
@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A surface plot 1",
-    "pageDescription" => "JSPlot - A surface plot 1",
+    "pageTitle" => "A surface plot 2",
+    "pageDescription" => "JSPlot - A surface plot 2",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -49,25 +49,24 @@ $pageTemplate->header($pageInfo);
                 // Display source code for this page
                 $("#source_code").text($("#demo_graph").html());
 
-                // Create polynomial function that we are going to plot
-                var custom_polynomial = function (x, y) {
-                    return x ** 3 / 20 + y ** 2;
+                // Create sinc function that we are going to plot
+                var sinc = function (x, y) {
+                    var r = Math.hypot(x, y);
+                    return Math.sin(r) / r;
                 }
 
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "Polynomial surface", {
+                            "sinc function", {
                                 'plotStyle': 'points'
                             },
                             [
-                                custom_polynomial
+                                sinc
                             ]).evaluate_over_grid(-10, 10, 40, -10, 10, 40)
                     ], {
                         'threeDimensional': true,
-                        'key': true,
-                        'keyPosition': 'below',
                         'interactiveMode': 'rotate'
                     })
                 }, {});

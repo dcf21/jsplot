@@ -41,6 +41,12 @@ function JSPlot_DataSet(title, styling, data, update_callback) {
     /** @type {?function} */
     this.update_callback = update_callback;
 
+    // Variables which tell us whether this data set has been sampled on a regular 2D grid (necessary for surface plots!)
+    /** @type {boolean} */
+    this.grid = false;
+    /** @type {?Array} */
+    this.grid_dimensions = null;
+
     // Parse settings
     $.each(styling, function (keyword, value) {
         if (keyword === 'axis1') {
@@ -50,7 +56,7 @@ function JSPlot_DataSet(title, styling, data, update_callback) {
         } else if (keyword === 'axis3') {
             self.axes[3] = value;
         } else {
-            passed_object = {};
+            var passed_object = {};
             passed_object[keyword] = value;
             self.style.configure(passed_object);
         }
