@@ -478,11 +478,9 @@ JSPlot_Axis.prototype.linkedAxisForwardPropagate = function (page, mode) {
         if ((originalMode === 0) && (axis.workspace.mode0BackPropagated)) continue;
         axis.workspace.mode0BackPropagated = true;
         if (mode === 0) {
-            // MODE 0: Propagate HardMin, HardMax
-            axis.workspace.hardMin = source.workspace.hardMin;
-            axis.workspace.hardMax = source.workspace.hardMax;
-            axis.workspace.hardAutoMinSet = source.workspace.hardAutoMinSet;
-            axis.workspace.hardAutoMaxSet = source.workspace.hardAutoMaxSet;
+            // MODE 0: Propagate minHard, maxHard
+            axis.workspace.minHard = source.workspace.minHard;
+            axis.workspace.maxHard = source.workspace.maxHard;
         } else if (mode === 1) {
             axis.workspace.logFinal = source.workspace.logFinal;
             axis.workspace.minFinal = source.workspace.minFinal;

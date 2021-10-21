@@ -491,6 +491,18 @@ JSPlot_Graph.prototype.calculateDataRanges = function (page) {
     $.each(this.dataSets, function (index, item) {
         item.cleanWorkspace();
 
+        // Consider re-evaluating data set
+        /** @type {string} */
+        var x_axis_name = item.axes[1];
+        /** @type {JSPlot_Axis} */
+        var x_axis = self.axes[x_axis_name];
+        /** @type {?number} */
+        var x_min = x_axis.workspace.minHard;
+        /** @type {?number} */
+        var x_max = x_axis.workspace.maxHard;
+
+        if ((x_min !== null) && (x_max !== null)) item.axisRangeUpdated(x_min, x_max);
+
         // Create final set of styling information for this dataset
         item.workspace.styleFinal = item.style.clone();
         self.insertDefaultStyles(item.workspace.styleFinal);
@@ -982,22 +994,6 @@ JSPlot_Graph.prototype.interactive_scroll = function (x_offset, y_offset) {
             }
         });
 
-        // Invite all data sets to recompute for the new axis range
-        $.each(this.dataSets, function (index, dataset) {
-            /** @type {string} */
-            var x_axis_name = dataset.axes[1];
-            /** @type {JSPlot_Axis} */
-            var x_axis = self.axes[x_axis_name];
-            /** @type {?number} */
-            var x_min = x_axis.min;
-            /** @type {?number} */
-            var x_max = x_axis.max;
-
-            if ((x_min !== null) && (x_max !== null)) {
-                dataset.axisRangeUpdated(x_min, x_max);
-            }
-        });
-
         this.page.needs_refresh = true;
     } else if (this.interactiveMode === 'rotate') {
         this.viewAngleXY += x_offset * 180. / this.workspace.width_pixels;
@@ -1028,22 +1024,6 @@ JSPlot_Graph.prototype.interactive_zoom = function (delta) {
     var handled = false;
     $.each(this.axes, function (axis_name, axis) {
         handled |= axis.interactive_zoom(self.page, delta);
-    });
-
-    // Invite all data sets to recompute for the new axis range
-    $.each(this.dataSets, function (index, dataset) {
-        /** @type {string} */
-        var x_axis_name = dataset.axes[1];
-        /** @type {JSPlot_Axis} */
-        var x_axis = self.axes[x_axis_name];
-        /** @type {?number} */
-        var x_min = x_axis.min;
-        /** @type {?number} */
-        var x_max = x_axis.max;
-
-        if ((x_min !== null) && (x_max !== null)) {
-            dataset.axisRangeUpdated(x_min, x_max);
-        }
     });
 
     return handled;
