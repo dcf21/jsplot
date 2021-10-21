@@ -47,6 +47,15 @@ JSPlot_Color.prototype.isVisible = function () {
 };
 
 /**
+ * multiply - Multiply the brightness of this color by a scalar
+ * @param multiplier {number} - Multiplication factor
+ * @returns {JSPlot_Color} - New color
+ */
+JSPlot_Color.prototype.multiply = function (multiplier) {
+    return new JSPlot_Color(this.red * multiplier, this.green * multiplier, this.blue * multiplier, this.alpha);
+};
+
+/**
  * toHTML - Write this color as an RGBA(...) HTML color string
  * @returns {string}
  */

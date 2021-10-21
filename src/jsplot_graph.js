@@ -326,12 +326,12 @@ JSPlot_Graph.prototype.project3d = function (xap, yap, zap) {
     var z2 = z;
 
     var x3 = x2;
-    var y3 = y2 * Math.cos(this.viewAngleYZ * Math.PI / 180) - z2 * Math.sin(this.viewAngleYZ * Math.PI / 180);
-    var z3 = y2 * Math.sin(this.viewAngleYZ * Math.PI / 180) + z2 * Math.cos(this.viewAngleYZ * Math.PI / 180);
+    var y3 = +y2 * Math.cos(this.viewAngleYZ * Math.PI / 180) + z2 * Math.sin(this.viewAngleYZ * Math.PI / 180);
+    var z3 = -y2 * Math.sin(this.viewAngleYZ * Math.PI / 180) + z2 * Math.cos(this.viewAngleYZ * Math.PI / 180);
 
     return {
         "xpos": this.origin[0] + x3,
-        "ypos": this.origin[1] + z3,
+        "ypos": this.origin[1] - z3,
         "depth": y3
     };
 };
@@ -388,7 +388,7 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin,
     }
 
     // 3D plots
-    var theta = {'x':0, 'y':0, 'z':0};
+    var theta = {'x': 0, 'y': 0, 'z': 0};
     if (this.threeDimensional) {
         var position = this.project3d(output['xap'], output['yap'], output['zap']);
 

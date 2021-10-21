@@ -186,7 +186,7 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
     $.each(data.data, function (index, dataPoint) {
 
         if ((style === "points") || (style === "lines") || (style === "linespoints") || (style === "lowerlimits") ||
-            (style === "upperlimits") || (style === "dots")) {
+            (style === "upperlimits") || (style === "dots") || (style === "surface")) {
             if (a1.inRange(dataPoint[0]) && a2.inRange(dataPoint[1]) && ((!is_3d) || a3.inRange(dataPoint[2]))) {
                 a1.includePoint(dataPoint[0]);
                 a2.includePoint(dataPoint[1]);
@@ -440,6 +440,8 @@ JSPlot_Plotter.prototype.update_axis_usage = function (data, style, a1, a2, a3) 
  * @param a3_name {string} - The name of the axis we are going to use as an z axis
  */
 JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, a2_name, a3_name) {
+    var i, j;
+
     /** @type {JSPlot_Plotter} */
     var self = this;
     /** @type {JSPlot_Axis} */
@@ -520,7 +522,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
             }
 
             // We are rendering a series of boxes, with interfaces at the horizontal midpoints between boxes
-            for (var i = 0; i < data.data.length; i++) {
+            for (i = 0; i < data.data.length; i++) {
                 /** @type {?number} */
                 var margin_left = null, margin_right = null;
 
@@ -793,7 +795,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         ]
                     ];
                 }
-                theta_list = ['x','y','z'];
+                theta_list = ['x', 'y', 'z'];
             } else if (style === "xerrorrange") {
                 if (graph.threeDimensional) {
                     position = [
@@ -812,7 +814,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         ]
                     ];
                 }
-                theta_list = ['x','y','z'];
+                theta_list = ['x', 'y', 'z'];
             } else if (style === "yerrorbars") {
                 if (graph.threeDimensional) {
                     position = [
@@ -831,7 +833,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         ]
                     ];
                 }
-                theta_list = ['y','x','z'];
+                theta_list = ['y', 'x', 'z'];
             } else if (style === "yerrorrange") {
                 if (graph.threeDimensional) {
                     position = [
@@ -850,7 +852,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         ]
                     ];
                 }
-                theta_list = ['y','x','z'];
+                theta_list = ['y', 'x', 'z'];
             } else if (style === "zerrorbars") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
@@ -859,7 +861,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[3], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['z','x','y'];
+                theta_list = ['z', 'x', 'y'];
             } else if (style === "zerrorrange") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
@@ -868,7 +870,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[4], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['z','x','y'];
+                theta_list = ['z', 'x', 'y'];
             } else if (style === "xyerrorbars") {
                 if (graph.threeDimensional) {
                     position = [
@@ -876,7 +878,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         [
                             graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                        ],[
+                        ], [
                             graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[4], dataPoint[2], a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[4], dataPoint[2], a1, a2, a3, true)
                         ]
@@ -887,13 +889,13 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         [
                             graph.projectPoint(dataPoint[0] - dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0] + dataPoint[2], dataPoint[1], 0, a1, a2, a3, true)
-                        ],[
+                        ], [
                             graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[3], 0, a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[3], 0, a1, a2, a3, true)
                         ]
                     ];
                 }
-                theta_list = ['x','y','z'];
+                theta_list = ['x', 'y', 'z'];
             } else if (style === "xyerrorrange") {
                 if (graph.threeDimensional) {
                     position = [
@@ -901,7 +903,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         [
                             graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
                             graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                        ],[
+                        ], [
                             graph.projectPoint(dataPoint[0], dataPoint[5], dataPoint[2], a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0], dataPoint[6], dataPoint[2], a1, a2, a3, true)
                         ]
@@ -912,97 +914,97 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                         [
                             graph.projectPoint(dataPoint[2], dataPoint[1], 0, a1, a2, a3, true),
                             graph.projectPoint(dataPoint[3], dataPoint[1], 0, a1, a2, a3, true)
-                        ],[
+                        ], [
                             graph.projectPoint(dataPoint[0], dataPoint[4], 0, a1, a2, a3, true),
                             graph.projectPoint(dataPoint[0], dataPoint[5], 0, a1, a2, a3, true)
                         ]
                     ];
                 }
-                theta_list = ['x','y','z'];
+                theta_list = ['x', 'y', 'z'];
             } else if (style === "xzerrorbars") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
                     [
                         graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[4], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[4], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['x','z','y'];
+                theta_list = ['x', 'z', 'y'];
             } else if (style === "xzerrorrange") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
                     [
                         graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[5], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[6], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['x','z','y'];
+                theta_list = ['x', 'z', 'y'];
             } else if (style === "yzerrorbars") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
                     [
                         graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[3], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[3], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[4], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[4], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['y','z','x'];
+                theta_list = ['y', 'z', 'x'];
             } else if (style === "yzerrorrange") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
                     [
                         graph.projectPoint(dataPoint[0], dataPoint[3], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[4], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[5], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[6], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['y','z','x'];
+                theta_list = ['y', 'z', 'x'];
             } else if (style === "xyzerrorbars") {
                 position = [
                     graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
                     [
                         graph.projectPoint(dataPoint[0] - dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0] + dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1] - dataPoint[4], dataPoint[2], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1] + dataPoint[4], dataPoint[2], a1, a2, a3, true)
-                    ],[
+                    ], [
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] - dataPoint[5], a1, a2, a3, true),
                         graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2] + dataPoint[5], a1, a2, a3, true)
                     ]
                 ];
-                theta_list = ['x','y','z'];
-        } else if (style === "xyzerrorrange") {
-            position = [
-                graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
-                [
-                    graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
-                    graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
-                ],[
-                    graph.projectPoint(dataPoint[0], dataPoint[5], dataPoint[2], a1, a2, a3, true),
-                    graph.projectPoint(dataPoint[0], dataPoint[6], dataPoint[2], a1, a2, a3, true)
-                ],[
-                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[7], a1, a2, a3, true),
-                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[8], a1, a2, a3, true)
-                ]
-            ];
-                theta_list = ['x','y','z'];
-        }
+                theta_list = ['x', 'y', 'z'];
+            } else if (style === "xyzerrorrange") {
+                position = [
+                    graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[2], a1, a2, a3, false),
+                    [
+                        graph.projectPoint(dataPoint[3], dataPoint[1], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[4], dataPoint[1], dataPoint[2], a1, a2, a3, true)
+                    ], [
+                        graph.projectPoint(dataPoint[0], dataPoint[5], dataPoint[2], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[6], dataPoint[2], a1, a2, a3, true)
+                    ], [
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[7], a1, a2, a3, true),
+                        graph.projectPoint(dataPoint[0], dataPoint[1], dataPoint[8], a1, a2, a3, true)
+                    ]
+                ];
+                theta_list = ['x', 'y', 'z'];
+            }
 
             // Convert theta_list from list of directions into a list of vectors in screen coordinates
             var i, j, k, bar_vectors = [];
             for (i = 0; i < theta_list.length; i++) {
-                var theta = position[0]['theta_'+theta_list[i]];
+                var theta = position[0]['theta_' + theta_list[i]];
                 bar_vectors.push([
                     Math.sin(theta), Math.cos(theta)
                 ])
@@ -1011,17 +1013,17 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
             // Only draw this data point if it is within the visible axis range
             if ((!isNaN(position[0]['xpos'])) && (!isNaN(position[0]['ypos']))) {
                 // Draw the body of the error bar
-                for (i=1; i<position.length; i++) {
+                for (i = 1; i < position.length; i++) {
                     self.page.canvas._moveTo(position[i][0]['xpos'], position[i][0]['ypos']);
                     self.page.canvas._lineTo(position[i][1]['xpos'], position[i][1]['ypos']);
                 }
 
                 // Draw bars on ends of the error bar
                 var bar_length;
-                for (i=1; i<position.length; i++)
-                    for (j=0; j<=1; j++)
-                        for (k=0; k<=(graph.threeDimensional ? 2 : 1); k++)
-                            if (k !== i-1) {
+                for (i = 1; i < position.length; i++)
+                    for (j = 0; j <= 1; j++)
+                        for (k = 0; k <= (graph.threeDimensional ? 2 : 1); k++)
+                            if (k !== i - 1) {
                                 bar_length = 4 * data.workspace.styleFinal.lineWidth;
 
                                 self.page.canvas._moveTo(
@@ -1035,7 +1037,7 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
                             }
 
                 // Draw bar on the middle of the error bar
-                for (k=position.length - 1; k<=(graph.threeDimensional ? 2 : 1); k++) {
+                for (k = position.length - 1; k <= (graph.threeDimensional ? 2 : 1); k++) {
                     bar_length = 3 * data.workspace.styleFinal.lineWidth;
 
                     self.page.canvas._moveTo(
@@ -1053,4 +1055,65 @@ JSPlot_Plotter.prototype.renderDataSet = function (graph, data, style, a1_name, 
         self.page.canvas._stroke();
     }
 
+    // Surface plots
+    else if (style === "surface") {
+        // Check that input data set represents a 2D grid
+        if (!data.grid) {
+            graph.page.errorLog += "The surface plot style can only operate of data sets generated with the <evaluate_over_grid> method of the <JSPlot_FunctionEvaluator> class.\n";
+            return;
+        }
+
+        // Compute vector representing the illumination direction
+        var illumination_direction = new JSPlot_Vector(0, 0, 1);
+
+        // Loop over surface elements
+        var d = data.data;
+        for (i = 0; i < data.grid_dimensions[0] - 1; i++)
+            for (j = 0; j < data.grid_dimensions[1] - 1; j++) {
+                // Convert four vertices of this grid square into JSPlot_Point instances
+                var vertices = [];
+                $.each([0, 1, data.grid_dimensions[1], data.grid_dimensions[1] + 1], function (index, offset) {
+                    var o = i * data.grid_dimensions[1] + j + offset;
+                    var p = graph.projectPoint(d[o][0], d[o][1], d[o][2], a1, a2, a3, false);
+                    vertices.push(new JSPlot_Vector(p['xpos'], p['ypos'], p['depth']));
+                });
+
+                // Render this square as two triangles
+                for (var t = 0; t < 2; t++) {
+                    if (t) {
+                        var indices = [0, 1, 2];
+                    } else {
+                        indices = [1, 2, 3];
+                    }
+
+                    // Compute vectors along two sides of the triangle
+                    var side1 = vertices[indices[1]].sub(vertices[indices[0]]);
+                    var side2 = vertices[indices[2]].sub(vertices[indices[0]]);
+                    var normal = side1.cross_product(side2);
+                    var illumination_angle = normal.angle_with(illumination_direction);
+                    var norm = Math.abs(Math.cos(illumination_angle));
+
+                    // Work out colour for this triangle
+                    var fill_color = data.workspace.styleFinal.fillColor.multiply(norm);
+                    var line_color = data.workspace.styleFinal.color.isVisible() ? data.workspace.styleFinal.color : fill_color;
+
+                    // Draw triangle
+                    var render_element = function (style, lineColor, fillColor, triangle) {
+                        return function () {
+                            self.page.canvas._strokeStyle(lineColor.toHTML(), style.lineWidth / 2);
+                            self.page.canvas._fillStyle(fillColor.toHTML())
+                            self.page.canvas._beginPath();
+                            self.page.canvas._moveTo(triangle[0]._x, triangle[0]._y);
+                            self.page.canvas._lineTo(triangle[1]._x, triangle[1]._y);
+                            self.page.canvas._lineTo(triangle[2]._x, triangle[2]._y);
+                            self.page.canvas._fill()
+                            self.page.canvas._stroke();
+                        }
+                    }(data.workspace.styleFinal, line_color, fill_color,
+                        [vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]]);
+
+                    this.page.threeDimensionalBuffer.addItem(vertices[0]._z, render_element);
+                }
+            }
+    }
 };

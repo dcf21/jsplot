@@ -40,8 +40,8 @@ $pageTemplate->header($pageInfo);
 ?>
 
     <p>
-        This example demonstrates the use of the <span class="code">surface</span> plot style to generate 3D surface
-        plots.
+        This example demonstrates the use of the <span class="code">surface</span> plot style to generate a 3D surface
+        plot. Click and drag the plot to rotate it.
     </p>
 
     <div id="demo_graph">
@@ -64,11 +64,13 @@ $pageTemplate->header($pageInfo);
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
                             "Polynomial surface", {
-                                'plotStyle': 'points'
+                                'plotStyle': 'surface',
+                                'fillColor': new JSPlot_Color(0, 0.75, 0, 1),
+                                'color': new JSPlot_Color(0, 0, 0, 1)
                             },
                             [
                                 custom_polynomial
-                            ]).evaluate_over_grid(-10, 10, 40, -10, 10, 40)
+                            ]).evaluate_over_grid(-10, 10, 30, -10, 10, 30)
                     ], {
                         'threeDimensional': true,
                         'key': true,

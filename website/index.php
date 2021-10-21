@@ -26,6 +26,7 @@ require "php/imports.php";
 $pageInfo = [
     "pageTitle" => "JSPlot",
     "pageDescription" => "JSPlot - A Javascript graph-plotting library",
+    "fluid" => true,
     "activeTab" => null,
     "teaserImg" => null,
     "cssextra" => null,
@@ -38,7 +39,7 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
-    <div class="large_text">
+    <div class="large_text" style="margin: 0 auto; max-width: 1200px;">
         <p>
             <b>JSPlot</b> is an open-source Javascript graph-plotting and vector-graphics library, designed for
             embedding scientific charts in websites. It is licensed under the Gnu General Public License (GPL v3), and
@@ -68,42 +69,40 @@ $pageTemplate->header($pageInfo);
         </p>
     </div>
 
-    <div id="demo_graph" style="max-width: 550px;">
+    <div id="demo_graph" style="max-width: 900px;">
         <!-- HTML code -->
-        <div id="graph_helix" style="max-width:900px; border: 1px solid #888;"></div>
+        <div id="graph_helix"></div>
 
         <!-- Javascript code -->
         <script type="text/javascript">
             $(function () {
-                // Display source code for this page
-                $("#source_code").text($("#demo_graph").html());
+                // Create sinc function that we are going to plot
+                var sinc = function (x, y) {
+                    var r = Math.hypot(x, y);
+                    return Math.sin(r) / r;
+                }
 
                 // Create canvas to put graph onto
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "Helix 1", {'lineWidth': 5},
+                            "sinc function", {
+                                'plotStyle': 'surface',
+                                'fillColor': new JSPlot_Color(0, 0.75, 0, 1),
+                                'color': new JSPlot_Color(0, 0, 0, 0)
+                            },
                             [
-                                function (x) {
-                                    return Math.cos(x + Math.PI);
-                                },
-                                function (x) {
-                                    return Math.sin(x + Math.PI);
-                                },
-                            ]).evaluate_linear_raster(-10, 10, 1000, true),
-                        new JSPlot_FunctionEvaluator(
-                            "Helix 2", {'lineWidth': 5},
-                            [
-                                Math.cos, Math.sin
-                            ]).evaluate_linear_raster(-10, 10, 1000, true),
+                                sinc
+                            ]).evaluate_over_grid(-10, 10, 60, -10, 10, 60)
                     ], {
                         'threeDimensional': true,
-                        'interactiveMode': 'rotate',
-                        'x1_axis': {
-                            'zoomEnabled': true
-                        }
+                        'interactiveMode': 'rotate'
                     })
-                }, {});
+                }, {
+                    'allow_export_png': false,
+                    'allow_export_svg': false,
+                    'allow_export_csv': false
+                });
 
                 // Render plot
                 canvas.renderToCanvas(

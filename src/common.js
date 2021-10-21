@@ -77,10 +77,21 @@ function detectIE() {
     return false;
 }
 
+/**
+ * Convert a value to an integer
+ * @param value - Value to convert to an integer
+ * @returns {number} - Integer representation of input value
+ */
 function toInt(value) {
     return ~~value;
 }
 
+/**
+ * Fetch the position of the pointer relative to a parent element
+ * @param e - Javascript event discriptor from which to extract pointer position
+ * @param name - The jQuery element relative to which we measure pointer position
+ * @returns {number[]} - Array of two numbers representing the pixel position of the pointer
+ */
 function getCursorPos(e, name) {
     var o = name.offset();
     var posx = e.pageX - o.left;
