@@ -39,6 +39,25 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This examples shows how to create a timeline axis.
+    </p>
+    <p>
+        The horizontal axis of this plot is set to display as a timeline by setting the
+        <span class="code">dataType</span> setting
+        on the <span class="code">axis_x1</span> axis of the <span class="code">JSPlot_Graph</span> instance
+        to <span class="code">timestamp</span>. In this mode, the numerical values along the axis are interpreted
+        as Unix timestamps, and displayed as times and/or dates, depending on the range of the axis.
+    </p>
+    <p>
+        For illustrative purposes, the function displayed here increases linearly through each day, from zero at
+        midnight to one the following midnight, before reverting to zero again at the start of the next day.
+    </p>
+    <p>
+        You can click and drag the graph horizontally to change the horizontal axis range, or use the mouse scroll wheel
+        to zoom in or out.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_timeline" style="max-width:1024px; border: 1px solid #888;"></div>

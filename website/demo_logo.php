@@ -39,6 +39,15 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+<p>
+    This example demonstrates how the JSPlot logo in the top banner of this website was generated.
+</p>
+<p>
+    The logo is essentially a wavey-line graph, but the axes have been removed by setting the
+    <span class="code">visible</span> setting to <span class="code">false</span> for both the
+    <span class="code">x1</span> and <span class="code">x2</span> axes within
+    <span class="code">JSPlot_Graph</span> instance.
+</p>
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="logo_example"></div>

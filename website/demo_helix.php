@@ -39,6 +39,19 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates how to generate a three-dimensional graph, which the user can rotate by clicking and
+        dragging with the pointer.
+    </p>
+    <p>
+        The 3D plotting mode is enabled by setting the <span class="code">threeDimensional</span> setting on the
+        <span class="code">JSPlot_Graph</span> instance to <span class="code">true</span>.
+    </p>
+    <p>
+        The user is able to rotate the graph with the pointer when the <span class="code">interactiveMode</span> setting
+        is set to <span class="code">rotate</span>.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_helix" style="max-width:900px; border: 1px solid #888;"></div>

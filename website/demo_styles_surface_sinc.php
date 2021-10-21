@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">surface</span> plot style to generate 3D surface
+        plots.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_surface" style="max-width:1024px; border: 1px solid #888;"></div>

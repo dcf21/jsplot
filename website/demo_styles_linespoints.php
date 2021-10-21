@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">linespoints</span> plot style. This draws a
+        series of data points on the graph, but also connects them with straight lines.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_sin_x" style="max-width:1024px; border: 1px solid #888;"></div>

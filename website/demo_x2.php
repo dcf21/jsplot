@@ -39,6 +39,21 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This is a simple example of how to plot a graph of the function <i>y=x<sup>2</sup></i>, using the
+        <span class="code">JSPlot_FunctionEvaluator</span> class to automatically evaluate a mathematical function
+        along the horizontal axis of the plot.
+    </p>
+    <p>
+        You can click and drag the graph left and right, and the function evaluator will automatically recompute the
+        sine function along the new horizontal range of the graph. This is possible because the
+        <span class="code">interactiveMode</span>
+        option on the <span class="code">JSPlot_Graph</span> instance is set to <span class="code">pan</span>.
+    </p>
+    <p>
+        The vertical axis of the plot automatically rescales the accommodate all the data.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_x2" style="max-width:1024px; border: 1px solid #888;"></div>
@@ -53,7 +68,7 @@ $pageTemplate->header($pageInfo);
                 var canvas = new JSPlot_Canvas({
                     "graph_1": new JSPlot_Graph([
                         new JSPlot_FunctionEvaluator(
-                            "sin(x)", {},
+                            "x²", {},
                             [
                                 function (x) {
                                     return x * x;

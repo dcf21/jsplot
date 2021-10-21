@@ -39,6 +39,18 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This is a simple example of how to plot a graph of the sine function, using the
+        <span class="code">JSPlot_FunctionEvaluator</span> class to automatically evaluate a mathematical function
+        along the horizontal axis of the plot.
+    </p>
+    <p>
+        You can click and drag the graph left and right, and the function evaluator will automatically recompute the
+        sine function along the new horizontal range of the graph. This is possible because the
+        <span class="code">interactiveMode</span>
+        option on the <span class="code">JSPlot_Graph</span> instance is set to <span class="code">pan</span>.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_sin_x" style="max-width:1024px; border: 1px solid #888;"></div>

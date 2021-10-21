@@ -39,6 +39,12 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">boxes</span> plot style, with the
+        <span class="code">boxWidth</span> parameter set on the <span class="code">JSPlot_Graph</span>. In this mode,
+        all of the bars of the bar chart have the same manually-set width.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>

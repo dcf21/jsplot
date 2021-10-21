@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">lower_limits</span> and
+        <span class="code">upper_limits</span> plot styles.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_limits" style="max-width:1024px; border: 1px solid #888;"></div>

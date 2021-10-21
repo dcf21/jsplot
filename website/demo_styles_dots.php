@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">dots</span> plot style, which represents data
+        by small circles.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_dots" style="max-width:1024px; border: 1px solid #888;"></div>

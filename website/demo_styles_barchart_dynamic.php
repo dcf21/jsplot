@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">wboxes</span> plot style, which is used
+        to create bar charts where the width of each bar is set individually as an additional column of data.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>

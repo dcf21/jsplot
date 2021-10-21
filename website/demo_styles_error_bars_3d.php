@@ -39,6 +39,24 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the error bars and error range plot styles.
+    </p>
+    <p>
+        The error bar plot styles produce error bars along one, two, or three axes, symmetrically around the central
+        point. Additional columns of data specify the size of the error bar to be drawn along each axis.
+    </p>
+    <p>
+        The error range plot styles produce error bars along one, two, or three axes, and the minimum and maximum
+        extent of each error bar is specified separately. The first two data columns specify the (x, y) coordinates
+        of the center of the error bar, while additional subsequent columns specify the minimum and maximum points
+        along each axis in turn.
+    </p>
+    <p>
+        These plot styles have the same behaviour as the styles with
+        the same names in Gnuplot or <a href="http://pyxplot.org.uk/current/doc/html/sect0070.html">Pyxplot</a>.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_errorbars" style="max-width:1024px; border: 1px solid #888;"></div>

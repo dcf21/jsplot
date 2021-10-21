@@ -39,6 +39,12 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">arrows_head</span>,
+        <span class="code">arrows_nohead</span> and <span class="code">arrows_twohead</span> plot styles to draw
+        arrows on graphs.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_arrows" style="max-width:1024px; border: 1px solid #888;"></div>

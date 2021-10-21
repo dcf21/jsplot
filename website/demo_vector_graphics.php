@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+<p>
+    This example demonstrates JSPlot's various vector graphics classes, which can be placed on the plotting
+    canvas together with graphs.
+</p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="vector_graphics_demo" style="max-width:1024px; border: 1px solid #888;"></div>

@@ -39,6 +39,11 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">impulses</span> plot style. This produces
+        graphs similar to bar charts, but with single lines instead of bars.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_impulses" style="max-width:1024px; border: 1px solid #888;"></div>

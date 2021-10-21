@@ -39,6 +39,16 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates how to overlay labels on top of graphs.
+    </p>
+    <p>
+        The <span class="code">annotations</span> setting on a <span class="code">JSPlot_Graph</span> instance should be
+        supplied an array of instances of the <span class="code">JSPlot_Label_Text</span> and
+        <span class="code">JSPlot_Label_Arrow</span> classes. These overlay text and arrows over the graph. The
+        coordinates for each item can be specified relative to the graph axes.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_annotated" style="max-width:1024px; border: 1px solid #888;"></div>

@@ -39,6 +39,21 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates how to generate a bar chart with horizontal bars.
+    </p>
+    <p>
+        The roles of the horizontal and vertical axes are inverted by using the <span class="code">axis1</span> and
+        <span class="code">axis2</span> settings on the <span class="code">JSPlot_DataSet</span> instance describing the
+        bar chart.
+    </p>
+    <p>
+        Allowed options are <span class="code">x1</span> (bottom),
+        <span class="code">x2</span> (top), <span class="code">y1</span> (left) and
+        <span class="code">y2</span> (right). On three-dimensional graphs,
+        <span class="code">z1</span> and <span class="code">z2</span> are also valid options.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>

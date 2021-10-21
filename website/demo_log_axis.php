@@ -39,6 +39,19 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of a logarithmically spaced axis.
+    </p>
+    <p>
+        The vertical axis of this graph is logarithmically spaced because the <span class="code">log</span> setting
+        within the <span class="code">axis_x1</span> settings of the <span class="code">JSPlot_Graph</span> instance
+        is set to <span class="code">true</span>.
+    </p>
+    <p>
+        You can click and drag the graph left and right, and watch the vertical axis automatically rescale to fit
+        the data. This is possible because the <span class="code">interactiveMode</span> option on the
+        <span class="code">JSPlot_Graph</span> instance is set to <span class="code">pan</span>.
+    </p>
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_log_axis" style="max-width:1024px; border: 1px solid #888;"></div>

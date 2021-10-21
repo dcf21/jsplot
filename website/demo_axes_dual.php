@@ -24,8 +24,8 @@
 require "php/imports.php";
 
 $pageInfo = [
-    "pageTitle" => "A demonstration of a bar chart with two different vertical axes",
-    "pageDescription" => "JSPlot - A demonstration of a bar chart with two different vertical axes",
+    "pageTitle" => "A demonstration of a graph with two different vertical axes",
+    "pageDescription" => "JSPlot - A demonstration of a graph with two different vertical axes",
     "fluid" => true,
     "activeTab" => "demos",
     "teaserImg" => null,
@@ -39,6 +39,15 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of two separate vertical axes.
+    </p>
+    <p>
+        The red curve is plotted against the vertical axis on the left side of the graph, while the blue curve is
+        plotted against the vertical axis on the right. This is controlled using the <span class="code">axis2</span>
+        setting on each <span class="code">JSPlot_DataSet</span> instance. A value of <span class="code">y1</span> uses
+        the left y axis, while <span class="code">y2</span> uses the right y axis.
+    </p>
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_barchart" style="max-width:1024px; border: 1px solid #888;"></div>
@@ -58,7 +67,7 @@ $pageTemplate->header($pageInfo);
                                 Math.sin
                             ]).evaluate_linear_raster(-10, 10, 100, true),
                         new JSPlot_FunctionEvaluator(
-                            "x^2", {'axis2': 'y2'},
+                            "x²", {'axis2': 'y2'},
                             [
                                 function (x) {
                                     return x * x;

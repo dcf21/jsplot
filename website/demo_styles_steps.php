@@ -39,6 +39,12 @@ $pageTemplate->header($pageInfo);
 
 ?>
 
+    <p>
+        This example demonstrates the use of the <span class="code">steps</span>, <span class="code">histeps</span>
+        and <span class="code">fsteps</span> plot styles. These plot styles have the same behaviour as the styles with
+        the same names in Gnuplot or <a href="http://pyxplot.org.uk/current/doc/html/sect0070.html">Pyxplot</a>.
+    </p>
+
     <div id="demo_graph">
         <!-- HTML code -->
         <div id="graph_steps" style="max-width:1024px; border: 1px solid #888;"></div>
