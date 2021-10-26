@@ -29,7 +29,7 @@ import make_htaccess
 import php_preprocess
 
 # Flag to choose whether we minify CSS and Javascript
-minify = False
+minify = True
 
 # These subdirectories get symlinked rather than copies, because they're quite big
 symlinkDirectories = ['vendor']

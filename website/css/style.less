@@ -36,7 +36,7 @@
 h2 { margin:12px 0; border-bottom: 1px solid #aaa; padding: 4px 0; }
 h3 { padding: 30px 0 10px 0; font-size:20px; color:#888; border-bottom: 1px solid #ddd; clear: both; }
 h4 { padding-top: 30px; }
-h5 { padding-top: 20px; color: #777; font-size:19px; font-weight: normal; }
+h5 { margin: 30px 0 20px 0; font-size:19px; font-weight: bold; }
 
 h3 a { color: @dark_purple; font-weight: bold; }
 
@@ -50,6 +50,17 @@ table.padded-table td { padding: 5px; }
 
 table.stripy thead { font-weight: bold; background-color: #ffffff; text-align: center; }
 table.stripy tbody tr:nth-child( odd) { background-color: #e8e8e8; }
+
+table.bordered { border: 2px solid #888888; border-collapse:collapse; }
+table.bordered2 { border-top: 0; }
+table.bordered thead td { border: 1px solid #888888; }
+table.bordered td { border-left: 1px solid #888888; border-right: 1px solid #888888; border-top: 0; border-bottom: 0; padding: 8px 6px; }
+
+table.bordered_slim td { padding: 2px 6px; }
+
+table.api_ref { font-size: 15px; margin: 25px 0; }
+table.api_ref td:nth-child(2) { max-width: 240px; }
+
 
 .btn {
     margin: 15px 8px;

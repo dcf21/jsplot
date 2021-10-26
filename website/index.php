@@ -47,18 +47,18 @@ $pageTemplate->header($pageInfo);
             <a href="download.php">downloaded from GitHub</a>.
         </p>
         <p>
-            It supports a wide range of chart types, including scatter charts, line charts, bar charts, and plots with
-            error bars. Both 2D and 3D graphs are supported, and data can be either numerical or time stamps, making it
-            easy to plot time-series data along axes which automatically render dates and times into an appropriate
-            format.
+            It supports a wide range of 2D and 3D chart types, which are designed to look similar to styles often seen
+            in the scientific literature. Supported chart types include scatter charts, line charts, bar charts, plots
+            with error bars, and more. Data can be either numerical or time stamps, making it easy to plot time-series
+            data along axes which automatically render dates and times into an appropriate format.
         </p>
         <p>
-            It is easy to make plots interactive, if required. The user can either click and drag the plot to scroll the
-            axes, or use the mouse wheel to zoom in/out. Interactive charts are fully compatible with touch-screen
-            devices, where pinch gestures are used to zoom.
+            Options are provided to make plots either static or interactive. In the latter case, the user can click
+            and drag plots to scroll the axes or use the mouse wheel to zoom in/out. Such interactive charts are
+            fully compatible with touch-screen devices, where pinch gestures are used to zoom.
         </p>
         <p>
-            JSPlot can render charts onto HTML5 canvas objects, to PNG files, or to SVG files.
+            Supported output media include HTML5 canvas objects, PNG files, and SVG files.
         </p>
         <p>
             You can find out more by browsing the
