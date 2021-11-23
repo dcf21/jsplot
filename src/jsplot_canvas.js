@@ -144,7 +144,7 @@ JSPlot_Canvas.prototype._render = function (renderer) {
         sorted_item_list.push(item);
     });
     sorted_item_list.sort(function (a, b) {
-        return (a.z_index > b.z_index) ? 1 : -1;
+        return a.z_index - b.z_index;
     });
 
     // Work out axis ranges of all graphs

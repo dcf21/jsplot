@@ -66,23 +66,23 @@ $pageTemplate->header($pageInfo);
                     "box_1": new JSPlot_Rectangle({
                         'origin': [10, 10],
                         'z_index': -1,
-                        'fillColor': new JSPlot_Color(1, 0, 0, 0.4)
+                        'fillColor': new JSPlot_Color(1, 0, 0, 0.7)
                     }),
                     "box_2": new JSPlot_Rectangle({
                         'origin': [140, 10],
                         'z_index': 5,
-                        'fillColor': new JSPlot_Color(0, 1, 0, 0.4)
+                        'fillColor': new JSPlot_Color(0, 1, 0, 0.7)
                     }),
                     "box_3": new JSPlot_Rectangle({
                         'origin': [10, 140],
                         'z_index': 5,
-                        'fillColor': new JSPlot_Color(0, 0, 1, 0.4)
+                        'fillColor': new JSPlot_Color(0, 0, 1, 0.7)
                     }),
                     "circle": new JSPlot_Circle({
                         'origin': [100, 100],
                         'z_index': 5,
                         'radius': 25,
-                        'fillColor': new JSPlot_Color(1, 1, 0, 0.4),
+                        'fillColor': new JSPlot_Color(1, 1, 0, 0.7),
                         'strokeColor': new JSPlot_Color(0, 0, 0, 1),
                         'strokeLineWidth': 4
                     }),

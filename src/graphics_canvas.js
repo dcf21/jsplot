@@ -331,7 +331,7 @@ GraphicsCanvas.prototype._unqueueText = function () {
 
     // Sort in order of DESCENDING priority
     this._text_queue.sort(function (a, b) {
-        return a[0] > b[0];
+        return b[0] - a[0];
     });
 
     // Render each queued text label in order of descending priority

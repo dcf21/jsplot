@@ -723,7 +723,7 @@ JSPlot_Graph.prototype.render_annotations = function () {
 
     // Sort list of annotations into order of depth
     sorted_item_list.sort(function (a, b) {
-        return (a[0] > b[0]) ? -1 : 1;
+        return b[0] - a[0];
     });
 
     // Render each annotation in turn

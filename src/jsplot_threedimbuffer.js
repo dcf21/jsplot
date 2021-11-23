@@ -54,7 +54,7 @@ JSPlot_ThreeDimBuffer.prototype.activate = function () {
 JSPlot_ThreeDimBuffer.prototype.deactivate = function () {
     // Sort items in buffer, from back to front
     this.buffer.sort(function (a, b) {
-        return a[0] > b[0];
+        return a[0] - b[0];
     });
 
     // Display all items in 3D display buffer, from back to front
