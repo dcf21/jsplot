@@ -91,13 +91,20 @@ JSPlot_Arrow.prototype.cleanWorkspace = function () {
 };
 
 /**
- * calculateDataRanges - Step 1 of the rendering process
+ * determineWidth - Step 0 of the rendering process
  * @param page {JSPlot_Canvas} - The canvas that this arrow will be rendered onto
  */
-JSPlot_Arrow.prototype.calculateDataRanges = function (page) {
+JSPlot_Arrow.prototype.determineWidth = function (page) {
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
+};
+
+/**
+ * calculateDataRanges - Step 1 of the rendering process
+ */
+JSPlot_Arrow.prototype.calculateDataRanges = function () {
+    // No work to do for this item type
 };
 
 /**

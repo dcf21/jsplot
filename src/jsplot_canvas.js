@@ -147,13 +147,18 @@ JSPlot_Canvas.prototype._render = function (renderer) {
         return a.z_index - b.z_index;
     });
 
-    // Work out axis ranges of all graphs
-    $.each(sorted_item_list, function (index, item) {
-        item.calculateDataRanges(self);
-    });
-
     // Create null canvas, so items can measure themselves
     this.canvas = renderer(0, 0)
+
+    // Work out widths of all graphs
+    $.each(sorted_item_list, function (index, item) {
+        item.determineWidth(self);
+    });
+
+    // Work out axis ranges of all graphs
+    $.each(sorted_item_list, function (index, item) {
+        item.calculateDataRanges();
+    });
 
     // Work out bounding box of all elements
     $.each(sorted_item_list, function (index, item) {

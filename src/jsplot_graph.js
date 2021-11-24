@@ -73,6 +73,8 @@ function JSPlot_Graph(dataSets, settings) {
     this.titleOffset = [0, 0];
     /** @type {?number|string} */
     this.width = null;  // Either null (automatic width); a numerical number of pixels; or a string percentage eg '90%'
+    /** @type {boolean} */
+    this.widthIncludesAxes = true;
     /** @type {?number} */
     this.viewAngleXY = 60;
     /** @type {?number} */
@@ -188,6 +190,9 @@ JSPlot_Graph.prototype.configure = function (settings) {
             case "width":
                 self.width = value;
                 break;
+            case "widthIncludesAxes":
+                self.widthIncludesAxes = value;
+                break;
             case "viewAngleXY":
                 self.viewAngleXY = value;
                 break;
@@ -253,11 +258,17 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
 
     if (this.page !== null) {
         if (this.width === null) {
-            // Case 1: width is null. We use a default, which is larger for 2D graphs than for 3D graphs
-            if (!this.threeDimensional) {
-                this.workspace.width_pixels = Math.min(0.85 * this.page.page_width, this.page.page_width - 120);
+            // Case 1: width is null. We use a default graph size.
+            if (this.widthIncludesAxes) {
+                // Fill the entire width of the canvas by default
+                this.workspace.width_pixels = this.page.page_width - 1;
             } else {
-                this.workspace.width_pixels = Math.min(0.5 * this.page.page_width, this.page.page_width - 160);
+                // If default width is not to include axis furniture, pick a sensible value, around half available width
+                if (!this.threeDimensional) {
+                    this.workspace.width_pixels = Math.min(0.85 * this.page.page_width, this.page.page_width - 120);
+                } else {
+                    this.workspace.width_pixels = Math.min(0.5 * this.page.page_width, this.page.page_width - 160);
+                }
             }
         } else if (!isNaN(this.width)) {
             // Case 2: width is specified as a numerical number of pixels
@@ -430,18 +441,64 @@ JSPlot_Graph.prototype.projectPoint = function (xin, yin, zin,
 };
 
 /**
- * calculateDataRanges - Step 1 of the rendering process: calculate the range of the data plotted against each axis.
- * Then finalise the ranges of all the axes and decide on their ticking schemes.
+ * determineWidth - Step 0 of the rendering process
  * @param page {JSPlot_Canvas} - The canvas that this graph will be rendered onto
  */
-JSPlot_Graph.prototype.calculateDataRanges = function (page) {
+JSPlot_Graph.prototype.determineWidth = function (page) {
     var self = this;
-    var i, j, axisName;
 
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
     this.workspace.plotter = new JSPlot_Plotter(page, this);
+
+    // Loop over all the data sets we are going to plot, ensuring all plot style settings are specified
+    $.each(this.dataSets, function (index, item) {
+        item.cleanWorkspace();
+
+        // Create final set of styling information for this dataset
+        item.workspace.styleFinal = item.style.clone();
+        self.insertDefaultStyles(item.workspace.styleFinal);
+
+        // Work out how many columns of data this data set expects
+        item.workspace.requiredColumns = self.workspace.plotter.data_columns_required(item.workspace.styleFinal.plotStyle);
+    });
+
+    // If allotted width for graph includes axes, we need to numerically determine how long to make the axes to make
+    // the graph fit within the allotted space
+    if (this.widthIncludesAxes) {
+        var target_physical_width = this.workspace.width_pixels;
+        var width_interval_min = target_physical_width * 0.2;
+        var width_interval_max = target_physical_width;
+        var iteration_count = 8;
+
+        // Determine length of horizontal axis by process of bisection
+        for (var i=0; i<iteration_count; i++) {
+            var trial_width = (width_interval_min + width_interval_max) / 2;
+            this.workspace.width_pixels = trial_width;
+            this.calculateDataRanges(this.page);
+            var boundingBox = this.calculateBoundingBox();
+            var physical_width = Math.abs(boundingBox.right - boundingBox.left);
+
+            if (physical_width < target_physical_width) {
+                width_interval_min = trial_width;
+            } else {
+                width_interval_max = trial_width;
+            }
+        }
+
+        // Update length of horizontal axes
+        this.workspace.width_pixels = width_interval_min;
+    }
+};
+
+/**
+ * calculateDataRanges - Step 1 of the rendering process: calculate the range of the data plotted against each axis.
+ * Then finalise the ranges of all the axes and decide on their ticking schemes.
+ */
+JSPlot_Graph.prototype.calculateDataRanges = function () {
+    var self = this;
+    var i, j, axisName;
 
     // Work out projected lengths and directions of (x,y,z) axes on screen
     this.workspace.axis_length = [
@@ -449,6 +506,7 @@ JSPlot_Graph.prototype.calculateDataRanges = function (page) {
         Math.abs(this.workspace.width_pixels * this.workspace.aspect),
         Math.abs(this.workspace.width_pixels * this.workspace.aspectZ)
     ];
+
     this.workspace.axis_bearing = [
         (this.workspace.width_pixels > 0) ? (Math.PI / 2) : (3 * Math.PI / 2),
         (this.workspace.width_pixels * this.workspace.aspect > 0) ? 0 : Math.PI,
@@ -489,8 +547,6 @@ JSPlot_Graph.prototype.calculateDataRanges = function (page) {
 
     // Loop over all the data sets we are going to plot
     $.each(this.dataSets, function (index, item) {
-        item.cleanWorkspace();
-
         // Consider re-evaluating data set
         /** @type {string} */
         var x_axis_name = item.axes[1];
@@ -502,13 +558,6 @@ JSPlot_Graph.prototype.calculateDataRanges = function (page) {
         var x_max = x_axis.workspace.maxHard;
 
         if ((x_min !== null) && (x_max !== null)) item.axisRangeUpdated(x_min, x_max);
-
-        // Create final set of styling information for this dataset
-        item.workspace.styleFinal = item.style.clone();
-        self.insertDefaultStyles(item.workspace.styleFinal);
-
-        // Work out how many columns of data this data set expects
-        item.workspace.requiredColumns = self.workspace.plotter.data_columns_required(item.workspace.styleFinal.plotStyle);
 
         // Mark up the axes used by this data set as being active
         $.each(item.axes, function (index, axisName) {

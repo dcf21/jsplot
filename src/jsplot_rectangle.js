@@ -96,13 +96,20 @@ JSPlot_Rectangle.prototype.cleanWorkspace = function () {
 };
 
 /**
- * calculateDataRanges - Step 1 of the rendering process
+ * determineWidth - Step 0 of the rendering process
  * @param page {JSPlot_Canvas} - The canvas that this rectangle will be rendered onto
  */
-JSPlot_Rectangle.prototype.calculateDataRanges = function (page) {
+JSPlot_Rectangle.prototype.determineWidth = function (page) {
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
+};
+
+/**
+ * calculateDataRanges - Step 1 of the rendering process
+ */
+JSPlot_Rectangle.prototype.calculateDataRanges = function () {
+    // No work to do for this item type
 };
 
 /**
