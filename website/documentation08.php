@@ -244,6 +244,103 @@ $pageTemplate->header($pageInfo);
         </tbody>
     </table>
 
+    <h5 id="JSPlot_Ellipse"><span class="code">JSPlot_Ellipse</span> class</h5>
+
+    <p>
+        Instances of the <span class="code">JSPlot_Ellipse</span> class can be used to add ellipses to the drawing canvas.
+    </p>
+    <p class="code">
+        my_ellipse = new JSPlot_Ellipse(settings);
+    </p>
+
+    <table class="bordered stripy api_ref">
+        <thead>
+        <tr>
+            <td>Argument</td>
+            <td>Allowed values</td>
+            <td>Description</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="code">settings</td>
+            <td>
+                Associative array
+            </td>
+            <td>
+                An associative array of configuration options. Allowed key values are listed below.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p>
+        Allowed configuration parameters are as follows:
+    </p>
+
+    <table class="bordered stripy api_ref">
+        <thead>
+        <tr>
+            <td>Field</td>
+            <td>Allowed values</td>
+            <td>Description</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="code">strokeColor</td>
+            <td>
+                Any valid <a href="documentation08.php#JSPlot_Color"><span class="code">JSPlot_Color</span></a> instance
+            </td>
+            <td>
+                The color to stroke the outline of the circle
+            </td>
+        </tr>
+        <tr>
+            <td class="code">fillColor</td>
+            <td>
+                Any valid <a href="documentation08.php#JSPlot_Color"><span class="code">JSPlot_Color</span></a> instance
+            </td>
+            <td>
+                The color to fill the interior of the circle
+            </td>
+        </tr>
+        <tr>
+            <td class="code">strokeLineWidth</td>
+            <td>Number</td>
+            <td>The width of the line (pixels) to stroke around the outline of the circle</td>
+        </tr>
+        <tr>
+            <td class="code">origin</td>
+            <td>[Number, Number]</td>
+            <td>The pixel coordinates of the center of the circle</td>
+        </tr>
+        <tr>
+            <td class="code">major_axis</td>
+            <td>Number</td>
+            <td>The major axis of the ellipse, in pixels</td>
+        </tr>
+        <tr>
+            <td class="code">minor_axis</td>
+            <td>Number</td>
+            <td>The minor axis of the ellipse, in pixels</td>
+        </tr>
+        <tr>
+            <td class="code">position_angle</td>
+            <td>Number</td>
+            <td>The position angle of the major axis of the ellipse, in degrees clockwise from vertical</td>
+        </tr>
+        <tr>
+            <td class="code">z_index</td>
+            <td>Number</td>
+            <td>
+                The stack order of the element on the canvas. An element with greater stack order is always in front of
+                an element with a lower stack order.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
     <h5 id="JSPlot_Rectangle"><span class="code">JSPlot_Rectangle</span> class</h5>
 
     <p>

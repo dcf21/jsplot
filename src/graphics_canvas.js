@@ -180,6 +180,24 @@ GraphicsCanvas.prototype._arc = function (x, y, r, start, end, counterclockwise)
 };
 
 /**
+ * _ellipse - Create an elliptical path
+ * @param x {number} - x coordinate of the centre of the ellipse
+ * @param y {number} - y coordinate of the centre of the ellipse
+ * @param major_axis {number} - The major axis of the ellipse
+ * @param minor_axis {number} - The minor axis of the ellipse
+ * @param position_angle {number} - The position angle of the ellipse, radians
+ * @private
+ */
+GraphicsCanvas.prototype._ellipse = function (x, y, major_axis, minor_axis, position_angle) {
+    this._co.save();
+    this._co.translate(x, y);
+    this._co.rotate(position_angle);
+    this._co.scale(minor_axis, major_axis);
+    this._co.arc(0, 0, 1, 0, 2*Math.PI, false);
+    this._co.restore();
+};
+
+/**
  * _bezierCurveTo - Create a bezier curve path from the current position to (x,y)
  * @param x1 {number} - X coordinate of first control point
  * @param y1 {number} - Y coordinate of first control point

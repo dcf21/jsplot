@@ -84,6 +84,14 @@ $pageTemplate->header($pageInfo);
         </tr>
         <tr>
             <td>
+                <a href="demo_ellipses.php">Nested ellipses demo</a>
+            </td>
+            <td>
+                A vector graphics demo showing a set of nested ellipses
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <a href="demo_helix.php">Helix demo</a>
             </td>
             <td>

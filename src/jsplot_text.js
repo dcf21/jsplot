@@ -106,7 +106,7 @@ JSPlot_Text.prototype.configure = function (settings) {
  * cleanWorkspace - Create a clean workspace to be used for plotting this text item
  */
 JSPlot_Text.prototype.cleanWorkspace = function () {
-    // Temporary data fields which are used when rendering a plot
+    // Temporary data fields which are used when rendering a text item
     this.workspace = [];
 };
 
@@ -140,7 +140,7 @@ JSPlot_Text.prototype.calculateBoundingBox = function () {
     var item_width = this.page.canvas._textWidth(this.text) + 10;
     var item_height = this.fontSize + 4;
 
-    // Populate the bounding box of the plot
+    // Populate the bounding box of the text item
     bounding_box.includePoint(this.origin[0], this.origin[1]);
 
     // Populate bounding box with horizontal extent of the text

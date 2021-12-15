@@ -86,7 +86,7 @@ JSPlot_Circle.prototype.configure = function (settings) {
  * cleanWorkspace - Create a clean workspace to be used for plotting this circle
  */
 JSPlot_Circle.prototype.cleanWorkspace = function () {
-    // Temporary data fields which are used when rendering a plot
+    // Temporary data fields which are used when rendering a circle
     this.workspace = [];
 };
 
@@ -115,7 +115,7 @@ JSPlot_Circle.prototype.calculateBoundingBox = function () {
     // Start constructing a bounding box
     var bounding_box = new JSPlot_BoundingBox();
 
-    // Populate the bounding box of the plot
+    // Populate the bounding box of the circle
     bounding_box.includePoint(this.origin[0]-this.radius-3, this.origin[1]);
     bounding_box.includePoint(this.origin[0]+this.radius+3, this.origin[1]);
     bounding_box.includePoint(this.origin[0], this.origin[1]-this.radius-3);
@@ -133,7 +133,7 @@ JSPlot_Circle.prototype.render = function () {
     if (this.fillColor !== null) {
         this.page.canvas._fillStyle(this.fillColor.toHTML());
         this.page.canvas._beginPath();
-        this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 360, false);
+        this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 2*Math.PI, false);
         this.page.canvas._fill();
     }
 
@@ -141,7 +141,7 @@ JSPlot_Circle.prototype.render = function () {
     if (this.strokeColor !== null) {
         this.page.canvas._strokeStyle(this.strokeColor.toHTML(), this.strokeLineWidth);
         this.page.canvas._beginPath();
-        this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 360, false);
+        this.page.canvas._arc(this.origin[0], this.origin[1], this.radius, 0, 2*Math.PI, false);
         this.page.canvas._stroke();
     }
 };

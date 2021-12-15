@@ -87,6 +87,7 @@ $pageTemplate->header($pageInfo);
                     <a href="documentation02.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
                     <a href="documentation08.php#JSPlot_Arrow"><span class="code">JSPlot_Arrow</span></a>,
                     <a href="documentation08.php#JSPlot_Circle"><span class="code">JSPlot_Circle</span></a>,
+                    <a href="documentation08.php#JSPlot_Ellipse"><span class="code">JSPlot_Ellipse</span></a>,
                     <a href="documentation08.php#JSPlot_Rectangle"><span class="code">JSPlot_Rectangle</span></a> or
                     <a href="documentation08.php#JSPlot_Text"><span class="code">JSPlot_Text</span></a> classes.
                 </p>
@@ -207,6 +208,7 @@ $pageTemplate->header($pageInfo);
                     <a href="documentation02.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
                     <a href="documentation08.php#JSPlot_Arrow"><span class="code">JSPlot_Arrow</span></a>,
                     <a href="documentation08.php#JSPlot_Circle"><span class="code">JSPlot_Circle</span></a>,
+                    <a href="documentation08.php#JSPlot_Ellipse"><span class="code">JSPlot_Ellipse</span></a>,
                     <a href="documentation08.php#JSPlot_Rectangle"><span class="code">JSPlot_Rectangle</span></a> or
                     <a href="documentation08.php#JSPlot_Text"><span class="code">JSPlot_Text</span></a> classes.
                 </p>

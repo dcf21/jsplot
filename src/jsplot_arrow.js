@@ -86,7 +86,7 @@ JSPlot_Arrow.prototype.configure = function (settings) {
  * cleanWorkspace - Create a clean workspace to be used for plotting this arrow
  */
 JSPlot_Arrow.prototype.cleanWorkspace = function () {
-    // Temporary data fields which are used when rendering a plot
+    // Temporary data fields which are used when rendering an arrow
     this.workspace = [];
 };
 
@@ -115,7 +115,7 @@ JSPlot_Arrow.prototype.calculateBoundingBox = function () {
     // Start constructing a bounding box
     var bounding_box = new JSPlot_BoundingBox();
 
-    // Populate the bounding box of the plot
+    // Populate the bounding box of the arrow
     bounding_box.includePoint(this.origin[0], this.origin[1]);
     bounding_box.includePoint(this.target[0], this.target[1]);
 

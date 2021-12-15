@@ -262,6 +262,24 @@ GraphicsSVG.prototype._arc = function (x, y, r, start, end, counterclockwise) {
 };
 
 /**
+ _ellipse - Create an elliptical path
+ @param x {number} - x coordinate of the centre of the ellipse
+ @param y {number} - y coordinate of the centre of the ellipse
+ @param major_axis {number} - The major axis of the ellipse
+ @param minor_axis {number} - The minor axis of the ellipse
+ @param position_angle {number} - The position angle of the ellipse, radians
+ @private
+ */
+GraphicsSVG.prototype._ellipse = function (x, y, major_axis, minor_axis, position_angle) {
+    var position_angle_deg = position_angle * 180 / Math.PI;
+    this._path_polygon = null;
+    this._path.push({
+        "type": "ellipse",
+        "path": [x.toFixed(2), y.toFixed(2), minor_axis.toFixed(2), major_axis.toFixed(2), position_angle_deg.toFixed(2)]
+    });
+};
+
+/**
  * _bezierCurveTo - Create a bezier curve path from the current position to (x,y)
  * @param x1 {number} - X coordinate of first control point
  * @param y1 {number} - Y coordinate of first control point
@@ -293,6 +311,8 @@ GraphicsSVG.prototype.__realisePath = function (style) {
             text += '<rect x="' + item["path"][0] + '" y="' + item["path"][1] + '" width="' + item["path"][2] + '" height="' + item["path"][3] + '" ' + style + ' />';
         } else if (item["type"] === "circle") {
             text += '<circle cx="' + item["path"][0] + '" cy="' + item["path"][1] + '" r="' + item["path"][2] + '" ' + style + ' />';
+        } else if (item["type"] === "ellipse") {
+            text += '<ellipse cx="' + item["path"][0] + '" cy="' + item["path"][1] + '" rx="' + item["path"][2] + '" ry="' + item["path"][3] + '" transform="rotate(' + item["path"][4] + ')" ' + style + ' />';
         } else if (item["type"] === "polygon") {
             text += '<path d="';
             text += item["path"].join(" ");

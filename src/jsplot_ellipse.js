@@ -1,4 +1,4 @@
-// jsplot_rectangle.js
+// jsplot_ellipse.js
 
 // -------------------------------------------------
 // Copyright 2020-2022 Dominic Ford.
@@ -20,20 +20,20 @@
 // -------------------------------------------------
 
 /**
- * JSPlot_Rectangle - A class representing a rectangle, to be rendered onto a <JSPlot_Canvas>
+ * JSPlot_Ellipse - A class representing an ellipse, to be rendered onto a <JSPlot_Canvas>
  * @param settings {Object} - An object containing settings
  * @constructor
  */
-function JSPlot_Rectangle(settings) {
+function JSPlot_Ellipse(settings) {
     /** @type {?JSPlot_Canvas} */
     this.page = null;
     /** @type {string} */
-    this.itemType = "rectangle";
+    this.itemType = "ellipse";
     /** @type {number} */
     this.z_index = 0;
-    /** @type {?JSPlot_Color} */
+    /** @type {JSPlot_Color} */
     this.strokeColor = new JSPlot_Color(0, 0, 0, 1);
-    /** @type {?JSPlot_Color} */
+    /** @type {JSPlot_Color} */
     this.fillColor = new JSPlot_Color(0.6, 0.6, 0.6, 1);
     /** @type {number} */
     this.strokeLineWidth = 1;
@@ -41,9 +41,11 @@ function JSPlot_Rectangle(settings) {
     /** @type {Array<number>} */
     this.origin = [0, 0];
     /** @type {number} */
-    this.width = 50;
+    this.minor_axis = 50;
     /** @type {number} */
-    this.height = 50;
+    this.major_axis = 100;
+    /** @type {number} */
+    this.position_angle = 30;
 
     // Read user supplied settings
     this.configure(settings);
@@ -51,55 +53,58 @@ function JSPlot_Rectangle(settings) {
 }
 
 /**
- * configure - Configure settings for a rectangle
+ * configure - Configure settings for an ellipse
  * @param settings {Object} - An object containing settings
  */
-JSPlot_Rectangle.prototype.configure = function (settings) {
-    /** @type {JSPlot_Rectangle} */
+JSPlot_Ellipse.prototype.configure = function (settings) {
+    /** @type {JSPlot_Ellipse} */
     var self = this;
 
     $.each(settings, function (key, value) {
         switch (key) {
-            case "fillColor":
-                self.fillColor = value;
-                break;
-            case "height":
-                self.height = value;
-                break;
-            case "origin":
-                self.origin = value;
-                break;
             case "strokeColor":
                 self.strokeColor = value;
+                break;
+            case "fillColor":
+                self.fillColor = value;
                 break;
             case "strokeLineWidth":
                 self.strokeLineWidth = value;
                 break;
-            case "width":
-                self.width = value;
+            case "origin":
+                self.origin = value;
+                break;
+            case "major_axis":
+                self.major_axis = value;
+                break;
+            case "minor_axis":
+                self.minor_axis = value;
+                break;
+            case "position_angle":
+                self.position_angle = value;
                 break;
             case "z_index":
                 self.z_index = value;
                 break;
             default:
-                throw "Unrecognised rectangle setting " + key;
+                throw "Unrecognised ellipse setting " + key;
         }
     });
 };
 
 /**
- * cleanWorkspace - Create a clean workspace to be used for plotting this rectangle
+ * cleanWorkspace - Create a clean workspace to be used for plotting this ellipse
  */
-JSPlot_Rectangle.prototype.cleanWorkspace = function () {
-    // Temporary data fields which are used when rendering a rectangle
+JSPlot_Ellipse.prototype.cleanWorkspace = function () {
+    // Temporary data fields which are used when rendering an ellipse
     this.workspace = [];
 };
 
 /**
  * determineWidth - Step 0 of the rendering process
- * @param page {JSPlot_Canvas} - The canvas that this rectangle will be rendered onto
+ * @param page {JSPlot_Canvas} - The canvas that this ellipse will be rendered onto
  */
-JSPlot_Rectangle.prototype.determineWidth = function (page) {
+JSPlot_Ellipse.prototype.determineWidth = function (page) {
     // Set pointer to the graphics canvas that we're rendering onto
     this.page = page;
     this.cleanWorkspace();
@@ -108,35 +113,48 @@ JSPlot_Rectangle.prototype.determineWidth = function (page) {
 /**
  * calculateDataRanges - Step 1 of the rendering process
  */
-JSPlot_Rectangle.prototype.calculateDataRanges = function () {
+JSPlot_Ellipse.prototype.calculateDataRanges = function () {
     // No work to do for this item type
 };
 
 /**
- * calculateBoundingBox - Step 2 of rendering process: return the bounding box of this rectangle
+ * calculateBoundingBox - Step 2 of rendering process: return the bounding box of this ellipse
  * @returns {JSPlot_BoundingBox}
  */
-JSPlot_Rectangle.prototype.calculateBoundingBox = function (page) {
+JSPlot_Ellipse.prototype.calculateBoundingBox = function () {
     // Start constructing a bounding box
     var bounding_box = new JSPlot_BoundingBox();
 
-    // Populate the bounding box of the rectangle
-    bounding_box.includePoint(this.origin[0] - 3, this.origin[1] - 3);
-    bounding_box.includePoint(this.origin[0] + this.width + 3, this.origin[1] + this.height + 3);
+    // Populate the bounding box of the ellipse
+    for (var theta = 0; theta < 360; theta += 10) {
+        var theta_radians = theta * Math.PI / 180;
+        var pos_angle_radians = this.position_angle * Math.PI / 180;
+
+        var x2 = (this.minor_axis + 3) * Math.sin(theta_radians);
+        var y2 = (this.major_axis + 3) * Math.cos(theta_radians);
+
+        bounding_box.includePoint(
+            this.origin[0] + x2 * Math.cos(pos_angle_radians) + y2 * Math.sin(pos_angle_radians),
+            this.origin[1] - x2 * Math.sin(pos_angle_radians) + y2 * Math.cos(pos_angle_radians)
+        );
+    }
 
     // Return bounding box
     return bounding_box;
 };
 
 /**
- * render - Step 3 of the plotting process: render the graph
+ * render - Step 3 of the plotting process: render
  */
-JSPlot_Rectangle.prototype.render = function () {
+JSPlot_Ellipse.prototype.render = function () {
+    var pos_angle_radians = this.position_angle * Math.PI / 180;
+
     // Fill path
     if (this.fillColor !== null) {
         this.page.canvas._fillStyle(this.fillColor.toHTML());
         this.page.canvas._beginPath();
-        this.page.canvas._rect(this.origin[0], this.origin[1], this.width, this.height);
+        this.page.canvas._ellipse(this.origin[0], this.origin[1],
+            this.major_axis, this.minor_axis, pos_angle_radians);
         this.page.canvas._fill();
     }
 
@@ -144,7 +162,8 @@ JSPlot_Rectangle.prototype.render = function () {
     if (this.strokeColor !== null) {
         this.page.canvas._strokeStyle(this.strokeColor.toHTML(), this.strokeLineWidth);
         this.page.canvas._beginPath();
-        this.page.canvas._rect(this.origin[0], this.origin[1], this.width, this.height);
+        this.page.canvas._ellipse(this.origin[0], this.origin[1],
+            this.major_axis, this.minor_axis, pos_angle_radians);
         this.page.canvas._stroke();
     }
 };
@@ -157,7 +176,7 @@ JSPlot_Rectangle.prototype.render = function () {
  * @param x_offset {number} - The numerical number of pixels by which the canvas has been dragged.
  * @param y_offset {number} - The numerical number of pixels by which the canvas has been dragged.
  */
-JSPlot_Rectangle.prototype.interactive_scroll = function (x_offset, y_offset) {
+JSPlot_Ellipse.prototype.interactive_scroll = function (x_offset, y_offset) {
 };
 
 /**
@@ -166,6 +185,6 @@ JSPlot_Rectangle.prototype.interactive_scroll = function (x_offset, y_offset) {
  * @param delta {number} - The numerical amount by which the canvas was zoomed
  * @return {boolean} - Flag indicating whether this canvas item responded to event
  */
-JSPlot_Rectangle.prototype.interactive_zoom = function (delta) {
+JSPlot_Ellipse.prototype.interactive_zoom = function (delta) {
     return false;
 };
