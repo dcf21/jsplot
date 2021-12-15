@@ -37,6 +37,8 @@ class HTMLtemplate
             array_unshift($items, ["demos.php", "Demos"]);
         } else if ($area == "search") {
             array_unshift($items, ["documentation.php", "Documentation"]);
+        } else if ($area == "interactive") {
+            array_unshift($items, ["interactive.php", "Try it"]);
         } else if ($area == "about") {
             array_unshift($items, ["about.php", "About"]);
         } else if ($area == "download") {
@@ -92,7 +94,8 @@ foreach ($postbreadcrumb as $c) {
             <script async defer crossorigin="anonymous"
                     src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v8.0&appId=1696319717348254&autoLogAppEvents=1"
                     nonce="pRr7NcbB"></script>
-            <div class="fb-like" data-href="https://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" data-width=""
+            <div class="fb-like" data-href="https://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
+                 data-width=""
                  data-layout="button_count" data-action="like" data-size="large" data-share="true"></div>
         </div>
 
@@ -121,7 +124,8 @@ foreach ($postbreadcrumb as $c) {
 
         <!-- Twitter follow-->
         <div style="display: inline-block; margin: 16px 10px; vertical-align: top;">
-            <a href="https://twitter.com/intheskyorg" class="twitter-follow-button" data-size="large" data-show-count="true">
+            <a href="https://twitter.com/intheskyorg" class="twitter-follow-button" data-size="large"
+               data-show-count="true">
                 Follow @intheskyorg
             </a>
             <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -161,16 +165,15 @@ __HTML__;
                 <?php echo $pageInfo["pageTitle"]; ?>
             </title>
 
-            <!--[if lt IE 9]>
-            <script src="<?php echo $server; ?>vendor/html5shiv/dist/html5shiv.min.js" type="text/javascript"></script>
-            <script src="<?php echo $server; ?>vendor/ExplorerCanvas/excanvas.js" type="text/javascript"></script>
-            <![endif]-->
-
             <script src="<?php echo $server; ?>vendor/jquery/dist/jquery.min.js" type="text/javascript"></script>
             <script src="<?php echo $server; ?>vendor/tether/dist/js/tether.min.js"></script>
 
             <link rel="stylesheet" href="<?php echo $server; ?>vendor/bootstrap/dist/css/bootstrap.min.css">
             <script src="<?php echo $server; ?>vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+
+            <script src="<?php echo $server; ?>vendor/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+            <link rel="stylesheet" type="text/css"
+                  href="<?php echo $server; ?>vendor/jquery-ui/themes/base/jquery-ui.min.css"/>
 
             <link rel="stylesheet" href="<?php echo $server; ?>vendor/font-awesome/css/font-awesome.min.css">
 
@@ -184,7 +187,10 @@ __HTML__;
                 <meta property="og:image" content="<?php echo $server . $pageInfo["teaserImg"]; ?>"/>
             <?php endif; ?>
 
-            <?php echo $pageInfo["cssextra"]; ?>
+            <style media="screen" type="text/css">
+                <?php if (isset($pageInfo["cssextra"])) echo $pageInfo["cssextra"]; ?>
+            </style>
+
             <?php local_mods::extra_headers(); ?>
         </head>
 
@@ -225,6 +231,11 @@ __HTML__;
                         <li class="nav-item <?php if ($pageInfo["activeTab"] == "documentation") echo "active "; ?>">
                             <a class="nav-link" href="<?php echo $server; ?>documentation.php">
                                 Documentation
+                            </a>
+                        </li>
+                        <li class="nav-item <?php if ($pageInfo["activeTab"] == "interactive") echo "active "; ?>">
+                            <a class="nav-link" href="<?php echo $server; ?>interactive.php">
+                                Try it!
                             </a>
                         </li>
                         <li class="nav-item <?php if ($pageInfo["activeTab"] == "download") echo "active "; ?>">
