@@ -94,13 +94,6 @@ JSPlot_TickingNumericLogarithmic.prototype.process = function () {
         this.axis.workspace.minFinal = hard_min_set ? this.axis.workspace.minHard : axis_min_data;
         this.axis.workspace.maxFinal = hard_max_set ? this.axis.workspace.maxHard : axis_max_data;
 
-        // If range is reversed, do this now
-        if (this.axis.rangeReversed) {
-            var tmp = this.axis.workspace.minFinal;
-            this.axis.workspace.maxFinal = this.axis.workspace.minFinal;
-            this.axis.workspace.minFinal = tmp;
-        }
-
         // Range is now finalised
         this.axis.workspace.rangeFinalised = true;
     }

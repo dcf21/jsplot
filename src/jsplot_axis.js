@@ -283,6 +283,8 @@ JSPlot_Axis.prototype.includePoint = function (x) {
  * @returns {number}
  */
 JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
+    var output = 0;
+
     if (!allowOffBounds) {
         if (this.workspace.maxFinal > this.workspace.minFinal) {
             if ((x_in < this.workspace.minFinal) || (x_in > this.workspace.maxFinal)) return NaN;
@@ -293,12 +295,18 @@ JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
     if ((this.workspace.logFinal) && (x_in <= 0)) return NaN;
     if (!this.workspace.logFinal) {
         // Either linear...
-        return (x_in - this.workspace.minFinal) / (this.workspace.maxFinal - this.workspace.minFinal);
+        output = (x_in - this.workspace.minFinal) / (this.workspace.maxFinal - this.workspace.minFinal);
     } else {
         // ... or logarithmic
-        return (Math.log(x_in) - Math.log(this.workspace.minFinal)) /
+        output = (Math.log(x_in) - Math.log(this.workspace.minFinal)) /
             (Math.log(this.workspace.maxFinal) - Math.log(this.workspace.minFinal));
     }
+
+    // If range is reverse, invert axis now
+    if (this.rangeReversed) output = 1 - output;
+
+    // Return position
+    return output;
 };
 
 // What is the value of this axis at point xin, in the range 0 (left) to 1 (right)?
@@ -308,6 +316,9 @@ JSPlot_Axis.prototype.getPosition = function (x_in, allowOffBounds) {
  * @returns {number}
  */
 JSPlot_Axis.prototype.invGetPosition = function (x_in) {
+    // If range is reverse, invert axis now
+    if (this.rangeReversed) x_in = 1 - x_in;
+
     if (this.workspace.logFinal) {
         // Either linear...
         return this.workspace.minFinal + x_in * (this.workspace.maxFinal - this.workspace.minFinal);
@@ -348,13 +359,6 @@ JSPlot_Axis.prototype.inRange = function (x_in) {
         if (this.scrollMax !== null) {
             x_max = this.scrollMax;
         }
-    }
-
-    // If axis has a reversed scale, then we flip the minimum and maximum
-    if (this.rangeReversed) {
-        var tmp = x_min;
-        x_min = x_max;
-        x_max = tmp;
     }
 
     if ((x_min !== null) && (x_max !== null)) {
