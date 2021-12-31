@@ -61,7 +61,7 @@ $pageTemplate->header($pageInfo);
     </p>
 
     <p class="code">
-        my_canvas = new JSPlot_Graph(datasets, settings);
+        my_graph = new JSPlot_Graph(datasets, settings);
     </p>
 
     <table class="bordered stripy api_ref">
@@ -76,11 +76,11 @@ $pageTemplate->header($pageInfo);
         <tr>
             <td class="code">datasets</td>
             <td>
-                Associative array
+                Array
             </td>
             <td>
                 <p>
-                    An associative array of datasets to plot onto the graph. These should be instances of the
+                    An array of datasets to plot onto the graph. These should be instances of the
                     <a href="documentation06.php#JSPlot_DataSet"><span class="code">JSPlot_DataSet</span></a> class.
                 </p>
             </td>
@@ -211,7 +211,7 @@ $pageTemplate->header($pageInfo);
                 The color of the minor grid lines drawn behind the graph
             </td>
         </tr>
-        <tr>
+        <tr id="JSPlot_Graph_interactiveMode">
             <td class="code">interactiveMode</td>
             <td>String</td>
             <td>
@@ -338,15 +338,7 @@ $pageTemplate->header($pageInfo);
                 The viewing angle of 3D charts around the YZ-plane (degrees). Default: 30 degrees.
             </td>
         </tr>
-        <tr>
-            <td class="code">x1_axis</td>
-            <td>Array</td>
-            <td>
-                An array of settings to pass to the bottom horizontal axis's
-                <a href="documentation07.php#JSPlot_Axis"><span class="code">JSPlot_Axis</span></a> instance
-            </td>
-        </tr>
-        <tr>
+        <tr id="config_x1_axis">
             <td class="code">x1_axis</td>
             <td>Array</td>
             <td>
