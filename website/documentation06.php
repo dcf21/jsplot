@@ -488,7 +488,7 @@ $pageTemplate->header($pageInfo);
                 <a href="documentation04.php">plot styles</a>.
             </td>
         </tr>
-        <tr>
+        <tr id="plotStyle">
             <td class="code">plotStyle</td>
             <td>
                 String
