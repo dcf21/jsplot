@@ -93,7 +93,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">
@@ -188,7 +188,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">
@@ -275,7 +275,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">
@@ -373,7 +373,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">
@@ -466,7 +466,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">

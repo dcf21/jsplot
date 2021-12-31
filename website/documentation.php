@@ -84,7 +84,7 @@ $pageTemplate->header($pageInfo);
             <td>
                 <p>
                     An associative array of items to put on the canvas. These should be instances of the
-                    <a href="documentation02.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
+                    <a href="documentation06.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
                     <a href="documentation08.php#JSPlot_Arrow"><span class="code">JSPlot_Arrow</span></a>,
                     <a href="documentation08.php#JSPlot_Circle"><span class="code">JSPlot_Circle</span></a>,
                     <a href="documentation08.php#JSPlot_Ellipse"><span class="code">JSPlot_Ellipse</span></a>,
@@ -112,7 +112,7 @@ $pageTemplate->header($pageInfo);
     </table>
 
     <p>
-        Allowed configuration parameters are as follows:
+        Allowed configuration parameters within the <span class="code">settings</span> array are as follows:
     </p>
 
     <table class="bordered stripy api_ref">
@@ -205,7 +205,7 @@ $pageTemplate->header($pageInfo);
                 </p>
                 <p>
                     The <span class="code">item</span> argument should be an instance of the
-                    <a href="documentation02.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
+                    <a href="documentation06.php#JSPlot_Graph"><span class="code">JSPlot_Graph</span></a>,
                     <a href="documentation08.php#JSPlot_Arrow"><span class="code">JSPlot_Arrow</span></a>,
                     <a href="documentation08.php#JSPlot_Circle"><span class="code">JSPlot_Circle</span></a>,
                     <a href="documentation08.php#JSPlot_Ellipse"><span class="code">JSPlot_Ellipse</span></a>,
