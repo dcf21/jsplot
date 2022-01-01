@@ -159,6 +159,7 @@ $pageTemplate->header($pageInfo);
 
     <p>
         Once instantiated, a <span class="code">JSPlot_Canvas</span> instance offers the following methods:
+    </p>
 
     <table class="bordered stripy api_ref">
         <thead>

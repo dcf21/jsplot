@@ -427,7 +427,8 @@ $pageTemplate->header($pageInfo);
                 Associative array
             </td>
             <td>
-                An associative array of configuration options. Allowed key values are listed below.
+                An associative array of styling options for this dataset. Allowed key values are
+                <a href="documentation06.php#styling_options">listed below</a>.
             </td>
         </tr>
         <tr>
@@ -455,7 +456,7 @@ $pageTemplate->header($pageInfo);
         </tbody>
     </table>
 
-    <p>
+    <p id="styling_options">
         Allowed configuration parameters within the <span class="code">styling</span> array are as follows:
     </p>
 
