@@ -98,3 +98,30 @@ function getCursorPos(e, name) {
     var posy = e.pageY - o.top;
     return [posx, posy];
 }
+
+/**
+ * Extract a JSPlot_Color object from an HTML hex color string
+ * @param hex {string} - HTML hex color string
+ * @return {JSPlot_Color}
+ */
+function colorFromHtmlString(hex) {
+    var _hex2dec = function (v) {
+        return parseInt(v, 16)
+    };
+
+    if (hex.length === 4) {
+        return new JSPlot_Color(
+            _hex2dec((hex[1] + hex[1])) / 255,
+            _hex2dec((hex[2] + hex[1])) / 255,
+            _hex2dec((hex[3] + hex[3])) / 255,
+            1
+        );
+    } else {
+        return new JSPlot_Color(
+            _hex2dec(hex.slice(1, 3)) / 255,
+            _hex2dec(hex.slice(3, 5)) / 255,
+            _hex2dec(hex.slice(5)) / 255,
+            1
+        );
+    }
+}
