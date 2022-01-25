@@ -52,6 +52,22 @@ $options_key_pos = [
     ["ml", "Middle left"], ["mm", "Plot center"], ["mr", "Middle right"],
     ["bl", "Bottom-left corner"], ["bm", "Bottom middle"], ["br", "Bottom-right corner"]
 ];
+$options_plot_styles = [
+    "points", "lines", "linespoints", "upperlimits", "lowerlimits", "dots", "impulses",
+    "boxes", "wboxes", "steps", "fsteps", "histeps",
+    "arrows_head", "arrows_nohead", "arrows_twohead", "surface",
+    "xerrorbars", "yerrorbars", "zerrorbars", "xyerrorbars", "xzerrorbars", "yzerrorbars", "xyzerrorbars",
+    "xerrorrange", "yerrorrange", "zerrorrange", "xyerrorrange", "xzerrorrange", "yzerrorrange", "xyzerrorrange"
+];
+$options_input_types = ["Plain text", "CSV", "JSON"];
+
+$plot_style_data_columns = [
+    "points", "lines", "linespoints", "upperlimits", "lowerlimits", "dots", "impulses",
+    "boxes", "wboxes", "steps", "fsteps", "histeps",
+    "arrows_head", "arrows_nohead", "arrows_twohead", "surface",
+    "xerrorbars", "yerrorbars", "zerrorbars", "xyerrorbars", "xzerrorbars", "yzerrorbars", "xyzerrorbars",
+    "xerrorrange", "yerrorrange", "zerrorrange", "xyerrorrange", "xzerrorrange", "yzerrorrange", "xyzerrorrange"
+];
 
 $pageTemplate->header($pageInfo);
 
