@@ -55,18 +55,47 @@ $options_key_pos = [
 $options_plot_styles = [
     "points", "lines", "linespoints", "upperlimits", "lowerlimits", "dots", "impulses",
     "boxes", "wboxes", "steps", "fsteps", "histeps",
-    "arrows_head", "arrows_nohead", "arrows_twohead", "surface",
+    "arrows_head", "arrows_nohead", "arrows_twohead", /* "surface", */
     "xerrorbars", "yerrorbars", "zerrorbars", "xyerrorbars", "xzerrorbars", "yzerrorbars", "xyzerrorbars",
     "xerrorrange", "yerrorrange", "zerrorrange", "xyerrorrange", "xzerrorrange", "yzerrorrange", "xyzerrorrange"
 ];
-$options_input_types = ["Plain text", "CSV", "JSON"];
+$options_input_types = [[0, "Plain text"], [1, "CSV"], [2, "JSON"]];
 
 $plot_style_data_columns = [
-    "points", "lines", "linespoints", "upperlimits", "lowerlimits", "dots", "impulses",
-    "boxes", "wboxes", "steps", "fsteps", "histeps",
-    "arrows_head", "arrows_nohead", "arrows_twohead", "surface",
-    "xerrorbars", "yerrorbars", "zerrorbars", "xyerrorbars", "xzerrorbars", "yzerrorbars", "xyzerrorbars",
-    "xerrorrange", "yerrorrange", "zerrorrange", "xyerrorrange", "xzerrorrange", "yzerrorrange", "xyzerrorrange"
+    "points" => [["x", "y"], ["x", "y", "z"]],
+    "lines" => [["x", "y"], ["x", "y", "z"]],
+    "linespoints" => [["x", "y"], ["x", "y", "z"]],
+    "upperlimits" => [["x", "y"], ["x", "y", "z"]],
+    "lowerlimits" => [["x", "y"], ["x", "y", "z"]],
+    "dots" => [["x", "y"], ["x", "y", "z"]],
+    "impulses" => [["x", "y"], ["x", "y", "z"]],
+    "boxes" => [["x", "y"], ["x", "y"]],
+    "wboxes" => [["x", "y", "width"], ["x", "y", "width"]],
+    "steps" => [["x", "y"], ["x", "y"]],
+    "fsteps" => [["x", "y"], ["x", "y"]],
+    "histeps" => [["x", "y"], ["x", "y"]],
+    "arrows_head" => [["x0", "y0", "x1", "y1"], ["x0", "y0", "z0", "x1", "y1", "z1"]],
+    "arrows_nohead" => [["x0", "y0", "x1", "y1"], ["x0", "y0", "z0", "x1", "y1", "z1"]],
+    "arrows_twohead" => [["x0", "y0", "x1", "y1"], ["x0", "y0", "z0", "x1", "y1", "z1"]],
+    "xerrorbars" => [["x", "y", "x error"], ["x", "y", "z", "x error"]],
+    "yerrorbars" => [["x", "y", "y error"], ["x", "y", "z", "y error"]],
+    "zerrorbars" => [["x", "y", "z", "z error"], ["x", "y", "z", "z error"]],
+    "xyerrorbars" => [["x", "y", "x error", "y error"], ["x", "y", "z", "x error", "y error"]],
+    "xzerrorbars" => [["x", "y", "z", "x error", "z error"], ["x", "y", "z", "x error", "z error"]],
+    "yzerrorbars" => [["x", "y", "z", "y error", "z error"], ["x", "y", "z", "y error", "z error"]],
+    "xyzerrorbars" => [["x", "y", "z", "x error", "y error", "z error"],
+        ["x", "y", "z", "x error", "y error", "z error"]],
+    "xerrorrange" => [["x", "y", "x min", "x max"], ["x", "y", "z", "x min", "x max"]],
+    "yerrorrange" => [["x", "y", "y min", "y max"], ["x", "y", "z", "y min", "y max"]],
+    "zerrorrange" => [["x", "y", "z", "z min", "z max"], ["x", "y", "z", "z min", "z max"]],
+    "xyerrorrange" => [["x", "y", "x min", "x max", "y min", "y max"],
+        ["x", "y", "z", "x min", "x max", "y min", "y max"]],
+    "xzerrorrange" => [["x", "y", "z", "x min", "x max", "z min", "z max"],
+        ["x", "y", "z", "x min", "x max", "z min", "z max"]],
+    "yzerrorrange" => [["x", "y", "z", "y min", "y max", "z min", "z max"],
+        ["x", "y", "z", "y min", "y max", "z min", "z max"]],
+    "xyzerrorrange" => [["x", "y", "z", "x min", "x max", "y min", "y max", "z min", "z max"],
+        ["x", "y", "z", "x min", "x max", "y min", "y max", "z min", "z max"]]
 ];
 
 $pageTemplate->header($pageInfo);
@@ -99,10 +128,15 @@ $pageTemplate->header($pageInfo);
             <div id="axis_x2" class="settings-block"></div>
             <h5>Right axis (y2)</h5>
             <div id="axis_y2" class="settings-block"></div>
+            <h5>Front axis (z1; 3D plots only)</h5>
+            <div id="axis_z1" class="settings-block"></div>
+            <h5>Back axis (z2; 3D plots only)</h5>
+            <div id="axis_z2" class="settings-block"></div>
         </div>
         <div id="tabs-data">
             <h5>Graph data</h5>
             <div id="graph_data"></div>
+            <input type="button" class="btn btn-success btn-add-dataset" value="&#xFF0B; Add new dataset"/>
         </div>
         <div id="tabs-io">
             <h5>Load/save graph</h5>
@@ -212,7 +246,7 @@ $pageTemplate->header($pageInfo);
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Font size:</span>
-                <input type="number" class="box_from" name="font_size" value="1" min="0.1" max="10"/>
+                <input type="number" class="font_size" name="font_size" value="1" min="0.1" max="10"/>
             </label>
             <h5>3D graph options</h5>
             <label class="dcf-ui-setting">
@@ -301,11 +335,62 @@ $pageTemplate->header($pageInfo);
                 ?>
             </label>
         </div>
-        <div id="template_dataset_settings"></div>
+        <div id="template_dataset_settings" class="settings-block">
+            <input type="button" class="btn btn-success btn-remove" value="&#x2716; Remove dataset"/>
+            <br/>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Dataset title:</span>
+                <input type="text" class="dataset_title" name="dataset_title[]" value=""/>
+            </label>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Plot style:</span>
+                <?php
+                html_getargs::makeFormSelect("dataset_style", "points", $options_plot_styles, 0);
+                ?>
+            </label>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Color:</span>
+                <label class="dcf-ui-nested-setting">
+                    <input type="checkbox" class="dataset_color_auto" name="dataset_color_auto[]" checked="checked"/>
+                    Auto
+                </label>
+                <label class="dcf-ui-nested-setting box_width_value_holder">
+                    <input type="color" class="dataset_color" name="dataset_color[]" value="#000000"/>
+                </label>
+            </label>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Fill color:</span>
+                <input type="color" class="dataset_fill_color" name="dataset_fill_color[]" value="#FF0000"/>
+            </label>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Line width:</span>
+                <input type="number" class="dataset_line_width" name="dataset_line_width[]" value="1" min="0.001"/>
+            </label>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Point size:</span>
+                <input type="number" class="dataset_point_size" name="dataset_point_size[]" value="1" min="0.001"/>
+            </label>
+
+            <h5>Data columns</h5>
+            <div class="dataset_data_columns"></div>
+
+            <h5>Data table</h5>
+            <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">Data format:</span>
+                <?php
+                html_getargs::makeFormSelect("dataset_format", 0, $options_input_types, 0);
+                ?>
+            </label>
+            <textarea class="dataset_data" name="dataset_data"></textarea>
+
+        </div>
     </div>
 
     <!-- Javascript code -->
     <script type="text/javascript">
+        // Data
+        var plot_style_data_columns = <?php echo json_encode($plot_style_data_columns); ?>;
+
         // Enable UI tabs
         $(function () {
             $("#editor-tabs").tabs();
@@ -316,7 +401,7 @@ $pageTemplate->header($pageInfo);
 
             // Create graph object
             /** @type JSPlot_Graph */
-            var graph = new JSPlot_Graph([], {
+            var graph = window.graph = new JSPlot_Graph([], {
                 'key': true,
                 'keyPosition': 'tl',
                 'x1_axis': {
@@ -341,12 +426,16 @@ $pageTemplate->header($pageInfo);
             }
 
             // Populate UI
-            $("#template_axis_settings").clone().appendTo("#axis_x1");
-            $("#template_axis_settings").clone().appendTo("#axis_y1");
-            $("#template_axis_settings").clone().appendTo("#axis_x2");
-            $("#template_axis_settings").clone().appendTo("#axis_y2");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_x1");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_y1");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_z1");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_x2");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_y2");
+            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_z2");
+            $("#template_graph_settings").clone().removeAttr("id").appendTo("#graph_settings");
 
-            $("#template_graph_settings").clone().appendTo("#graph_settings");
+            // Create one initial empty dataset
+            $("#template_dataset_settings").clone().removeAttr("id").appendTo("#graph_data");
 
             /**
              * html_setting_hide_when_auto - Show/hide html value setting, depending whether it is set to automatic value
@@ -519,7 +608,9 @@ $pageTemplate->header($pageInfo);
                     'axis_x1': axis_settings_extract($("#axis_x1")),
                     'axis_x2': axis_settings_extract($("#axis_x2")),
                     'axis_y1': axis_settings_extract($("#axis_y1")),
-                    'axis_y2': axis_settings_extract($("#axis_y2"))
+                    'axis_y2': axis_settings_extract($("#axis_y2")),
+                    'axis_z1': axis_settings_extract($("#axis_z1")),
+                    'axis_z2': axis_settings_extract($("#axis_z2"))
                 };
 
                 var json = JSON.stringify(output);
@@ -561,6 +652,8 @@ $pageTemplate->header($pageInfo);
                     axis_settings_import_from_json($("#axis_x2"), obj.axis_x2, graph.axes["x2"]);
                     axis_settings_import_from_json($("#axis_y1"), obj.axis_y1, graph.axes["y1"]);
                     axis_settings_import_from_json($("#axis_y2"), obj.axis_y2, graph.axes["y2"]);
+                    axis_settings_import_from_json($("#axis_z1"), obj.axis_z1, graph.axes["z1"]);
+                    axis_settings_import_from_json($("#axis_z2"), obj.axis_z2, graph.axes["z2"]);
 
                     graph_settings_import_from_json(graph_settings_holder, obj.graph, graph)
 
@@ -573,7 +666,7 @@ $pageTemplate->header($pageInfo);
             }
 
             // Wire up axis controls
-            $.each(["x1", "x2", "y1", "y2"], function (index, axis_name) {
+            $.each(["x1", "x2", "y1", "y2", "z1", "z2"], function (index, axis_name) {
                 var settings_block = $("#axis_" + axis_name);
 
                 $("input, select", settings_block).change(function () {

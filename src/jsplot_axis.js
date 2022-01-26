@@ -172,6 +172,8 @@ JSPlot_Axis.prototype.cleanWorkspace = function () {
     // Temporary data fields which are used when rendering an axis
     this.workspace = [];
     /** @type {?boolean} */
+    this.workspace.activeFinal = (this.axis_name[1] === '1'); // First axes are automatically active
+    /** @type {?boolean} */
     this.workspace.crossedAtZero = null;
     /** @type {?boolean} */
     this.workspace.minUsed = null;
@@ -598,8 +600,10 @@ JSPlot_Axis.prototype.render = function (page, right_side, x0, y0, z0, x1, y1, z
                     var ylab = tic_y1 + (left_side ? -1.0 : 1.0) * Math.cos(theta_axis + Math.PI / 2) * page.constants.AXES_TEXTGAP;
 
                     page.canvas._translate(xlab, ylab, self.tickLabelRotation);
-                    page.canvas._textStyle("Arial,Helvetica,sans-serif", 15, "", "");
-                    page.canvas._fillStyle(self.graph.axesColor.toHTML());
+                    page.canvas._textStyle(page.constants.LEGEND_fontFamily,
+                        page.constants.LEGEND_fontSize * graph.fontSize * 1.1,
+                        page.constants.LEGEND_fontWeight, page.constants.LEGEND_fontStyle);
+                    page.canvas._fillStyle(self.graph.textColor.toHTML());
                     page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true, tick_item[1], false, true);
                     page.canvas._unsetTranslate();
                 }
@@ -630,8 +634,10 @@ JSPlot_Axis.prototype.render = function (page, right_side, x0, y0, z0, x1, y1, z
         if (theta_text < -Math.PI / 2) theta_text += Math.PI;
 
         page.canvas._translate(xlab, ylab, theta_text);
-        page.canvas._textStyle("Arial,Helvetica,sans-serif", 15, "", "");
-        page.canvas._fillStyle(self.graph.axesColor.toHTML());
+        page.canvas._textStyle(page.constants.LEGEND_fontFamily,
+            page.constants.LEGEND_fontSize * graph.fontSize * 1.2,
+            page.constants.LEGEND_fontWeight, page.constants.LEGEND_fontStyle);
+        page.canvas._fillStyle(self.graph.textColor.toHTML());
         page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true,
             self.workspace.labelFinal, false, true);
         page.canvas._unsetTranslate();

@@ -124,7 +124,8 @@ JSPlot_Plot_Legend.prototype.calculateLayout = function () {
     var available_height = Math.abs(self.graph.workspace.width_pixels * self.graph.workspace.aspect) - 2 * self.page.constants.LEGEND_margin;
 
     // Set up styling for legend
-    this.page.canvas._textStyle(this.page.constants.LEGEND_fontFamily, this.page.constants.LEGEND_fontSize,
+    this.page.canvas._textStyle(this.page.constants.LEGEND_fontFamily,
+        this.page.constants.LEGEND_fontSize * graph.fontSize,
         this.page.constants.LEGEND_fontWeight, this.page.constants.LEGEND_fontStyle);
     this.page.canvas._fillStyle(this.page.constants.LEGEND_color.toHTML());
 
@@ -422,7 +423,8 @@ JSPlot_Plot_Legend.prototype.render = function () {
         var y = self.y_offset + legend_item['y_offset'];
 
         // Set up styling for legend
-        self.page.canvas._textStyle(self.page.constants.LEGEND_fontFamily, self.page.constants.LEGEND_fontSize,
+        self.page.canvas._textStyle(self.page.constants.LEGEND_fontFamily,
+            self.page.constants.LEGEND_fontSize * graph.fontSize,
             self.page.constants.LEGEND_fontWeight, self.page.constants.LEGEND_fontStyle);
         self.page.canvas._fillStyle(self.page.constants.LEGEND_color.toHTML());
 

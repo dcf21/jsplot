@@ -69,6 +69,8 @@ function JSPlot_Graph(dataSets, settings) {
     this.keyOffset = [0, 0];
     /** @type {Array<number>} */
     this.origin = [0, 0];
+    /** @type {number} */
+    this.titleVerticalOffset = 60;
     /** @type {Array<number>} */
     this.titleOffset = [0, 0];
     /** @type {?number|string} */
@@ -646,6 +648,14 @@ JSPlot_Graph.prototype.calculateBoundingBox = function () {
     // Factor legend into graph bounding box
     bounding_box.includeBox(this.legend_renderer.boundingBox());
 
+    // Possibly factor title into bounding box
+    if ((this.title !== null) && (this.title !== "") && this.textColor.isVisible()) {
+        var titleFontSize = this.page.constants.LEGEND_fontSize * this.fontSize * 2;
+        bounding_box.includePoint(
+            (this.graph_bounding_box.left + this.graph_bounding_box.right)/2,
+            this.graph_bounding_box.top - this.titleVerticalOffset - titleFontSize);
+    }
+
     // Return bounding box
     return bounding_box;
 };
@@ -751,9 +761,13 @@ JSPlot_Graph.prototype.render = function () {
     // Put the title on the top of the graph
     if ((self.title !== null) && (self.title !== "") && self.textColor.isVisible()) {
         self.page.canvas._fillStyle(self.textColor.toHTML());
+        self.page.canvas._textStyle(self.page.constants.LEGEND_fontFamily,
+            self.page.constants.LEGEND_fontSize * self.fontSize * 2,
+            self.page.constants.LEGEND_fontWeight, self.page.constants.LEGEND_fontStyle);
         self.page.canvas._text(
             self.origin[0] + size[0] / 2,
-            axes_bounding_box.top, 0, 1, 1, self.title, 0, 0);
+            axes_bounding_box.top - self.titleVerticalOffset,
+            0, 1, 1, self.title, 0, 0);
     }
 };
 
