@@ -354,7 +354,7 @@ $pageTemplate->header($pageInfo);
                     <input type="checkbox" class="dataset_color_auto" name="dataset_color_auto[]" checked="checked"/>
                     Auto
                 </label>
-                <label class="dcf-ui-nested-setting box_width_value_holder">
+                <label class="dcf-ui-nested-setting dataset_color_value_holder">
                     <input type="color" class="dataset_color" name="dataset_color[]" value="#000000"/>
                 </label>
             </label>
@@ -382,7 +382,6 @@ $pageTemplate->header($pageInfo);
                 ?>
             </label>
             <textarea class="dataset_data" name="dataset_data"></textarea>
-
         </div>
     </div>
 
@@ -435,12 +434,12 @@ $pageTemplate->header($pageInfo);
             $("#template_graph_settings").clone().removeAttr("id").appendTo("#graph_settings");
 
             // Create one initial empty dataset
-            $("#template_dataset_settings").clone().removeAttr("id").appendTo("#graph_data");
+            dataset_settings_add_new();
 
             /**
              * html_setting_hide_when_auto - Show/hide html value setting, depending whether it is set to automatic value
              * @param settings {Object} - Associative array of current settings
-             * @param element {Object} - jQuery element we are to read data from
+             * @param element {Object} - jQuery element we are to update
              * @param setting_name {string} - Name of the setting we are controlling in <settings>
              * @param html_holder {string} - Class of the HTML element holding the <input> tag that we show/hide
              */
@@ -452,6 +451,8 @@ $pageTemplate->header($pageInfo);
                     $(html_holder, element).show();
                 }
             }
+
+            // ---- Functions for manipulating axis settings ---
 
             // Function to extract axis settings from HTML elements
             /**
@@ -491,7 +492,7 @@ $pageTemplate->header($pageInfo);
             // Function to propagate axis settings from JSPlot_Axis object to HTML
             /**
              * axis_settings_import_from_target - Update HTML elements to reflect contents of a JSON object
-             * @param element {Object} - jQuery element we are to read data from
+             * @param element {Object} - jQuery element we are to write data into
              * @param json_input {Object} - JSON structure we are to fetch settings from
              * @param target {JSPlot_Axis} - Target axis to update
              */
@@ -509,6 +510,8 @@ $pageTemplate->header($pageInfo);
 
                 axis_settings_commit(element, target);
             }
+
+            // ----- Functions for manipulating datasets -----
 
             // Function to extract graph settings from HTML elements
             /**
@@ -563,7 +566,7 @@ $pageTemplate->header($pageInfo);
             // Function to propagate graph settings from JSPlot_Graph object to HTML
             /**
              * graph_settings_import_from_target - Update HTML elements to reflect contents of a JSON object
-             * @param element {Object} - jQuery element we are to read data from
+             * @param element {Object} - jQuery element we are to write data into
              * @param json_input {Object} - JSON structure we are to fetch settings from
              * @param target {JSPlot_Graph} - Target graph to update
              */
@@ -597,14 +600,109 @@ $pageTemplate->header($pageInfo);
                 graph_settings_commit(element, target);
             }
 
+            // ---- Functions for manipulating axis settings ---
+
+            // Function to add a new blank dataset
+            function dataset_settings_add_new() {
+                var new_element = $("#template_dataset_settings").clone().
+                removeAttr("id").addClass("dataset_item").appendTo("#graph_data");
+                dataset_settings_create_actions(new_element);
+                return new_element;
+            }
+
+            // Function to wire up dataset controls in a newly created div
+            function dataset_settings_create_actions(element) {
+                $("input, select", element).change(function () {
+                    dataset_settings_commit(dataset_settings_holder, graph);
+                    update_display();
+                });
+                $(".btn-remove", element).click(function() {
+                   element.remove();
+                    update_display();
+                });
+            }
+
+            // Function to extract dataset settings from HTML elements
+            /**
+             * dataset_settings_extract - Extract dataset settings from HTML elements
+             * @param element {Object} - jQuery element we are to read data from
+             */
+            function dataset_settings_extract(element) {
+                // Read settings out of HTML form, looping over divs
+                var datasets = [];
+                $(".dataset_item", element).each(function(index, item) {
+                    datasets.push({
+                        "element": item,
+                        "title": $(".dataset_title", item).val(),
+                        "plot_style": $(".dataset_style", item).val(),
+                        "color": $(".dataset_color_auto", item).is(":checked") ? null : $(".dataset_color", item).val(),
+                        "fill_color": $(".dataset_fill_color", item).val(),
+                        "line_width": $(".dataset_line_width", item).val(),
+                        "point_size": $(".dataset_point_size", item).val(),
+                        "data_format": $(".dataset_format", element).val(),
+                        "raw_data": $(".dataset_data", element).val()
+                    });
+                });
+
+                return datasets;
+            }
+
+            // Function to propagate dataset settings from HTML elements to graph
+            /**
+             * dataset_settings_commit - Update JSPlot_Graph object to reflect contents of HTML elements
+             * @param element {Object} - jQuery element we are to read data from
+             * @param target {JSPlot_Graph} - Graph to update with new data
+             */
+            function dataset_settings_commit(element, target) {
+                // Read settings out of HTML form and pass into JSPlot_Dataset objects
+                var dataset_settings = dataset_settings_extract(element);
+
+                // Convert data struction into dataset objects
+                var dataset_list = [];
+                $.each(dataset_settings, function(index, item) {
+                // target.configure(axis_settings);
+                    });
+                target.dataSets = dataset_list;
+
+                // Automatically show/hide color setting, depending whether it is set to automatic
+                $.each(dataset_settings, function(index, item) {
+                    html_setting_hide_when_auto(item, item.element, "color", ".dataset_color_value_holder");
+                });
+            }
+
+            // Function to propagate dataset settings from JSON structure to HTML
+            /**
+             * dataset_settings_import_from_target - Update HTML elements to reflect contents of a JSON object
+             * @param element {Object} - jQuery element we are to write data into
+             * @param json_input {Object} - JSON structure we are to fetch settings from
+             * @param target {JSPlot_Graph} - Target graph to update with new data
+             */
+            function dataset_settings_import_from_json(element, json_input, target) {
+                $(".axis_enabled", element).val(json_input.enabled ? "1" : "0");
+                $(".axis_log", element).val(json_input.log ? "1" : "0");
+                $(".axis_dataType", element).val(json_input.dataType);
+                $(".axis_label", element).val(json_input.label);
+                $(".axis_min_auto", element).prop('checked', json_input.min === null);
+                $(".axis_min_value", element).val(json_input.min);
+                $(".axis_max_auto", element).prop('checked', json_input.max === null);
+                $(".axis_max_value", element).val(json_input.max);
+                $(".axis_range_reversed", element).val(json_input.rangeReversed ? "1" : "0");
+                $(".axis_visible", element).val(json_input.visible ? "1" : "0");
+
+                dataset_settings_commit(element, target);
+            }
+
+            // ----- Functions for loading and saving the current configuration -----
+
             var graph_settings_holder = $("#graph_settings");
+            var dataset_settings_holder = $("#graph_data");
 
             // Function to save all settings to a JSON file
             function save_settings() {
                 var output = {
                     'jsplot': 1,
                     'graph': graph_settings_extract(graph_settings_holder),
-                    'data': null,
+                    'data': dataset_settings_extract(dataset_settings_holder),
                     'axis_x1': axis_settings_extract($("#axis_x1")),
                     'axis_x2': axis_settings_extract($("#axis_x2")),
                     'axis_y1': axis_settings_extract($("#axis_y1")),
@@ -665,6 +763,8 @@ $pageTemplate->header($pageInfo);
                 reader.readAsText($(".load_file")[0].files[0]);
             }
 
+            // ----- Wire up all controls -----
+
             // Wire up axis controls
             $.each(["x1", "x2", "y1", "y2", "z1", "z2"], function (index, axis_name) {
                 var settings_block = $("#axis_" + axis_name);
@@ -679,7 +779,10 @@ $pageTemplate->header($pageInfo);
             $("input, select", graph_settings_holder).change(function () {
                 graph_settings_commit(graph_settings_holder, graph);
                 update_display();
-            })
+            });
+
+            // Wire up button to add a new dataset
+            $(".btn-add-dataset").click(dataset_settings_add_new);
 
             // Wire up load/save buttons
             $(".btn-save-settings").click(save_settings);
