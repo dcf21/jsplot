@@ -401,14 +401,7 @@ $pageTemplate->header($pageInfo);
             // Create graph object
             /** @type JSPlot_Graph */
             var graph = window.graph = new JSPlot_Graph([], {
-                'key': true,
-                'keyPosition': 'tl',
-                'x1_axis': {
-                    'scrollMin': null,
-                    'scrollMax': null,
-                    'scrollEnabled': true,
-                    'zoomEnabled': true
-                }
+                "interactiveMode": "none"
             });
 
             // Create canvas to put graph onto
@@ -425,13 +418,20 @@ $pageTemplate->header($pageInfo);
             }
 
             // Populate UI
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_x1");
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_y1");
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_z1");
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_x2");
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_y2");
-            $("#template_axis_settings").clone().removeAttr("id").appendTo("#axis_z2");
-            $("#template_graph_settings").clone().removeAttr("id").appendTo("#graph_settings");
+            var template_axis_settings = $("#template_axis_settings");
+            var template_graph_settings = $("#template_graph_settings");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_x1");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_y1");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_z1");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_x2");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_y2");
+            template_axis_settings.clone().removeAttr("id").appendTo("#axis_z2");
+            template_graph_settings.clone().removeAttr("id").appendTo("#graph_settings");
+
+            // Disable second axes by default
+            $("#axis_x2 .axis_enabled").val(0);
+            $("#axis_y2 .axis_enabled").val(0);
+            $("#axis_z2 .axis_enabled").val(0);
 
             // Create one initial empty dataset
             dataset_settings_add_new();
@@ -604,8 +604,7 @@ $pageTemplate->header($pageInfo);
 
             // Function to add a new blank dataset
             function dataset_settings_add_new() {
-                var new_element = $("#template_dataset_settings").clone().
-                removeAttr("id").addClass("dataset_item").appendTo("#graph_data");
+                var new_element = $("#template_dataset_settings").clone().removeAttr("id").addClass("dataset_item").appendTo("#graph_data");
                 dataset_settings_create_actions(new_element);
                 return new_element;
             }
@@ -616,8 +615,8 @@ $pageTemplate->header($pageInfo);
                     dataset_settings_commit(dataset_settings_holder, graph);
                     update_display();
                 });
-                $(".btn-remove", element).click(function() {
-                   element.remove();
+                $(".btn-remove", element).click(function () {
+                    element.remove();
                     update_display();
                 });
             }
@@ -630,7 +629,7 @@ $pageTemplate->header($pageInfo);
             function dataset_settings_extract(element) {
                 // Read settings out of HTML form, looping over divs
                 var datasets = [];
-                $(".dataset_item", element).each(function(index, item) {
+                $(".dataset_item", element).each(function (index, item) {
                     datasets.push({
                         "element": item,
                         "title": $(".dataset_title", item).val(),
@@ -659,13 +658,25 @@ $pageTemplate->header($pageInfo);
 
                 // Convert data struction into dataset objects
                 var dataset_list = [];
-                $.each(dataset_settings, function(index, item) {
-                // target.configure(axis_settings);
-                    });
+                $.each(dataset_settings, function (index, item) {
+                    var data = [[0, 0, 0], [1, 1, 1]];
+                    dataset_list.push(new JSPlot_DataSet(
+                        item["title"],
+                        {
+                            "plotStyle": item["plot_style"],
+                            "color": (item["color"] === null) ? null : colorFromHtmlString(item["color"]),
+                            "fillColor": (item["fill_color"] === null) ? null : colorFromHtmlString(item["fill_color"]),
+                            "lineWidth": item["line_width"],
+                            "pointSize": item["point_size"]
+                        },
+                        data,
+                        null
+                    ));
+                });
                 target.dataSets = dataset_list;
 
                 // Automatically show/hide color setting, depending whether it is set to automatic
-                $.each(dataset_settings, function(index, item) {
+                $.each(dataset_settings, function (index, item) {
                     html_setting_hide_when_auto(item, item.element, "color", ".dataset_color_value_holder");
                 });
             }
@@ -678,16 +689,23 @@ $pageTemplate->header($pageInfo);
              * @param target {JSPlot_Graph} - Target graph to update with new data
              */
             function dataset_settings_import_from_json(element, json_input, target) {
-                $(".axis_enabled", element).val(json_input.enabled ? "1" : "0");
-                $(".axis_log", element).val(json_input.log ? "1" : "0");
-                $(".axis_dataType", element).val(json_input.dataType);
-                $(".axis_label", element).val(json_input.label);
-                $(".axis_min_auto", element).prop('checked', json_input.min === null);
-                $(".axis_min_value", element).val(json_input.min);
-                $(".axis_max_auto", element).prop('checked', json_input.max === null);
-                $(".axis_max_value", element).val(json_input.max);
-                $(".axis_range_reversed", element).val(json_input.rangeReversed ? "1" : "0");
-                $(".axis_visible", element).val(json_input.visible ? "1" : "0");
+                // Remove existing dataset entry forms
+                $(".dataset_item", element).remove();
+
+                // Create new dataset entry forms for each dataset in turn
+                $.each(json_input, function (index, item) {
+                    var holder = dataset_settings_add_new();
+
+                    $(".dataset_title", holder).val(item.title);
+                    $(".dataset_style", holder).val(item.plot_style);
+                    $(".dataset_color_auto", holder).prop('checked', item.color === null);
+                    $(".dataset_color", holder).val(item.color);
+                    $(".dataset_fill_color", holder).val(item.fill_color);
+                    $(".dataset_line_width", holder).val(item.line_width);
+                    $(".dataset_point_size", holder).val(item.point_size);
+                    $(".dataset_format", holder).val(item.data_format);
+                    $(".dataset_data", holder).val(item.raw_data);
+                });
 
                 dataset_settings_commit(element, target);
             }
@@ -753,7 +771,9 @@ $pageTemplate->header($pageInfo);
                     axis_settings_import_from_json($("#axis_z1"), obj.axis_z1, graph.axes["z1"]);
                     axis_settings_import_from_json($("#axis_z2"), obj.axis_z2, graph.axes["z2"]);
 
-                    graph_settings_import_from_json(graph_settings_holder, obj.graph, graph)
+                    graph_settings_import_from_json(graph_settings_holder, obj.graph, graph);
+
+                    dataset_settings_import_from_json(dataset_settings_holder, obj.data, graph);
 
                     // Update graph display
                     update_display();
@@ -792,6 +812,15 @@ $pageTemplate->header($pageInfo);
             });
 
             $(".load_file").change(load_settings);
+
+            // Load initial settings as shown in HTML elements
+            $.each(["x1", "x2", "y1", "y2", "z1", "z2"], function (index, axis_name) {
+                var settings_block = $("#axis_" + axis_name);
+                axis_settings_commit(settings_block, graph.axes[axis_name]);
+            });
+
+            graph_settings_commit(graph_settings_holder, graph);
+            dataset_settings_commit(dataset_settings_holder, graph);
 
             // Render initial plot
             update_display();
