@@ -25,11 +25,13 @@ require "php/imports.php";
 require_once "php/html_getargs.php";
 
 $cssextra = <<<__HTML__
-.settings-block        { margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; padding: 10px; background-color: #eee; }
-select                 { max-width: 300px; }
-.dcf-ui-setting        { display: block; }
-.dcf-ui-label          { min-width: 300px; }
-.dcf-ui-nested-setting { display: inline-block; margin: 0 15px; }
+.settings-block         { margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; padding: 10px; background-color: #eee; }
+select                  { max-width: 300px; }
+.dcf-ui-setting         { display: block; }
+.dcf-ui-label           { min-width: 300px; }
+.dcf-ui-nested-setting  { display: inline-block; margin: 0 15px; }
+.column_selection thead { font-weight: bold; }
+.column_selection input { width: 60px; }
 __HTML__;
 
 $pageInfo = [
@@ -388,7 +390,7 @@ $pageTemplate->header($pageInfo);
     <!-- Javascript code -->
     <script type="text/javascript">
         // Data
-        var plot_style_data_columns = <?php echo json_encode($plot_style_data_columns); ?>;
+        window.plot_style_data_columns = <?php echo json_encode($plot_style_data_columns); ?>;
 
         // Enable UI tabs
         $(function () {
@@ -598,6 +600,7 @@ $pageTemplate->header($pageInfo);
                 $(".text_color", element).val(json_input.textColor.toHTML());
 
                 graph_settings_commit(element, target);
+                dataset_settings_commit(dataset_settings_holder, graph);
             }
 
             // ---- Functions for manipulating axis settings ---
@@ -630,7 +633,7 @@ $pageTemplate->header($pageInfo);
                 // Read settings out of HTML form, looping over divs
                 var datasets = [];
                 $(".dataset_item", element).each(function (index, item) {
-                    datasets.push({
+                    var new_item = {
                         "element": item,
                         "title": $(".dataset_title", item).val(),
                         "plot_style": $(".dataset_style", item).val(),
@@ -640,7 +643,16 @@ $pageTemplate->header($pageInfo);
                         "point_size": $(".dataset_point_size", item).val(),
                         "data_format": $(".dataset_format", element).val(),
                         "raw_data": $(".dataset_data", element).val()
-                    });
+                    };
+
+                    // Read list of column numbers in which data is stored
+                    for (var j = 1; j < 16; j++) {
+                        var input_name = "column_" + j;
+                        var el = $("." + input_name, element);
+                        new_item[input_name] = (el.length > 0) ? el.val() : null;
+                    }
+
+                    datasets.push(new_item);
                 });
 
                 return datasets;
@@ -675,9 +687,57 @@ $pageTemplate->header($pageInfo);
                 });
                 target.dataSets = dataset_list;
 
+                // Update the number of columns in the dataset columns selection panel
+                dataset_recreate_column_selection_ui(element, dataset_settings);
+
                 // Automatically show/hide color setting, depending whether it is set to automatic
                 $.each(dataset_settings, function (index, item) {
                     html_setting_hide_when_auto(item, item.element, "color", ".dataset_color_value_holder");
+                });
+            }
+
+            // Function to recreate the dataset columns selection panel
+            /**
+             * dataset_recreate_column_selection_ui - Recreate the dataset columns selection panel
+             * @param element {Object} - jQuery element we are to read data from
+             * @param dataset_settings {Object} - JSON structure containing the information read from the HTML elements
+             */
+            function dataset_recreate_column_selection_ui(element, dataset_settings) {
+                // Loop over each dataset in turn
+                $.each(dataset_settings, function (index, item) {
+                    // Look up what plot style is being used
+                    var plot_style = item["plot_style"];
+                    var graph_is_3d = ($(".three_dim").val() === "1");
+                    var plot_style_info = window.plot_style_data_columns[plot_style];
+                    var column_list = plot_style_info[graph_is_3d ? 1 : 0];
+
+                    // Start creating HTML table to contain the UI
+                    var html = "<table class='column_selection'><thead><tr>";
+
+                    // Create table headings
+                    $.each(column_list, function (j_index, column_title) {
+                        html += "<td>" + column_title + "</td>";
+                    });
+
+                    html += "</tr></thead><tbody><tr>";
+
+                    // Create table input controls
+                    $.each(column_list, function (j_index, column_title) {
+                        var input_name = "column_" + (j_index + 1);
+                        var column_num = j_index + 1;
+                        if (item[input_name] !== null) column_num = item[input_name];
+                        html += "<td>";
+                        html += "<input type='number' min='1' max='200' step='1' ";
+                        html += " title='Column of data table to read " + column_title + " from' ";
+                        html += "  name='" + input_name + "' class='" + input_name + "' value='" + column_num + "'>";
+                        html += "</td>";
+                    });
+
+                    // Finish HTML table
+                    html += "</tr></tbody></table>";
+
+                    // Render HTML
+                    $(".dataset_data_columns", element).html(html);
                 });
             }
 
