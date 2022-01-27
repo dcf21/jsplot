@@ -670,8 +670,29 @@ $pageTemplate->header($pageInfo);
 
                 // Convert data struction into dataset objects
                 var dataset_list = [];
+
                 $.each(dataset_settings, function (index, item) {
+                    // Work out which columns in the user-supplied table of data map we read data from
+                    var data_columns = [];
+
+                    var plot_style = item["plot_style"];
+                    var graph_is_3d = ($(".three_dim").val() === "1");
+                    var plot_style_info = window.plot_style_data_columns[plot_style];
+                    var column_list = plot_style_info[graph_is_3d ? 1 : 0];
+
+                    // Read each column number in turn
+                    $.each(column_list, function (j_index, column_title) {
+                        var input_name = "column_" + (j_index + 1);
+                        var column_num = j_index + 1;
+                        if (item[input_name] !== null) column_num = item[input_name];
+                        data_columns.push(column_num);
+                    });
+
+                    // Parse the user-supplied table of data
+                    var data_format = item["data_format"];
                     var data = [[0, 0, 0], [1, 1, 1]];
+
+                    // Create a new JSPlot_DataSet representing this dataset
                     dataset_list.push(new JSPlot_DataSet(
                         item["title"],
                         {
