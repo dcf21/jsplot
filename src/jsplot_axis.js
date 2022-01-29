@@ -601,7 +601,7 @@ JSPlot_Axis.prototype.render = function (page, right_side, x0, y0, z0, x1, y1, z
 
                     page.canvas._translate(xlab, ylab, self.tickLabelRotation);
                     page.canvas._textStyle(page.constants.LEGEND_fontFamily,
-                        page.constants.LEGEND_fontSize * graph.fontSize * 1.1,
+                        page.constants.LEGEND_fontSize * self.graph.fontSize * 1.1,
                         page.constants.LEGEND_fontWeight, page.constants.LEGEND_fontStyle);
                     page.canvas._fillStyle(self.graph.textColor.toHTML());
                     page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true, tick_item[1], false, true);
@@ -635,7 +635,7 @@ JSPlot_Axis.prototype.render = function (page, right_side, x0, y0, z0, x1, y1, z
 
         page.canvas._translate(xlab, ylab, theta_text);
         page.canvas._textStyle(page.constants.LEGEND_fontFamily,
-            page.constants.LEGEND_fontSize * graph.fontSize * 1.2,
+            page.constants.LEGEND_fontSize * self.graph.fontSize * 1.2,
             page.constants.LEGEND_fontWeight, page.constants.LEGEND_fontStyle);
         page.canvas._fillStyle(self.graph.textColor.toHTML());
         page.canvas._text(0, 0, label_alignment[0], label_alignment[1], true,

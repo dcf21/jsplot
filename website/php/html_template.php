@@ -175,6 +175,8 @@ __HTML__;
             <link rel="stylesheet" type="text/css"
                   href="<?php echo $server; ?>vendor/jquery-ui/themes/base/jquery-ui.min.css"/>
 
+            <script src="<?php echo $server; ?>vendor/jquery-csv/src/jquery.csv.min.js"></script>
+
             <link rel="stylesheet" href="<?php echo $server; ?>vendor/font-awesome/css/font-awesome.min.css">
 
             <link rel="stylesheet" type="text/css" href="<?php echo $server; ?>css/style.css" media="all"/>

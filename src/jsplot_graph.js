@@ -258,6 +258,12 @@ JSPlot_Graph.prototype.cleanWorkspace = function () {
     /** @type {number} */
     this.workspace.width_pixels = 1024;
 
+    // Clean workspace of all axes
+    $.each(this.axes, function(axis_name, axis_object) {
+        axis_object.cleanWorkspace();
+    });
+
+    // Parse width requested for this graph
     if (this.page !== null) {
         if (this.width === null) {
             // Case 1: width is null. We use a default graph size.

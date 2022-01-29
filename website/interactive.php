@@ -113,13 +113,23 @@ $pageTemplate->header($pageInfo);
     <div id="editor-tabs">
         <ul>
             <li><a href="#tabs-graph">Graph settings</a></li>
-            <li><a href="#tabs-axes">Axis settings</a></li>
             <li><a href="#tabs-data">Graph data</a></li>
+            <li><a href="#tabs-3d">3D options</a></li>
+            <li><a href="#tabs-colors">Colors</a></li>
+            <li><a href="#tabs-axes">Axis settings</a></li>
             <li><a href="#tabs-io">Load/save settings</a></li>
         </ul>
         <div id="tabs-graph">
             <h5>Graph settings</h5>
             <div id="graph_settings" class="settings-block"></div>
+        </div>
+        <div id="tabs-3d">
+            <h5>3D options</h5>
+            <div id="graph_settings_3d" class="settings-block"></div>
+        </div>
+        <div id="tabs-colors">
+            <h5>Color settings</h5>
+            <div id="graph_settings_colors" class="settings-block"></div>
         </div>
         <div id="tabs-axes">
             <h5>Bottom axis (x1)</h5>
@@ -174,8 +184,8 @@ $pageTemplate->header($pageInfo);
                 </label>
                 <label class="dcf-ui-nested-setting aspect_value_holder">
                     <span class="dcf-ui-label">Value:</span>
-                    <input type="number" class="aspect_value" name="aspect_value" value="0.61803399" min="0.01"
-                           max="20"/>
+                    <input type="number" class="aspect_value" name="aspect_value" value="0.61803399"
+                           min="0.01" max="20" step="0.01" />
                 </label>
             </div>
             <label class="dcf-ui-setting">
@@ -186,12 +196,6 @@ $pageTemplate->header($pageInfo);
                 <span class="dcf-ui-label">Title offset:</span>
                 <input type="number" class="title_offset_x" name="title_offset_x" value="0"/> x
                 <input type="number" class="title_offset_y" name="title_offset_y" value="0"/>
-            </label>
-            <label class="dcf-ui-setting">
-                <span class="dcf-ui-label">3D:</span>
-                <?php
-                html_getargs::makeFormSelect("three_dim", 0, $options_boolean, 0);
-                ?>
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Show key:</span>
@@ -248,21 +252,31 @@ $pageTemplate->header($pageInfo);
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Font size:</span>
-                <input type="number" class="font_size" name="font_size" value="1" min="0.1" max="10"/>
+                <input type="number" class="font_size" name="font_size" value="1" min="0.1" max="10" step="0.01" />
             </label>
+        </div>
+        <div id="template_graph_settings_3d">
             <h5>3D graph options</h5>
             <label class="dcf-ui-setting">
+                <span class="dcf-ui-label">3D:</span>
+                <?php
+                html_getargs::makeFormSelect("three_dim", 0, $options_boolean, 0);
+                ?>
+            </label>
+            <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">View angle (XY):</span>
-                <input type="number" class="view_angle_xy" name="view_angle_xy" value="60" min="-180" max="180"/>
+                <input type="number" class="view_angle_xy" name="view_angle_xy" value="60" min="-180" max="180" step="1" />
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">View angle (YZ):</span>
-                <input type="number" class="view_angle_yz" name="view_angle_yz" value="30" min="-180" max="180"/>
+                <input type="number" class="view_angle_yz" name="view_angle_yz" value="30" min="-180" max="180" step="1" />
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Aspect ratio (Z):</span>
-                <input type="number" class="aspect_z" name="aspect_z" value="1" min="0.01" max="20"/>
+                <input type="number" class="aspect_z" name="aspect_z" value="1" min="0.01" max="20" step="0.01" />
             </label>
+        </div>
+        <div id="template_graph_settings_colors">
             <h5>Color options</h5>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Axes color:</span>
@@ -347,7 +361,7 @@ $pageTemplate->header($pageInfo);
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Plot style:</span>
                 <?php
-                html_getargs::makeFormSelect("dataset_style", "points", $options_plot_styles, 0);
+                html_getargs::makeFormSelect("dataset_style", "linespoints", $options_plot_styles, 0);
                 ?>
             </label>
             <label class="dcf-ui-setting">
@@ -366,11 +380,11 @@ $pageTemplate->header($pageInfo);
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Line width:</span>
-                <input type="number" class="dataset_line_width" name="dataset_line_width[]" value="1" min="0.001"/>
+                <input type="number" class="dataset_line_width" name="dataset_line_width[]" value="2" min="0.001"/>
             </label>
             <label class="dcf-ui-setting">
                 <span class="dcf-ui-label">Point size:</span>
-                <input type="number" class="dataset_point_size" name="dataset_point_size[]" value="1" min="0.001"/>
+                <input type="number" class="dataset_point_size" name="dataset_point_size[]" value="2" min="0.001"/>
             </label>
 
             <h5>Data columns</h5>
@@ -422,6 +436,8 @@ $pageTemplate->header($pageInfo);
             // Populate UI
             var template_axis_settings = $("#template_axis_settings");
             var template_graph_settings = $("#template_graph_settings");
+            var template_graph_settings_3d = $("#template_graph_settings_3d");
+            var template_graph_settings_colors = $("#template_graph_settings_colors");
             template_axis_settings.clone().removeAttr("id").appendTo("#axis_x1");
             template_axis_settings.clone().removeAttr("id").appendTo("#axis_y1");
             template_axis_settings.clone().removeAttr("id").appendTo("#axis_z1");
@@ -429,6 +445,8 @@ $pageTemplate->header($pageInfo);
             template_axis_settings.clone().removeAttr("id").appendTo("#axis_y2");
             template_axis_settings.clone().removeAttr("id").appendTo("#axis_z2");
             template_graph_settings.clone().removeAttr("id").appendTo("#graph_settings");
+            template_graph_settings_3d.clone().removeAttr("id").appendTo("#graph_settings_3d");
+            template_graph_settings_colors.clone().removeAttr("id").appendTo("#graph_settings_colors");
 
             // Disable second axes by default
             $("#axis_x2 .axis_enabled").val(0);
@@ -437,6 +455,23 @@ $pageTemplate->header($pageInfo);
 
             // Create one initial empty dataset
             dataset_settings_add_new();
+
+            /**
+             * parse_plain_text_data - Parse plain-text tables of white-space-separated data
+             * @param input_text {string} - Text of table of white-space-separated data
+             * @return {*[[string]]}
+             */
+            function parse_plain_text_data(input_text) {
+                var input_lines = input_text.split(/\n/);
+                var output_data = [];
+
+                $.each(input_lines, function (line_number, line_string) {
+                   var input_columns = line_string.split(/[ ,]+/).filter(Boolean);
+                   output_data.push(input_columns);
+                });
+
+                return output_data;
+            }
 
             /**
              * html_setting_hide_when_auto - Show/hide html value setting, depending whether it is set to automatic value
@@ -563,6 +598,9 @@ $pageTemplate->header($pageInfo);
                 html_setting_hide_when_auto(graph_settings, element, "aspect", ".aspect_value_holder");
                 html_setting_hide_when_auto(graph_settings, element, "keyColumns", ".key_cols_value_holder");
                 html_setting_hide_when_auto(graph_settings, element, "boxWidth", ".box_width_value_holder");
+
+                // Reparse data
+                dataset_settings_commit(dataset_settings_holder, graph);
             }
 
             // Function to propagate graph settings from JSPlot_Graph object to HTML
@@ -600,7 +638,6 @@ $pageTemplate->header($pageInfo);
                 $(".text_color", element).val(json_input.textColor.toHTML());
 
                 graph_settings_commit(element, target);
-                dataset_settings_commit(dataset_settings_holder, graph);
             }
 
             // ---- Functions for manipulating axis settings ---
@@ -614,7 +651,7 @@ $pageTemplate->header($pageInfo);
 
             // Function to wire up dataset controls in a newly created div
             function dataset_settings_create_actions(element) {
-                $("input, select", element).change(function () {
+                $("input, select, textarea", element).change(function () {
                     dataset_settings_commit(dataset_settings_holder, graph);
                     update_display();
                 });
@@ -685,12 +722,43 @@ $pageTemplate->header($pageInfo);
                         var input_name = "column_" + (j_index + 1);
                         var column_num = j_index + 1;
                         if (item[input_name] !== null) column_num = item[input_name];
-                        data_columns.push(column_num);
+                        data_columns.push(toInt(column_num));
                     });
 
                     // Parse the user-supplied table of data
-                    var data_format = item["data_format"];
-                    var data = [[0, 0, 0], [1, 1, 1]];
+                    var data_format = toInt(item["data_format"]);
+                    var raw_data_table = [];
+
+                    if (item.raw_data) {
+                        try {
+                            if (data_format === 2) {
+                                // Input is in JSON format
+                                raw_data_table = JSON.parse(item.raw_data)
+                            } else if (data_format === 1) {
+                                // Input is in CSV format
+                                raw_data_table = $.csv.toArrays(item.raw_data)
+                            } else {
+                                // Input is in plain text format
+                                raw_data_table = parse_plain_text_data(item.raw_data);
+                            }
+                        } catch (e) {
+                            alert(e.message)
+                        }
+                    }
+
+                    // Now extract the request columns from the user-supplied table of data
+                    var data = [];
+                    $.each(raw_data_table, function (line_number, raw_data_row) {
+                        var datum = [];
+                        $.each(data_columns, function (row_number, data_column) {
+                            if ((data_column < 1) || (data_column > raw_data_row.length)) {
+                                datum.push(0);
+                            } else {
+                                datum.push(parseFloat(raw_data_row[data_column - 1]));
+                            }
+                        });
+                        data.push(datum);
+                    });
 
                     // Create a new JSPlot_DataSet representing this dataset
                     dataset_list.push(new JSPlot_DataSet(
@@ -759,6 +827,12 @@ $pageTemplate->header($pageInfo);
 
                     // Render HTML
                     $(".dataset_data_columns", element).html(html);
+
+                    // Trigger to update graph when settings changed
+                    $(".dataset_data_columns input", element).change(function () {
+                        dataset_settings_commit(dataset_settings_holder, graph);
+                        update_display();
+                    });
                 });
             }
 
@@ -793,7 +867,7 @@ $pageTemplate->header($pageInfo);
 
             // ----- Functions for loading and saving the current configuration -----
 
-            var graph_settings_holder = $("#graph_settings");
+            var graph_settings_holder = $("#graph_settings, #graph_settings_3d, #graph_settings_colors");
             var dataset_settings_holder = $("#graph_data");
 
             // Function to save all settings to a JSON file
