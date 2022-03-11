@@ -405,7 +405,8 @@ GraphicsCanvas.prototype._composite = function (other) {
 GraphicsCanvas.prototype._renderPNG = function (filename) {
     if (!detectIE()) {
         var url = this._ca.toDataURL('image/png');
-        window.open(url, '_blank');
+        var win = window.open();
+        win.document.write("<img src='"+url+"'/>");
     } else {
         var blob = this._ca.msToBlob();
         window.navigator.msSaveBlob(blob, filename);
